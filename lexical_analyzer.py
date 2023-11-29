@@ -62,13 +62,22 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
         token = "TLDR"
 
     # variable identifier
+    elif (re.search("(^ )?[a-z]+[a-zA-Z\_\d]+ ", line) != None):
+
+        # https://note.nkmk.me/en/python-re-match-object-span-group/
+        # use start() and end() func to pinpoint location of literal in string line
+
+        var_substring = re.search("(^ )?[a-z]+[a-zA-Z\_\d]+ ", line)
+
+        variable_name = line[var_substring.start():var_substring.end()]
+
+        lexeme_tokens.append(variable_name)
+        lexeme_classification.append("identifier")
+        token = variable_name
 
 
     # numbr / integer literal
     elif (re.search(" (\-)?\d", line) != None):
-
-        # https://note.nkmk.me/en/python-re-match-object-span-group/
-        # use start() and end() func to pinpoint location of literal in string line
 
         num_substring = re.search(" (\-)?\d+", line)
         # print(line[substring.start()])
@@ -91,10 +100,10 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
         token = numbar_literal
     
     # yarn literal
-    elif (re.search(r'["\'](.)+["\']', line) != None):
+    elif (re.search(r' ["\'](.)+["\'] ', line) != None):
 
         #  https://docs.python.org/3/library/re.html
-        yarn_substring = re.search(r'["\'](.)+["\']', line)
+        yarn_substring = re.search(r' ["\'](.)+["\'] ', line)
         yarn_literal = line[yarn_substring.start():yarn_substring.end()]
 
         lexeme_tokens.append(yarn_literal)
