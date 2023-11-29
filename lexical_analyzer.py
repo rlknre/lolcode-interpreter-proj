@@ -63,12 +63,12 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
 
 
     # numbr / integer literal
-    elif (re.search("(\-)?\d", line) != None):
+    elif (re.search(" (\-)?\d", line) != None):
 
         # https://note.nkmk.me/en/python-re-match-object-span-group/
         # use start() and end() func to pinpoint location of literal in string line
 
-        num_substring = re.search("(\-)?\d+", line)
+        num_substring = re.search(" (\-)?\d+", line)
         # print(line[substring.start()])
 
         numbr_literal = line[num_substring.start():num_substring.end()]
@@ -79,9 +79,9 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
     
     # numbar / float literal
     # BUG: doesn't catch the dot and separates the fractional part from the whole
-    elif (re.search(r'(\-)?\d+[\.]{1}\d+', line) != None):
+    elif (re.search(r' (\-)?\d+[\.]{1}\d+ ', line) != None):
 
-        float_substring = re.search(r'(\-)?\d+[\.]{1}\d+', line)
+        float_substring = re.search(r' (\-)?\d+[\.]{1}\d+', line)
         numbar_literal = line[float_substring.start():float_substring.end()]
 
         lexeme_tokens.append(numbar_literal)
@@ -502,10 +502,10 @@ sample4 = """HAI
 KTHXBYE
 """
 
-# separate_lines = sample1.split("\n")
+separate_lines = sample1.split("\n")
 # separate_lines = sample2.split("\n")
 # separate_lines = sample3.split("\n")
-separate_lines = sample4.split("\n")
+# separate_lines = sample4.split("\n")
 
 for line in separate_lines:
 
