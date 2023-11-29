@@ -74,7 +74,18 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
         lexeme_tokens.append(variable_name)
         lexeme_classification.append("identifier")
         token = variable_name
+    
+    # yarn literal
+    # BUG: not catching all strings in one line
+    elif (re.search(r' ["\'](.)+["\'] ', line) != None):
 
+        #  https://docs.python.org/3/library/re.html
+        yarn_substring = re.search(r' ["\'](.)+["\'] ', line)
+        yarn_literal = line[yarn_substring.start():yarn_substring.end()]
+
+        lexeme_tokens.append(yarn_literal)
+        lexeme_classification.append("literal")
+        token = yarn_literal
 
     # numbr / integer literal
     elif (re.search(" (\-)?\d", line) != None):
@@ -98,17 +109,6 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
         lexeme_tokens.append(numbar_literal)
         lexeme_classification.append("literal")
         token = numbar_literal
-    
-    # yarn literal
-    elif (re.search(r' ["\'](.)+["\'] ', line) != None):
-
-        #  https://docs.python.org/3/library/re.html
-        yarn_substring = re.search(r' ["\'](.)+["\'] ', line)
-        yarn_literal = line[yarn_substring.start():yarn_substring.end()]
-
-        lexeme_tokens.append(yarn_literal)
-        lexeme_classification.append("literal")
-        token = yarn_literal
     
     # troof literal
     elif (re.search("(WIN|FAIL)", line) != None):
@@ -473,7 +473,7 @@ KTHXBYE
 sample3 = """HAI
 
     WTF?
-    OMG A
+    OMG a
         VISIBLE "It's a"    BTW ITS A
     OMGWTF
         VISIBLE "not a"     BTW NOT A
@@ -513,9 +513,9 @@ sample4 = """HAI
 KTHXBYE
 """
 
-separate_lines = sample1.split("\n")
+# separate_lines = sample1.split("\n")
 # separate_lines = sample2.split("\n")
-# separate_lines = sample3.split("\n")
+separate_lines = sample3.split("\n")
 # separate_lines = sample4.split("\n")
 
 for line in separate_lines:
