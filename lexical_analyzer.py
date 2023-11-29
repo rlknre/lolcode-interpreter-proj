@@ -61,6 +61,65 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
         lexeme_classification.append("keyword")
         token = "TLDR"
 
+
+    # numbr / integer literal
+    elif (re.search("(\-)?\d", line) != None):
+
+        # https://note.nkmk.me/en/python-re-match-object-span-group/
+        # use start() and end() func to pinpoint location of literal in string line
+
+        num_substring = re.search("(\-)?\d+", line)
+        # print(line[substring.start()])
+
+        numbr_literal = line[num_substring.start():num_substring.end()]
+
+        lexeme_tokens.append(numbr_literal)
+        lexeme_classification.append("literal")
+        token = numbr_literal
+    
+    # numbar / float literal
+    # BUG: doesn't catch the dot and separates the fractional part from the whole
+    elif (re.search(r'(\-)?\d+[\.]{1}\d+', line) != None):
+
+        float_substring = re.search(r'(\-)?\d+[\.]{1}\d+', line)
+        numbar_literal = line[float_substring.start():float_substring.end()]
+
+        lexeme_tokens.append(numbar_literal)
+        lexeme_classification.append("literal")
+        token = numbar_literal
+    
+    # yarn literal
+    elif (re.search(r'["\'](.)+["\']', line) != None):
+
+        #  https://docs.python.org/3/library/re.html
+        yarn_substring = re.search(r'["\'](.)+["\']', line)
+        yarn_literal = line[yarn_substring.start():yarn_substring.end()]
+
+        lexeme_tokens.append(yarn_literal)
+        lexeme_classification.append("literal")
+        token = yarn_literal
+    
+    # troof literal
+    elif (re.search("(WIN|FAIL)", line) != None):
+
+        troof_susbtring = re.search("(WIN|FAIL)", line)
+        troof_literal = line[troof_susbtring.start():troof_susbtring.end()]
+
+        lexeme_tokens.append(troof_literal)
+        lexeme_classification.append("literal")
+        token = troof_literal
+
+    # type literal
+    elif (re.search("(NUMBR|NUMBAR|YARN|TROOF)", line) != None):
+
+        type_substring = re.search("(NUMBR|NUMBAR|YARN|TROOF)", line)
+        type_literal = line[type_substring.start():type_substring.end()]
+
+        lexeme_tokens.append(type_literal)
+        lexeme_classification.append("literal")
+        token = type_literal
+
+
     # variable declaration section tokens
 
     elif (re.search("(.)WAZZUP$", line) != None):
@@ -435,7 +494,10 @@ sample4 = """HAI
         GTFO SUM OF x AN y
     IF U SAY SO      
     
-    I IZ func_add YR 2 AN YR 5 MKAY
+    I IZ func_add YR 22 AN YR -501.01 MKAY
+    I HAS A true ITZ WIN
+    
+    VISIBLE "Yarn here"
     
 KTHXBYE
 """
@@ -477,4 +539,5 @@ for x in range(len(lexeme_tokens)):
         print(lexeme_tokens[x], "\t\t", lexeme_classification[x])
 print("")
 
-print("Number of lexemes: " + str(len(lexeme_tokens)) + "\n")
+print("Number of lexemes: " + str(len(lexeme_tokens)))
+print("Literals Count: " + str(lexeme_classification.count("literal")) + "\n")
