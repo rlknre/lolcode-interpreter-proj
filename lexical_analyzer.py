@@ -61,6 +61,8 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
         lexeme_classification.append("keyword")
         token = "TLDR"
 
+    # variable identifier
+
 
     # numbr / integer literal
     elif (re.search(" (\-)?\d", line) != None):
