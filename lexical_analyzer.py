@@ -11,6 +11,21 @@ import re   # regex library
 lexeme_tokens = []
 lexeme_classification = []
 
+# constants for lexeme classification
+DELIMITER_CODE = "Code Delimiter"
+DELIMITER_STR = "String Delimiter"
+
+IDENTIFIER_VARS = "Variable Identifier"
+IDENTIFIER_FUNC = "Function Identifier"
+IDENTIFIER_LOOP = "Loop Identifier"
+
+VAR_DECLARE = "Variable Declaration"
+VAR_ASSIGN = "Variable Assignment"
+
+KEYWORD_COMMENT = "Comment Keyword"
+
+LITERAL = "Literal"
+
 # arrays for identifiers
 # var_identifier = []
 # func_identifier = []
@@ -32,19 +47,25 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
 
     if (re.search("^HAI$", line) != None):
         lexeme_tokens.append("HAI")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            DELIMITER_CODE
+        )
         token = "HAI"
 
     elif (re.search("^KTHXBYE$", line) != None):
         lexeme_tokens.append("KTHXBYE")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            DELIMITER_CODE
+        )
         token = "KTHXBYE"
     
     # comment tokens
 
     elif (re.search("(.)? BTW (.)", line) != None):
         lexeme_tokens.append("BTW")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_COMMENT
+        )
 
         # also removes the comment line
         comment = line.split("BTW", 1)
@@ -53,13 +74,40 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
     # fix bug for OBTW, should clear out comment section until TLDR
     elif (re.search("(^ )?OBTW (.)", line) != None):
         lexeme_tokens.append("OBTW")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_COMMENT
+        )
         token = "OBTW"
     
     elif (re.search("(^ )?TLDR$", line) != None):
         lexeme_tokens.append("TLDR")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_COMMENT
+        )
         token = "TLDR"
+
+    # yarn literal
+    # BUG: not catching all strings in one line
+    elif (re.search(r'["\'](.)+["\']', line) != None):
+
+        #  https://docs.python.org/3/library/re.html
+        yarn_substring = re.search(r'["\'](.)+["\']', line)
+        yarn_literal = line[yarn_substring.start():yarn_substring.end()]
+
+        lexeme_tokens.append('"')
+        lexeme_tokens.append(yarn_literal.replace('"', ''))
+        lexeme_tokens.append('"')
+
+        lexeme_classification.append(
+            DELIMITER_STR
+        )
+        lexeme_classification.append(
+            LITERAL
+        )
+        lexeme_classification.append(
+            DELIMITER_STR
+        )
+        token = yarn_literal
 
     # variable identifier
     elif (re.search("(^ )?[a-z]+[a-zA-Z\_\d]+ ", line) != None):
@@ -72,20 +120,10 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
         variable_name = line[var_substring.start():var_substring.end()]
 
         lexeme_tokens.append(variable_name)
-        lexeme_classification.append("identifier")
+        lexeme_classification.append(
+            IDENTIFIER_VARS
+        )
         token = variable_name
-    
-    # yarn literal
-    # BUG: not catching all strings in one line
-    elif (re.search(r' ["\'](.)+["\'] ', line) != None):
-
-        #  https://docs.python.org/3/library/re.html
-        yarn_substring = re.search(r' ["\'](.)+["\'] ', line)
-        yarn_literal = line[yarn_substring.start():yarn_substring.end()]
-
-        lexeme_tokens.append(yarn_literal)
-        lexeme_classification.append("literal")
-        token = yarn_literal
 
     # numbr / integer literal
     elif (re.search(" (\-)?\d", line) != None):
@@ -96,7 +134,9 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
         numbr_literal = line[num_substring.start():num_substring.end()]
 
         lexeme_tokens.append(numbr_literal)
-        lexeme_classification.append("literal")
+        lexeme_classification.append(
+            LITERAL
+        )
         token = numbr_literal
     
     # numbar / float literal
@@ -107,7 +147,9 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
         numbar_literal = line[float_substring.start():float_substring.end()]
 
         lexeme_tokens.append(numbar_literal)
-        lexeme_classification.append("literal")
+        lexeme_classification.append(
+            LITERAL
+        )
         token = numbar_literal
     
     # troof literal
@@ -117,7 +159,9 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
         troof_literal = line[troof_susbtring.start():troof_susbtring.end()]
 
         lexeme_tokens.append(troof_literal)
-        lexeme_classification.append("literal")
+        lexeme_classification.append(
+            LITERAL
+        )
         token = troof_literal
 
     # type literal
@@ -127,7 +171,9 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
         type_literal = line[type_substring.start():type_substring.end()]
 
         lexeme_tokens.append(type_literal)
-        lexeme_classification.append("literal")
+        lexeme_classification.append(
+            LITERAL
+        )
         token = type_literal
 
 
@@ -513,10 +559,18 @@ sample4 = """HAI
 KTHXBYE
 """
 
+sample5 = """HAI
+
+    VISIBLE "Yarn here"
+
+KTHXBYE
+"""
+
 # separate_lines = sample1.split("\n")
 # separate_lines = sample2.split("\n")
-separate_lines = sample3.split("\n")
+# separate_lines = sample3.split("\n")
 # separate_lines = sample4.split("\n")
+separate_lines = sample5.split("\n")
 
 for line in separate_lines:
 
@@ -551,4 +605,4 @@ for x in range(len(lexeme_tokens)):
 print("")
 
 print("Number of lexemes: " + str(len(lexeme_tokens)))
-print("Literals Count: " + str(lexeme_classification.count("literal")) + "\n")
+print("Literals Count: " + str(lexeme_classification.count(LITERAL)) + "\n")
