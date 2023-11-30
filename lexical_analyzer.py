@@ -14,6 +14,9 @@ lexeme_classification = []
 # constants for lexeme classification
 DELIMITER_CODE = "Code Delimiter"
 DELIMITER_STR = "String Delimiter"
+DELIMITER_VAR = "Declaration Delimiter"
+DELIMITER_CONDT = "Conditionals Delimiter"
+DELIMITER_END = "End of Expression Delimiter"
 
 IDENTIFIER_VARS = "Variable Identifier"
 IDENTIFIER_FUNC = "Function Identifier"
@@ -23,21 +26,21 @@ VAR_DECLARE = "Variable Declaration"
 VAR_ASSIGN = "Variable Assignment"
 
 KEYWORD_COMMENT = "Comment Keyword"
+KEYWORD_ARITHMETIC = "Arithmetic Keyword"
+KEYWORD_SEPERATOR = "Separator Keyword"
+KEYWORD_COMPARE = "Comparison Keyword"
+KEYWORD_BOOLEAN = "Boolean Keyword"
+KEYWORD_CONCAT = "Concatenate Keyword"
+KEYWORD_TYPECAST = "Typecasting Keyword"
+KEYWORD_PRINT = "Output Keyword"
+KEYWORD_INPUT = "Input Keyword"
+KEYWROD_CONDT = "Conditional Keyword"
+KEYWORD_LOOP = "Loop Keyword"
+KEYWORD_FUNC = "Function Keyword"
 
 LITERAL = "Literal"
 
-# arrays for identifiers
-# var_identifier = []
-# func_identifier = []
-# loop_identifier = []
-
-# arrays for literals
-# numbr_arr = []
-# numbar_arr = []
-# yarn_arr = []
-# troof_arr = []
-# type_arr = []
-
+# add function description here
 
 def detect_lexemes(lexeme_tokens, lexeme_classification, line):
 
@@ -181,143 +184,195 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
 
     elif (re.search("(.)WAZZUP$", line) != None):
         lexeme_tokens.append("WAZZUP")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            DELIMITER_VAR
+        )
         token = "WAZZUP"
 
     elif (re.search("(.)BUHBYE$", line) != None):
         lexeme_tokens.append("BUHBYE")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            DELIMITER_VAR
+        )
         token = "BUHBYE"
 
     # assignment operations 1
 
     elif (re.search("(^ )? I HAS A (.)", line) != None):
         lexeme_tokens.append("I HAS A")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            VAR_DECLARE
+        )
         token = "I HAS A"
 
     elif (re.search(" ITZ [a-zA-Z0-9\.]+", line) != None):
         lexeme_tokens.append("ITZ")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            VAR_ASSIGN
+        )
         token = "ITZ"
 
     elif (re.search("(^ )?IT ", line) != None):
         lexeme_tokens.append("IT")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            VAR_ASSIGN
+        )
         token = "IT"
 
     elif (re.search(" R ", line) != None):
         lexeme_tokens.append("R")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            VAR_ASSIGN
+        )
         token = "R"
     
     # arithmetic operations
 
     elif ((re.search("(^ )?SUM OF ", line)) != None):
         lexeme_tokens.append("SUM OF")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_ARITHMETIC
+        )
         token = "SUM OF"
 
     elif ((re.search("(^ )?PRODUCKT OF ", line)) != None):
         lexeme_tokens.append("PRODUCKT OF")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_ARITHMETIC
+        )
         token = "PRODUCKT OF"
     
     elif ((re.search("(^ )?DIFF OF ", line)) != None):
         lexeme_tokens.append("DIFF OF")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_ARITHMETIC
+        )
         token = "DIFF OF"
     
     elif ((re.search("(^ )?QUOSHUNT OF ", line)) != None):
         lexeme_tokens.append("QUOSHUNT OF")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_ARITHMETIC
+        )
         token = "QUOSHUNT OF"
     
     elif ((re.search("(^ )?MOD OF ", line)) != None):
         lexeme_tokens.append("MOD OF")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_ARITHMETIC
+        )
         token = "MOD OF"
+    
+    elif ((re.search(" AN ", line)) != None):
+        lexeme_tokens.append("AN")
+        lexeme_classification.append(
+            KEYWORD_SEPERATOR
+        )
+        token = "AN"
 
     # comparison operations
 
     elif ((re.search("(^ )?BIGGR OF ", line)) != None):
         lexeme_tokens.append("BIGGR OF")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_COMPARE
+        )
         token = "BIGGR OF"
 
     elif ((re.search("(^ )?SMALLR OF ", line)) != None):
         lexeme_tokens.append("SMALLR OF")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_COMPARE
+        )
         token = "SMALLR OF"
     
     elif ((re.search("(^ )?BOTH OF ", line)) != None):
         lexeme_tokens.append("BOTH OF")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_BOOLEAN
+        )
         token = "BOTH OF"
 
     elif ((re.search("(^ )?EITHER OF ", line)) != None):
         lexeme_tokens.append("EITHER OF")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_BOOLEAN
+        )
         token = "EITHER OF"
     
     elif ((re.search("(^ )?WON OF ", line)) != None):
         lexeme_tokens.append("WON OF")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_BOOLEAN
+        )
         token = "WON OF"
     
     elif ((re.search("(^ )?NOT ", line)) != None):
         lexeme_tokens.append("NOT")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_BOOLEAN
+        )
         token = "NOT"
 
     elif ((re.search("(^ )?ANY OF ", line)) != None):
         lexeme_tokens.append("NOT")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_BOOLEAN
+        )
         token = "NOT"
 
     elif ((re.search("(^ )?ALL OF ", line)) != None):
         lexeme_tokens.append("ALL OF")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_BOOLEAN
+        )
         token = "ALL OF"
     
     elif ((re.search("(^ )?BOTH SAEM ", line)) != None):
         lexeme_tokens.append("BOTH SAEM")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_COMPARE
+        )
         token = "BOTH SAEM"
 
     elif ((re.search("(^ )?DIFFRINT ", line)) != None):
         lexeme_tokens.append("DIFFRINT")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_COMPARE
+        )
         token = "DIFFRINT"
     
     # string concatenation token
 
     elif ((re.search("(^ )?SMOOSH ", line)) != None):
         lexeme_tokens.append("SMOOSH")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_CONCAT
+        )
         token = "SMOOSH"
     
     elif ((re.search(" \+ ", line)) != None):
         lexeme_tokens.append("+")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_CONCAT
+        )
         token = "+"
 
-    # assignment operations 2
+    # typecasting operations 
 
     elif ((re.search(" MAEK ", line)) != None):
         lexeme_tokens.append("MAEK")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_TYPECAST
+        )
         token = "MAEK"
 
     elif ((re.search(" IS NOW A ", line)) != None):
         lexeme_tokens.append("IS NOW A")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_TYPECAST
+        )
         token = "IS NOW A"
-    
-    elif ((re.search(" AN ", line)) != None):
-        lexeme_tokens.append("AN")
-        lexeme_classification.append("keyword")
-        token = "AN"
 
     elif ((re.search(" A ", line)) != None):
         lexeme_tokens.append("A")
@@ -328,127 +383,166 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
 
     elif ((re.search("(^ )?VISIBLE ", line)) != None):
         lexeme_tokens.append("VISIBLE")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_PRINT
+        )
         token = "VISIBLE"
         
     # input function token
 
     elif ((re.search("(^ )?GIMMEH ", line)) != None):
         lexeme_tokens.append("GIMMEH")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_INPUT
+        )
         token = "GIMMEH"
 
     # if-then tokens
 
     elif ((re.search("(^ )?O RLY\?$", line)) != None):
         lexeme_tokens.append("O RLY?")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            DELIMITER_CONDT
+        )
         token = "O RLY?"
     
     elif ((re.search("(^ )?YA RLY$", line)) != None):
         lexeme_tokens.append("YA RLY")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWROD_CONDT
+        )
         token = "YA RLY"
     
     elif ((re.search("(^ )?NO WAI$", line)) != None):
         lexeme_tokens.append("NO WAI")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWROD_CONDT
+        )
         token = "NO WAI"
 
     elif ((re.search("(^ )?OIC$", line)) != None):
         lexeme_tokens.append("OIC")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            DELIMITER_CONDT
+        )
         token = "OIC"
 
     # switch case tokens
 
     elif ((re.search("(^ )?WTF$", line)) != None):
         lexeme_tokens.append("WTF")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            DELIMITER_CONDT
+        )
         token = "WTF"
     
     elif ((re.search("(^ )?OMG ", line)) != None):
         lexeme_tokens.append("OMG")
-        lexeme_classification.append("keyword")
-        token = "OMG"
-    
-    elif ((re.search("(^ )?OMG ", line)) != None):
-        lexeme_tokens.append("OMG")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWROD_CONDT
+        )
         token = "OMG"
     
     elif ((re.search("(^ )?OMGWTF$", line)) != None):
         lexeme_tokens.append("OMGWTF")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWROD_CONDT
+        )
         token = "OMGWTF"
 
     # loop tokens
 
     elif ((re.search("(^ )?IM IN YR ", line)) != None):
         lexeme_tokens.append("IM IN YR")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            IDENTIFIER_LOOP
+        )
         token = "IM IN YR"
     
     elif ((re.search("(^ )?IM OUTTA YR ", line)) != None):
         lexeme_tokens.append("IM OUTTA YR")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            IDENTIFIER_LOOP
+        )
         token = "IM OUTTA YR"
 
     elif ((re.search(" UPPIN ", line)) != None):
         lexeme_tokens.append("UPPIN")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_LOOP
+        )
         token = "UPPIN"
     
     elif ((re.search(" NERFIN ", line)) != None):
         lexeme_tokens.append("NERFIN")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_LOOP
+        )
         token = "NERFIN"
     
     elif ((re.search(" YR ", line)) != None):
         lexeme_tokens.append("YR")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_LOOP
+        )
         token = "YR"
     
     elif ((re.search(" TIL ", line)) != None):
         lexeme_tokens.append("TIL")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_LOOP
+        )
         token = "TIL"
     
     elif ((re.search(" WILE ", line)) != None):
         lexeme_tokens.append("WILE")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_LOOP
+        )
         token = "WILE"
 
     # function body tokens
 
     elif ((re.search("(^ )?HOW IZ I ", line)) != None):
         lexeme_tokens.append("HOW IZ I")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            IDENTIFIER_FUNC
+        )
         token = "HOW IZ I"
     
     elif ((re.search("(^ )?IF U SAY SO ", line)) != None):
         lexeme_tokens.append("IF U SAY SO")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            IDENTIFIER_FUNC
+        )
         token = "IF U SAY SO"
     
     elif ((re.search("(^ )?GTFO (.)", line)) != None):
         lexeme_tokens.append("GTFO")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_FUNC
+        )
         token = "GTFO"
 
     elif ((re.search("(^ )?FOUND YR (.)", line)) != None):
         lexeme_tokens.append("FOUND YR")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            KEYWORD_FUNC
+        )
         token = "FOUND YR"
     
     elif ((re.search("(^ )?I IZ (.)", line)) != None):
         lexeme_tokens.append("I IZ ")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            IDENTIFIER_FUNC
+        )
         token = "I IZ"
     
     elif ((re.search(" MKAY$", line)) != None):
         lexeme_tokens.append("MKAY")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(\
+            DELIMITER_END
+        )
         token = "MKAY"
 
     # this will be trimmed from the line passed here
@@ -569,8 +663,8 @@ KTHXBYE
 # separate_lines = sample1.split("\n")
 # separate_lines = sample2.split("\n")
 # separate_lines = sample3.split("\n")
-# separate_lines = sample4.split("\n")
-separate_lines = sample5.split("\n")
+separate_lines = sample4.split("\n")
+# separate_lines = sample5.split("\n")
 
 for line in separate_lines:
 
