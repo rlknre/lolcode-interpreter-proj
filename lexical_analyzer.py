@@ -659,43 +659,47 @@ sample5 = """HAI
 KTHXBYE
 """
 
+
+def lexical_tester(code):
+
+    for line in separate_lines:
+
+        no_space = line.split(" ")
+        for val in no_space:
+            if len(val) == 0 or re.search("\s", val):
+                no_space.remove(val)
+        # separate lines of code by space and count possible tokens
+
+        possible_tokens = len(no_space)
+
+        # do not count in empty code lines
+        if possible_tokens > 0:
+            cleaned_line = " ".join(line.split(" "))
+
+            # check all possible tokens in a line of code
+            for token in range(possible_tokens):
+                token_found = detect_lexemes(lexeme_tokens, lexeme_classification, cleaned_line)
+                cleaned_line = cleaned_line.replace(token_found, "", 1)
+            # appends to list of tokens
+
+    # end of loop
+
+    # check lexemes
+    print("\nList of Lexemes")
+    for x in range(len(lexeme_tokens)):
+        if (len(lexeme_tokens[x])) > 6:    
+            print(lexeme_tokens[x], "\t", lexeme_classification[x])
+        else:
+            print(lexeme_tokens[x], "\t\t", lexeme_classification[x])
+    print("")
+
+    print("Number of lexemes: " + str(len(lexeme_tokens)))
+    print("Literals Count: " + str(lexeme_classification.count(LITERAL)) + "\n")
+
 # separate_lines = sample1.split("\n")
 # separate_lines = sample2.split("\n")
 # separate_lines = sample3.split("\n")
-separate_lines = sample4.split("\n")
+# separate_lines = sample4.split("\n")
 # separate_lines = sample5.split("\n")
 
-for line in separate_lines:
-
-    no_space = line.split(" ")
-    for val in no_space:
-        if len(val) == 0 or re.search("\s", val):
-            no_space.remove(val)
-    # separate lines of code by space and count possible tokens
-
-    possible_tokens = len(no_space)
-
-    # do not count in empty code lines
-    if possible_tokens > 0:
-        cleaned_line = " ".join(line.split(" "))
-
-        # check all possible tokens in a line of code
-        for token in range(possible_tokens):
-            token_found = detect_lexemes(lexeme_tokens, lexeme_classification, cleaned_line)
-            cleaned_line = cleaned_line.replace(token_found, "", 1)
-        # appends to list of tokens
-
-# end of loop
-
-
-# check lexemes
-print("\nList of Lexemes")
-for x in range(len(lexeme_tokens)):
-    if (len(lexeme_tokens[x])) > 6:    
-        print(lexeme_tokens[x], "\t", lexeme_classification[x])
-    else:
-        print(lexeme_tokens[x], "\t\t", lexeme_classification[x])
-print("")
-
-print("Number of lexemes: " + str(len(lexeme_tokens)))
-print("Literals Count: " + str(lexeme_classification.count(LITERAL)) + "\n")
+# lexical_tester(separate_lines)
