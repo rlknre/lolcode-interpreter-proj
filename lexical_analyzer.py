@@ -117,12 +117,12 @@ def detect_lexemes(line):
         token = yarn_literal
 
     # variable identifier
-    elif (re.search("(^ )?[a-z]+[a-zA-Z\_\d]+ ", line) != None):
+    elif (re.search("(^ )?[a-z]+([a-zA-Z\_\d])*", line) != None):
 
         # https://note.nkmk.me/en/python-re-match-object-span-group/
         # use start() and end() func to pinpoint location of literal in string line
 
-        var_substring = re.search("(^ )?[a-z]+[a-zA-Z\_\d]+ ", line)
+        var_substring = re.search("(^ )?[a-z]+([a-zA-Z\_\d])*", line)
 
         variable_name = line[var_substring.start():var_substring.end()]
 
@@ -133,9 +133,9 @@ def detect_lexemes(line):
         token = variable_name
 
     # numbar / float literal
-    elif (re.search(r' (\-)?\d+[\.]\d+ ', line) != None):
+    elif (re.search(r'(\-)?\d+[\.]\d+', line) != None):
 
-        float_substring = re.search(r' (\-)?\d+[\.]\d+', line)
+        float_substring = re.search(r'(\-)?\d+[\.]\d+', line)
         numbar_literal = line[float_substring.start():float_substring.end()]
 
         lexeme_tokens.append(numbar_literal)
@@ -678,10 +678,14 @@ sample4 = """HAI
 KTHXBYE
 """
 
-sample5 = """BTW VALID COMMENT
+sample5 = """
+HOW IZ I func_add YR x AN YR y
+    GTFO SUM OF x AN y
+IF U SAY SO      
+BTW VALID COMMENT
 HAI
     VISIBLE "Yarn here"
-    I HAS A temp ITZ 2
+    I IZ func_add YR 22 AN YR -501.01 MKAY
     I HAS A str_string ITZ "Yarn Here"
 KTHXBYE
 """
