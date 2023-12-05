@@ -93,95 +93,6 @@ def detect_lexemes(line):
         )
         token = "TLDR"
 
-    # yarn literal
-    # BUG: not catching all strings in one line
-    elif (re.search(r'["\'](.)+["\']', line) != None):
-
-        #  https://docs.python.org/3/library/re.html
-        yarn_substring = re.search(r'["\'](.)+["\']', line)
-        yarn_literal = line[yarn_substring.start():yarn_substring.end()]
-
-        lexeme_tokens.append('"')
-        lexeme_tokens.append(yarn_literal.replace('"', ''))
-        lexeme_tokens.append('"')
-
-        lexeme_classification.append(
-            DELIMITER_STR
-        )
-        lexeme_classification.append(
-            LITERAL
-        )
-        lexeme_classification.append(
-            DELIMITER_STR
-        )
-        token = yarn_literal
-
-    # variable identifier
-    elif (re.search("(^ )?[a-z]+([a-zA-Z\_\d])*", line) != None):
-
-        # https://note.nkmk.me/en/python-re-match-object-span-group/
-        # use start() and end() func to pinpoint location of literal in string line
-
-        var_substring = re.search("(^ )?[a-z]+([a-zA-Z\_\d])*", line)
-
-        variable_name = line[var_substring.start():var_substring.end()]
-
-        lexeme_tokens.append(variable_name)
-        lexeme_classification.append(
-            IDENTIFIER_VARS
-        )
-        token = variable_name
-
-    # numbar / float literal
-    elif (re.search(r'(\-)?\d+[\.]\d+', line) != None):
-
-        float_substring = re.search(r'(\-)?\d+[\.]\d+', line)
-        numbar_literal = line[float_substring.start():float_substring.end()]
-
-        lexeme_tokens.append(numbar_literal)
-        lexeme_classification.append(
-            LITERAL
-        )
-        token = numbar_literal
-
-    # numbr / integer literal
-    elif (re.search(" (\-)?\d+", line) != None):
-
-        num_substring = re.search(" (\-)?\d+", line)
-        # print(line[substring.start()])
-
-        numbr_literal = line[num_substring.start():num_substring.end()]
-
-        lexeme_tokens.append(numbr_literal)
-        lexeme_classification.append(
-            LITERAL
-        )
-        token = numbr_literal
-    
-    # troof literal
-    elif (re.search("(WIN|FAIL)", line) != None):
-
-        troof_susbtring = re.search("(WIN|FAIL)", line)
-        troof_literal = line[troof_susbtring.start():troof_susbtring.end()]
-
-        lexeme_tokens.append(troof_literal)
-        lexeme_classification.append(
-            LITERAL
-        )
-        token = troof_literal
-
-    # type literal
-    elif (re.search("(NUMBR|NUMBAR|YARN|TROOF)", line) != None):
-
-        type_substring = re.search("(NUMBR|NUMBAR|YARN|TROOF)", line)
-        type_literal = line[type_substring.start():type_substring.end()]
-
-        lexeme_tokens.append(type_literal)
-        lexeme_classification.append(
-            LITERAL
-        )
-        token = type_literal
-
     # variable declaration section tokens
 
     elif (re.search("(.)WAZZUP$", line) != None):
@@ -264,13 +175,6 @@ def detect_lexemes(line):
             KEYWORD_ARITHMETIC
         )
         token = "MOD OF"
-    
-    elif ((re.search(" AN ", line)) != None):
-        lexeme_tokens.append("AN")
-        lexeme_classification.append(
-            KEYWORD_SEPERATOR
-        )
-        token = "AN"
 
     # comparison operations
 
@@ -482,13 +386,6 @@ def detect_lexemes(line):
         )
         token = "NERFIN"
     
-    elif ((re.search(" YR ", line)) != None):
-        lexeme_tokens.append("YR")
-        lexeme_classification.append(
-            KEYWORD_LOOP
-        )
-        token = "YR"
-    
     elif ((re.search(" TIL ", line)) != None):
         lexeme_tokens.append("TIL")
         lexeme_classification.append(
@@ -546,6 +443,111 @@ def detect_lexemes(line):
             DELIMITER_END
         )
         token = "MKAY"
+    
+    # yarn literal
+    # BUG: not catching all strings in one line
+    elif (re.search(r'["\'](.)+["\']', line) != None):
+
+        #  https://docs.python.org/3/library/re.html
+        yarn_substring = re.search(r'["\'](.)+["\']', line)
+        yarn_literal = line[yarn_substring.start():yarn_substring.end()]
+
+        lexeme_tokens.append('"')
+        lexeme_tokens.append(yarn_literal.replace('"', ''))
+        lexeme_tokens.append('"')
+
+        lexeme_classification.append(
+            DELIMITER_STR
+        )
+        lexeme_classification.append(
+            LITERAL
+        )
+        lexeme_classification.append(
+            DELIMITER_STR
+        )
+        token = yarn_literal
+    
+    # variable identifier
+    elif (re.search("(^ )?[a-z]+([a-zA-Z\_\d])*", line) != None):
+
+        # https://note.nkmk.me/en/python-re-match-object-span-group/
+        # use start() and end() func to pinpoint location of literal in string line
+
+        var_substring = re.search("(^ )?[a-z]+([a-zA-Z\_\d])*", line)
+
+        variable_name = line[var_substring.start():var_substring.end()]
+
+        lexeme_tokens.append(variable_name)
+        lexeme_classification.append(
+            IDENTIFIER_VARS
+        )
+        token = variable_name
+    
+    # separators
+
+    elif ((re.search(" YR ", line)) != None):
+        lexeme_tokens.append("YR")
+        lexeme_classification.append(
+            KEYWORD_LOOP
+        )
+        token = "YR"
+
+    elif ((re.search(" AN ", line)) != None):
+        lexeme_tokens.append("AN")
+        lexeme_classification.append(
+            KEYWORD_SEPERATOR
+        )
+        token = "AN"
+
+    # numbar / float literal
+    elif (re.search(r'(\-)?\d+[\.]\d+', line) != None):
+
+        float_substring = re.search(r'(\-)?\d+[\.]\d+', line)
+        numbar_literal = line[float_substring.start():float_substring.end()]
+
+        lexeme_tokens.append(numbar_literal)
+        lexeme_classification.append(
+            LITERAL
+        )
+        token = numbar_literal
+
+    # numbr / integer literal
+    elif (re.search(" (\-)?\d+", line) != None):
+
+        num_substring = re.search(" (\-)?\d+", line)
+        # print(line[substring.start()])
+
+        numbr_literal = line[num_substring.start():num_substring.end()]
+
+        lexeme_tokens.append(numbr_literal)
+        lexeme_classification.append(
+            LITERAL
+        )
+        token = numbr_literal
+    
+    # troof literal
+    elif (re.search("(WIN|FAIL)", line) != None):
+
+        troof_susbtring = re.search("(WIN|FAIL)", line)
+        troof_literal = line[troof_susbtring.start():troof_susbtring.end()]
+
+        lexeme_tokens.append(troof_literal)
+        lexeme_classification.append(
+            LITERAL
+        )
+        token = troof_literal
+
+    # type literal
+    elif (re.search("(NUMBR|NUMBAR|YARN|TROOF)", line) != None):
+
+        type_substring = re.search("(NUMBR|NUMBAR|YARN|TROOF)", line)
+        type_literal = line[type_substring.start():type_substring.end()]
+
+        lexeme_tokens.append(type_literal)
+        lexeme_classification.append(
+            LITERAL
+        )
+        token = type_literal
 
     # return lexeme information details
     if len(lexeme_tokens) > 0 and len(lexeme_classification) > 0:
