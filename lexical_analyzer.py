@@ -402,14 +402,14 @@ def detect_lexemes(line):
 
     # function body tokens
 
-    elif ((re.search("(^ )?HOW IZ I ", line)) != None):
+    elif ((re.search("(^ )?HOW IZ I", line)) != None):
         lexeme_tokens.append("HOW IZ I")
         lexeme_classification.append(
             IDENTIFIER_FUNC
         )
         token = "HOW IZ I"
     
-    elif ((re.search("(^ )?IF U SAY SO ", line)) != None):
+    elif ((re.search("(^ )?IF U SAY SO", line)) != None):
         lexeme_tokens.append("IF U SAY SO")
         lexeme_classification.append(
             IDENTIFIER_FUNC
