@@ -476,6 +476,8 @@ def detect_lexemes(line):
         var_substring = re.search("(^ )?[a-z]+([a-zA-Z\_\d])*", line)
 
         variable_name = line[var_substring.start():var_substring.end()]
+        if " " in variable_name:
+            variable_name = variable_name.replace(" ", "")
 
         lexeme_tokens.append(variable_name)
         lexeme_classification.append(
@@ -686,7 +688,7 @@ HOW IZ I func_add YR x AN YR y
 IF U SAY SO      
 BTW VALID COMMENT
 HAI
-    VISIBLE "Yarn here"
+    VISIBLE "Yarn here"     BTW PRINT
     I IZ func_add YR 22 AN YR -501.01 MKAY
     I HAS A str_string ITZ "Yarn Here"
 KTHXBYE
@@ -704,6 +706,8 @@ def lexical_tester(code):
         line_information = []
         line_information.append(code_line_num)
 
+        unsorted_lexemes = []
+
         no_space = line.split(" ")
         for val in no_space:
             if len(val) == 0 or re.search("\s", val):
@@ -714,6 +718,7 @@ def lexical_tester(code):
 
         # do not count in empty code lines
         if possible_tokens > 0:
+            unsorted_lexemes_info = []
             cleaned_line = " ".join(line.split(" "))
 
             # check all possible tokens in a line of code
@@ -728,18 +733,67 @@ def lexical_tester(code):
                     cleaned_line = cleaned_line.replace(remove_instance, "", 1)
 
                     token_details.pop()
-                    line_information.append(token_details)
+                    unsorted_lexemes_info.append(token_details)
                 # repeat until all tokens are retrieved
+            
+            # sort lexemes based on its appearance in code
+            if len(unsorted_lexemes_info) > 0:
+
+                # retrieve lexemes from information
+                for info in unsorted_lexemes_info:
+                    unsorted_lexemes.append(info[0])
+            
+                # retrieve indeces where lexemes are found
+                lexeme_indeces = []
+                lexeme_line = line
+                for lexeme in unsorted_lexemes:
+                    index = lexeme_line.find(lexeme)
+
+                    space_replace = ""
+                    for i in range(0, len(lexeme)):
+                        space_replace += " "
+                    # remove isntance of lexeme, replace with spaces
+                    lexeme_line = lexeme_line.replace(lexeme, space_replace, 1)
+                    lexeme_indeces.append(index)
+                
+                # print(lexeme_indeces)
+                # print(unsorted_lexemes)
+
+                # bubble sorting algo
+                n = len(lexeme_indeces)
+                for i in range(n):
+                    for j in range(n-1):
+                        # sort indeces and lexeme order
+                        if lexeme_indeces[j] > lexeme_indeces[j+1]:
+                            temp = lexeme_indeces[j]
+                            lexeme_indeces[j] = lexeme_indeces[j+1]
+                            lexeme_indeces[j+1] = temp
+
+                            temp_lexeme = unsorted_lexemes[j]
+                            unsorted_lexemes[j] = unsorted_lexemes[j+1]
+                            unsorted_lexemes[j+1] = temp_lexeme
+
+                sorted_lexemes = unsorted_lexemes
+
+                # print(lexeme_indeces)
+                # print(sorted_lexemes)
+                # print("")
+
+                for lexeme in sorted_lexemes:
+                    for info in unsorted_lexemes_info:
+                        if info[0] == lexeme:
+                            line_information.append(info)
+                            break
 
         code_per_line.append(line_information)
         code_line_num += 1
     # end of loop
 
-    # uncomment loop to check lexemes each line
+    # # uncomment loop to check lexemes each line
     # for val in code_per_line:
     #     print(val)
 
-    # uncomment to check lexemes
+    # # uncomment to check lexemes
     # print("\nList of Lexemes")
     # for x in range(len(token_list)):
     #     if (len(token_list[x])) > 6:    
