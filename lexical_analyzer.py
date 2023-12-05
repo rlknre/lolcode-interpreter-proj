@@ -68,7 +68,7 @@ def detect_lexemes(line):
     
     # comment tokens
 
-    elif (re.search("(.)? BTW (.)", line) != None):
+    elif (re.search("(.)?BTW (.)", line) != None):
         lexeme_tokens.append("BTW")
         lexeme_classification.append(
             KEYWORD_COMMENT
@@ -678,7 +678,8 @@ sample4 = """HAI
 KTHXBYE
 """
 
-sample5 = """HAI
+sample5 = """BTW VALID COMMENT
+HAI
     VISIBLE "Yarn here"
     I HAS A temp ITZ 2
     I HAS A str_string ITZ "Yarn Here"
