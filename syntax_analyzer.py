@@ -1,23 +1,39 @@
 
-from lexical_analyzer import detect_lexemes
-from lexical_analyzer import lexeme_tokens, lexeme_classification
+import re
 
-test = lexeme_tokens
+from lexical_analyzer import lexical_tester
+from lexical_analyzer import sample1, sample2, sample3, sample4, sample5
 
-# test if code delimiter syntax of lolcode is valid
-def valid_code(code):
-    if (code[0] != "HAI" and code[-1] != "KTHXBYE"):
-        return 0
-    return 1
+test = lexical_tester(sample5)
 
-if (valid_code(test) == 1):
-    print("valid lolcode")
+# arrays for lexeme tracking
+code_per_line = []
 
-else:
-    print("\ninvalid lolcode. \n")
+# arrays for syntax tracking
+errors = []
 
-print("")
 
-# NOTES FROM MAAM:
-# syntax == is the code correct? are variables correctly initialized?
-# semantic == operations, how the operations work like PRINT 
+# test if code syntax of lolcode is valid
+def syntax_tester(code, code_details):
+
+    code_block = code_details
+    reading_line = 1
+
+    while True:
+
+        if reading_line > len(code_details):
+            break
+
+        current_line = code_block[reading_line-1]
+
+        if len(current_line) > 1:
+            check_syntax = current_line[1:]
+            print(check_syntax)
+        else:
+            print("<linebreak>")
+
+        reading_line += 1
+    
+# testing 
+
+syntax_tester(sample5, test)
