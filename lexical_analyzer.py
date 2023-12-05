@@ -8,8 +8,9 @@ import re   # regex library
 # sub	    Replaces one or many matches with a string
 
 # arrays for lexeme tracking
-lexeme_tokens = []
-lexeme_classification = []
+code_per_line = []
+token_list = []
+token_classification = []
 
 # constants for lexeme classification
 DELIMITER_CODE = "Code Delimiter"
@@ -42,8 +43,11 @@ LITERAL = "Literal"
 
 # add function description here
 
-def detect_lexemes(lexeme_tokens, lexeme_classification, line):
+def detect_lexemes(line):
 
+    lexeme_information = []
+    lexeme_tokens = []
+    lexeme_classification = []
     token = ""
     
     # code delimiter tokens
@@ -177,7 +181,6 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
             LITERAL
         )
         token = type_literal
-
 
     # variable declaration section tokens
 
@@ -531,7 +534,7 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
         token = "FOUND YR"
     
     elif ((re.search("(^ )?I IZ (.)", line)) != None):
-        lexeme_tokens.append("I IZ ")
+        lexeme_tokens.append("I IZ")
         lexeme_classification.append(
             IDENTIFIER_FUNC
         )
@@ -544,8 +547,31 @@ def detect_lexemes(lexeme_tokens, lexeme_classification, line):
         )
         token = "MKAY"
 
-    # this will be trimmed from the line passed here
-    return token
+    # return lexeme information details
+    if len(lexeme_tokens) > 0 and len(lexeme_classification) > 0:
+        if lexeme_classification[0] != DELIMITER_STR:
+            # update global value of token descriptions
+            token_list.append(lexeme_tokens[0])
+            token_classification.append(lexeme_classification[0])
+
+            # return values
+            lexeme_information.append(lexeme_tokens[0])
+            lexeme_information.append(lexeme_classification[0])
+        
+        # yarn string encountered
+        else:
+            # append string delimiters and other parts of yarn
+            for x in lexeme_tokens: token_list.append(x)
+            for y in lexeme_classification: token_classification.append(y)
+
+            # return values
+            lexeme_information.append(lexeme_tokens[1])
+            lexeme_information.append(lexeme_classification[1])
+        
+        # value to remove from line of code for checking
+        lexeme_information.append(token)
+
+    return lexeme_information
 
 # end of func
 
@@ -653,16 +679,21 @@ KTHXBYE
 """
 
 sample5 = """HAI
-
     VISIBLE "Yarn here"
-
+    I HAS A temp ITZ 2
 KTHXBYE
 """
 
 
 def lexical_tester(code):
 
-    for line in separate_lines:
+    code_line_num = 1
+
+    for line in code:
+
+        # reading current line
+        line_information = []
+        line_information.append(code_line_num)
 
         no_space = line.split(" ")
         for val in no_space:
@@ -678,28 +709,47 @@ def lexical_tester(code):
 
             # check all possible tokens in a line of code
             for token in range(possible_tokens):
-                token_found = detect_lexemes(lexeme_tokens, lexeme_classification, cleaned_line)
-                cleaned_line = cleaned_line.replace(token_found, "", 1)
-            # appends to list of tokens
 
+                # returns list of lexeme description
+                token_details = detect_lexemes(cleaned_line)
+                
+                # should not be an empty line
+                if len(token_details) > 0:
+                    remove_instance = token_details[2]
+                    cleaned_line = cleaned_line.replace(remove_instance, "", 1)
+
+                    token_details.pop()
+                    line_information.append(token_details)
+                # repeat until all tokens are retrieved
+
+        code_per_line.append(line_information)
+        code_line_num += 1
     # end of loop
 
-    # check lexemes
-    print("\nList of Lexemes")
-    for x in range(len(lexeme_tokens)):
-        if (len(lexeme_tokens[x])) > 6:    
-            print(lexeme_tokens[x], "\t", lexeme_classification[x])
-        else:
-            print(lexeme_tokens[x], "\t\t", lexeme_classification[x])
-    print("")
+    # uncomment loop to check lexemes each line
+    # for val in code_per_line:
+    #     print(val)
 
-    print("Number of lexemes: " + str(len(lexeme_tokens)))
-    print("Literals Count: " + str(lexeme_classification.count(LITERAL)) + "\n")
+    # uncomment to check lexemes
+    # print("\nList of Lexemes")
+    # for x in range(len(token_list)):
+    #     if (len(token_list[x])) > 6:    
+    #         print(token_list[x], "\t", token_classification[x])
+    #     else:
+    #         print(token_list[x], "\t\t", token_classification[x])
+    # print("")
 
+    # print("Number of lexemes: " + str(len(token_list)))
+    # print("Literals Count: " + str(token_classification.count(LITERAL)) + "\n")
+
+    # returns array of tokens and its classifications
+    return code_per_line
+
+
+# uncomment one seperate_lines assignment for testing
 # separate_lines = sample1.split("\n")
 # separate_lines = sample2.split("\n")
 # separate_lines = sample3.split("\n")
 # separate_lines = sample4.split("\n")
 # separate_lines = sample5.split("\n")
-
 # lexical_tester(separate_lines)
