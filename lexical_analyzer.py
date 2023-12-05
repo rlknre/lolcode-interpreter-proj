@@ -688,6 +688,7 @@ KTHXBYE
 
 def lexical_tester(code):
 
+    code = code.split("\n")
     code_line_num = 1
 
     for line in code:
@@ -747,11 +748,9 @@ def lexical_tester(code):
     return code_per_line
 
 
-# uncomment one seperate_lines assignment for testing
-# separate_lines = sample1.split("\n")
-# separate_lines = sample2.split("\n")
-# separate_lines = sample3.split("\n")
-# separate_lines = sample4.split("\n")
-# separate_lines = sample5.split("\n")
-
-# lexical_tester(separate_lines)
+# uncomment one tester for testing
+# lexical_tester(sample1)
+# lexical_tester(sample2)
+# lexical_tester(sample3)
+# lexical_tester(sample4)
+# lexical_tester(sample5)
