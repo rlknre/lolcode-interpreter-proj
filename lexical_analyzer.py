@@ -565,7 +565,7 @@ def detect_lexemes(line):
             for y in lexeme_classification: token_classification.append(y)
 
             # return values
-            lexeme_information.append(lexeme_tokens[1])
+            lexeme_information.append('"' + lexeme_tokens[1] + '"')
             lexeme_information.append(lexeme_classification[1])
         
         # value to remove from line of code for checking
@@ -681,6 +681,7 @@ KTHXBYE
 sample5 = """HAI
     VISIBLE "Yarn here"
     I HAS A temp ITZ 2
+    I HAS A str_string ITZ "Yarn Here"
 KTHXBYE
 """
 
@@ -752,4 +753,5 @@ def lexical_tester(code):
 # separate_lines = sample3.split("\n")
 # separate_lines = sample4.split("\n")
 # separate_lines = sample5.split("\n")
+
 # lexical_tester(separate_lines)
