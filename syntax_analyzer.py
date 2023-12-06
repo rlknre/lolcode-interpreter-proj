@@ -10,14 +10,14 @@ errors = []
 
 # test if code syntax of lolcode is valid
 def syntax_tester(code_details):
-
+    
     code_delimiter_start = False
     code_delimiter_end = False
     code_block = code_details
     
     reading_line = 1
-    while True:
 
+    while True:
         if reading_line > len(code_details):
             break
         # end loop if all lines read
@@ -84,7 +84,7 @@ def syntax_tester(code_details):
                         # search for TLDR multiline ender
                         comment_start_line = reading_line
                         while True:
-                            reading_line += 1
+                            
                             if reading_line > len(code_details):
                                 errors.append("No multiline comment ender for comment in line" + str(comment_start_line))
                                 break
@@ -94,6 +94,8 @@ def syntax_tester(code_details):
                                 starting_token = check_syntax[0][0]
                                 if starting_token == "TLDR":
                                     break
+                            
+                            reading_line += 1
                     
                     # start of code
                     elif starting_token == "HAI":
@@ -101,7 +103,8 @@ def syntax_tester(code_details):
 
                     # invalid keyword found before "HAI"
                     else:
-                        errors.append("Program should start with HAI")
+                        if "Program should start with HAI" not in errors:
+                            errors.append("Program should start with HAI")
 
             # HAI keyword found, proceed to block of code
             elif code_delimiter_start == True:
@@ -142,18 +145,19 @@ def syntax_tester(code_details):
         reading_line += 1
 
     # check that program should end valid way
-    if code_delimiter_end == False:
+    if code_delimiter_end == False and code_delimiter_start == True:
         errors.append("Program should end with KTHNXBYE")
 
 # testing 
 
-sample = """
+sample = """HOW IZ I func_name
+    BTW ANYTHING
+IF U SAY SO
 
 HAI
-
 GIMMEH 
-VISIBLE HAI
-
+VISIBLE 
+KTHXBYE
 """
 
 test = lexical_tester(sample)
@@ -163,3 +167,6 @@ for error in errors:
     print(error)
 print("")
 
+# NOTES:
+# lexical structure tas s agui
+# tanggalin na comments sa lexical palang checker
