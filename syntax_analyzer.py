@@ -10,21 +10,17 @@ errors = []
 
 # test if code syntax of lolcode is valid
 def syntax_tester(code_details):
-
+    
     code_delimiter_start = False
     code_delimiter_end = False
     code_block = code_details
     
     reading_line = 1
+    while True:
 
-    for line in code_details:
-        print(line)
-
-    # while True:
-
-    #     if reading_line > len(code_details):
-    #         break
-    #     # end loop if all lines read
+        if reading_line > len(code_details):
+            break
+        # end loop if all lines read
 
     #     current_line = code_block[reading_line-1]
     #     # print(current_line)
@@ -85,27 +81,27 @@ def syntax_tester(code_details):
     #                     None
     #                 elif starting_token == "OBTW":
                         
-    #                     # search for TLDR multiline ender
-    #                     comment_start_line = reading_line
-    #                     while True:
-    #                         reading_line += 1
-    #                         if reading_line > len(code_details):
-    #                             errors.append("No multiline comment ender for comment in line" + str(comment_start_line))
-    #                             break
-    #                         current_line = code_block[reading_line-1]
+                        # search for TLDR multiline ender
+                        comment_start_line = reading_line
+                        while True:
+                            reading_line += 1
+                            if reading_line > len(code_details):
+                                errors.append("No multiline comment ender for comment in line" + str(comment_start_line))
+                                break
+                            current_line = code_block[reading_line-1]
 
-    #                         if len(current_line) > 1:
-    #                             starting_token = check_syntax[0][0]
-    #                             if starting_token == "TLDR":
-    #                                 break
+                            if len(current_line) > 1:
+                                starting_token = check_syntax[0][0]
+                                if starting_token == "TLDR":
+                                    break
                     
     #                 # start of code
     #                 elif starting_token == "HAI":
     #                     code_delimiter_start = True
 
-    #                 # invalid keyword found before "HAI"
-    #                 else:
-    #                     errors.append("Program should start with HAI")
+                    # invalid keyword found before "HAI"
+                    else:
+                        errors.append("Program should start with HAI")
 
     #         # HAI keyword found, proceed to block of code
     #         elif code_delimiter_start == True:
@@ -145,20 +141,19 @@ def syntax_tester(code_details):
     #     # updates line the analyzer is reading
     #     reading_line += 1
 
-    # # check that program should end valid way
-    # if code_delimiter_end == False:
-    #     errors.append("Program should end with KTHNXBYE")
+    # check that program should end valid way
+    if code_delimiter_end == False:
+        errors.append("Program should end with KTHNXBYE")
 
 # testing 
 
-sample = """
+sample = """HOW IZ I func_name
+    BTW ANYTHING
+IF U SAY SO
 
 HAI
-
 GIMMEH 
 VISIBLE HAI
-
-KTHNXBYE
 
 """
 
@@ -169,3 +164,6 @@ for error in errors:
     print(error)
 print("")
 
+# NOTES:
+# lexical structure tas s agui
+# tanggalin na comments sa lexical palang checker
