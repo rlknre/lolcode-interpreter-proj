@@ -41,9 +41,8 @@ errors = []
 def syntax_tester(code_details):
 
     code_delimiter_start = False
-    code_delimiter_end = False
-
     varsec_delimiter_start = False
+
     varsec_line_start = 0
     varsec_line_end = 0
     
@@ -189,9 +188,42 @@ def syntax_tester(code_details):
                                 errors.append("Line " + line_no + ": Invalid I HAS A syntax, should have valid variable")
                     
                     # NOTE: add condition for expressions
+
                     if len(line) >= 6:
                         if line[4][1] != KEYWORD_ARITHMETIC:
                             errors.append("Line " + line_no + ": Invalid I HAS A syntax, waiting for expression")
+                    
+                    # NOTE: for editing here ^
+
+                # VISIBLE
+                if line[1][0] == 'VISIBLE' and line[1][1] == KEYWORD_PRINT:
+                    if len(line) < 2:
+                        errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting for values to print")
+                    if len(line) >= 3:
+                        if line[2][1] not in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
+                            errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting for values to print")
+                        else:
+                        # check for concatenation 
+                            if ((len(line) - 3) >= 2) and ((len(line) - 3) % 2 == 0):
+
+                                # let x be the index we are checking, note that we adjust +3 since we want to
+                                # access the indeces after the first instance of the variable to print
+
+                                for x in range(0, len(line)-3):
+                                    
+                                    # + keyword
+                                    if x % 2 == 0:
+                                        if line[x+3][1] != KEYWORD_CONCAT:
+                                            errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting for concatenation keyword")
+                                    # variables
+                                    elif x % 2 != 0:
+                                        if line[x+3][1] not in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
+                                            errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting for value to print")
+                            
+                            # invalid number of multivalues to print
+                            else:
+                                errors.append("Line " + line_no + ": Invalid VISIBLE syntax, invalid print parameters")
+
 
     # end of for loop for checking syntax
 
@@ -199,135 +231,6 @@ def syntax_tester(code_details):
     if varsec_delimiter_start == True:
         errors.append("Line " + varsec_line_start + ": Invalid WAZZUP syntax, BUHBYE keyword not found")
 
-    # reading_line = 1
-    # while True:
-
-    #     if reading_line > len(code_details):
-    #         break
-    #     # end loop if all lines read
-
-    #     current_line = code_block[reading_line-1]
-    #     # print(current_line)
-    #     # start syntax checking here
-    #     if len(current_line) > 1:
-
-    #         check_syntax = current_line[1:]
-    #         lexeme_count = len(check_syntax[0:])
-    #         starting_token = check_syntax[0][0]
-    #         # print(check_syntax)
-    #         # print(starting_token)
-    #         # print(lexeme_count)
-    #         # print("")
-
-    #         # check first if code delimiter starter "HAI" exists
-    #         if code_delimiter_start == False:
-    #             if starting_token in token_list:
-
-    #                 # valid keywords before "HAI"
-
-    #                 # function
-    #                 if starting_token == "HOW IZ I":
-    #                     if lexeme_count > 1:
-    #                         func_name = check_syntax[1][1]
-    #                         if func_name == 'Variable Identifier':
-                                
-    #                             # ADD CHECKER FOR FUNC PARAMETERS
-    #                             # if lexeme_count > 4:
-    #                             #     func_parameters = check_syntax[2:]
-
-    #                             # loops until it finds "IF U SAY SO" keyword
-    #                             func_start_line = reading_line
-    #                             while True:
-
-    #                                 if reading_line > len(code_details):
-    #                                     errors.append("No function ender for function in line " + str(func_start_line))
-    #                                     break
-                                    
-    #                                 current_line = code_block[reading_line-1]
-
-    #                                 if len(current_line) > 1:
-    #                                     check_syntax = current_line[1:]
-    #                                     lexeme_count = len(check_syntax)
-    #                                     starting_token = check_syntax[0][0]
-
-    #                                     if starting_token == "IF U SAY SO":
-    #                                         break
-    #                                 reading_line += 1
-    #                             # eo loop 
-
-    #                         else:
-    #                             errors.append("Invalid function name at Line " + str(reading_line))
-    #                     else:
-    #                         errors.append("Invalid function parameters at Line " + str(reading_line))
-
-    #                 # comments
-    #                 elif starting_token == "BTW":
-    #                     None
-    #                 elif starting_token == "OBTW":
-                        
-    #                     # search for TLDR multiline ender
-    #                     comment_start_line = reading_line
-    #                     while True:
-    #                         reading_line += 1
-    #                         if reading_line > len(code_details):
-    #                             errors.append("No multiline comment ender for comment in line" + str(comment_start_line))
-    #                             break
-    #                         current_line = code_block[reading_line-1]
-
-    #                         if len(current_line) > 1:
-    #                             starting_token = check_syntax[0][0]
-    #                             if starting_token == "TLDR":
-    #                                 break
-                    
-    #                 # start of code
-    #                 elif starting_token == "HAI":
-    #                     code_delimiter_start = True
-
-    #                 # invalid keyword found before "HAI"
-    #                 else:
-    #                     errors.append("Program should start with HAI")
-
-    #         # HAI keyword found, proceed to block of code
-    #         elif code_delimiter_start == True:
-                
-    #             # var initialization
-    #             if starting_token == "I HAS A":
-    #                 None
-                
-    #             # printing
-    #             elif starting_token == "VISIBLE":
-    #                 if lexeme_count >= 2:
-    #                     if lexeme_count == 2:
-    #                         if check_syntax[1][1] == "Variable Identifier":
-    #                             None
-    #                         elif check_syntax[1][1] == "Literal":
-    #                             None
-    #                         else:
-    #                             errors.append("Error: Should be VISIBLE <var> at Line " + str(reading_line))
-    #                     else:
-    #                         None
-    #                         # ADD: Condt for concatenation of printing values
-    #                 else:
-    #                     errors.append("Error: Should be VISIBLE <var> at Line " + str(reading_line))
-                
-    #             # input
-    #             elif starting_token == "GIMMEH":
-    #                 if lexeme_count == 2:
-    #                     if check_syntax[1][1] != "Variable Identifier":
-    #                         errors.append("Error, should have variable receiver for GIMMEH at Line " + str(reading_line))
-    #                 else:
-    #                     errors.append("Error in GIMMEH input at Line " + str(reading_line))
-
-    #             # end of program
-    #             elif starting_token == "KTHXBYE":
-    #                 code_delimiter_end = True
-
-    #     # updates line the analyzer is reading
-    #     reading_line += 1
-
-    # # check that program should end valid way
-    # if code_delimiter_end == False:
-    #     errors.append("Program should end with KTHNXBYE")
 
 # testing 
 
@@ -337,14 +240,12 @@ WAZZUP
     I HAS A thing
     I HAS A thing2 ITZ SUM OF 5 AN 4
 BUHBYE
-GIMMEH var      BTW this asks for an input
-VISIBLE var 
-I HAS A num BTW hello
-OBTW hello naman 
+OBTW yes
 TLDR
+GIMMEH var      BTW this asks for an input
 
-VISIBLE "Helloo, string here"
-SMOOSH "Heyy string" AN "HellO"
+SMOOSH "Heyy string" AN "HellO there" AN " HUH"
+VISIBLE "Concat" + " these " + "no" +
 
 VISIBLE HAI
 KTHXBYE
