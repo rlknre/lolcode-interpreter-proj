@@ -68,6 +68,21 @@ def detect_lexemes(line):
     
     # comment tokens
 
+    elif (re.search("(^ )?OBTW (.)", line) != None):
+        lexeme_tokens.append("OBTW")
+        lexeme_classification.append(
+            KEYWORD_COMMENT
+        )
+        comment = line.split("OBTW", 1)
+        token = "OBTW" + comment[1]
+    
+    elif (re.search("(^ )?TLDR$", line) != None):
+        lexeme_tokens.append("TLDR")
+        lexeme_classification.append(
+            KEYWORD_COMMENT
+        )
+        token = "TLDR"
+
     elif (re.search("(.)?BTW (.)", line) != None):
         lexeme_tokens.append("BTW")
         lexeme_classification.append(
@@ -77,21 +92,6 @@ def detect_lexemes(line):
         # also removes the comment line
         comment = line.split("BTW", 1)
         token = "BTW" + comment[1]
-
-    # fix bug for OBTW, should clear out comment section until TLDR
-    elif (re.search("(^ )?OBTW (.)", line) != None):
-        lexeme_tokens.append("OBTW")
-        lexeme_classification.append(
-            KEYWORD_COMMENT
-        )
-        token = "OBTW"
-    
-    elif (re.search("(^ )?TLDR$", line) != None):
-        lexeme_tokens.append("TLDR")
-        lexeme_classification.append(
-            KEYWORD_COMMENT
-        )
-        token = "TLDR"
 
     # variable declaration section tokens
 
@@ -443,7 +443,23 @@ def detect_lexemes(line):
             DELIMITER_END
         )
         token = "MKAY"
-    
+        
+    # separators
+
+    elif ((re.search(" YR ", line)) != None):
+        lexeme_tokens.append("YR")
+        lexeme_classification.append(
+            KEYWORD_LOOP
+        )
+        token = "YR"
+
+    elif ((re.search(" AN ", line)) != None):
+        lexeme_tokens.append("AN")
+        lexeme_classification.append(
+            KEYWORD_SEPERATOR
+        )
+        token = "AN"
+
     # yarn literal
     # BUG: not catching all strings in one line
     elif (re.search(r'["\'](.)+["\']', line) != None):
@@ -484,22 +500,6 @@ def detect_lexemes(line):
             IDENTIFIER_VARS
         )
         token = variable_name
-    
-    # separators
-
-    elif ((re.search(" YR ", line)) != None):
-        lexeme_tokens.append("YR")
-        lexeme_classification.append(
-            KEYWORD_LOOP
-        )
-        token = "YR"
-
-    elif ((re.search(" AN ", line)) != None):
-        lexeme_tokens.append("AN")
-        lexeme_classification.append(
-            KEYWORD_SEPERATOR
-        )
-        token = "AN"
 
     # numbar / float literal
     elif (re.search(r'(\-)?\d+[\.]\d+', line) != None):
@@ -700,6 +700,8 @@ def lexical_tester(code):
     code = code.split("\n")
     code_line_num = 1
 
+    checking_multiline_comments = 0
+
     for line in code:
 
         # reading current line
@@ -716,74 +718,97 @@ def lexical_tester(code):
 
         possible_tokens = len(no_space)
 
-        # do not count in empty code lines
-        if possible_tokens > 0:
-            unsorted_lexemes_info = []
-            cleaned_line = " ".join(line.split(" "))
+        # we are checking the 'OBTW' instance
+        if checking_multiline_comments == 1:
 
-            # check all possible tokens in a line of code
+            if possible_tokens > 0:
+                cleaned_line = " ".join(line.split(" "))
+            
             for token in range(possible_tokens):
-
-                # returns list of lexeme description
                 token_details = detect_lexemes(cleaned_line)
-                
-                # should not be an empty line
+
                 if len(token_details) > 0:
-                    remove_instance = token_details[2]
-                    cleaned_line = cleaned_line.replace(remove_instance, "", 1)
+                    if token_details[1] == KEYWORD_COMMENT and token_details[2] == 'TLDR':
+                        
+                        # retrieves the 'TLDR' multiline ender
+                        checking_multiline_comments = 0
+                        cleaned_line = cleaned_line.replace('TLDR', "", 1)
+                        token_details.pop()
+                        line_information.append(token_details)
+        
+        # we are not checking the 'OBTW' instance, proceed
+        else:
+            # do not count in empty code lines
+            if possible_tokens > 0:
+                unsorted_lexemes_info = []
+                cleaned_line = " ".join(line.split(" "))
 
-                    token_details.pop()
-                    unsorted_lexemes_info.append(token_details)
-                # repeat until all tokens are retrieved
-            
-            # sort lexemes based on its appearance in code
-            if len(unsorted_lexemes_info) > 0:
+                # check all possible tokens in a line of code
+                for token in range(possible_tokens):
 
-                # retrieve lexemes from information
-                for info in unsorted_lexemes_info:
-                    unsorted_lexemes.append(info[0])
-            
-                # retrieve indeces where lexemes are found
-                lexeme_indeces = []
-                lexeme_line = line
-                for lexeme in unsorted_lexemes:
-                    index = lexeme_line.find(lexeme)
+                    # returns list of lexeme description
+                    token_details = detect_lexemes(cleaned_line)
+                    
+                    # should not be an empty line
+                    if len(token_details) > 0:
+                        remove_instance = token_details[2]
+                        cleaned_line = cleaned_line.replace(remove_instance, "", 1)
+                                    
+                        if token_details[1] == KEYWORD_COMMENT and 'OBTW' in token_details[2]:
+                            checking_multiline_comments = 1
 
-                    space_replace = ""
-                    for i in range(0, len(lexeme)):
-                        space_replace += " "
-                    # remove isntance of lexeme, replace with spaces
-                    lexeme_line = lexeme_line.replace(lexeme, space_replace, 1)
-                    lexeme_indeces.append(index)
+                        token_details.pop()
+                        unsorted_lexemes_info.append(token_details)
+                    # repeat until all tokens are retrieved
                 
-                # print(lexeme_indeces)
-                # print(unsorted_lexemes)
+                # sort lexemes based on its appearance in code
+                if len(unsorted_lexemes_info) > 0:
 
-                # bubble sorting algo
-                n = len(lexeme_indeces)
-                for i in range(n):
-                    for j in range(n-1):
-                        # sort indeces and lexeme order
-                        if lexeme_indeces[j] > lexeme_indeces[j+1]:
-                            temp = lexeme_indeces[j]
-                            lexeme_indeces[j] = lexeme_indeces[j+1]
-                            lexeme_indeces[j+1] = temp
-
-                            temp_lexeme = unsorted_lexemes[j]
-                            unsorted_lexemes[j] = unsorted_lexemes[j+1]
-                            unsorted_lexemes[j+1] = temp_lexeme
-
-                sorted_lexemes = unsorted_lexemes
-
-                # print(lexeme_indeces)
-                # print(sorted_lexemes)
-                # print("")
-
-                for lexeme in sorted_lexemes:
+                    # retrieve lexemes from information
                     for info in unsorted_lexemes_info:
-                        if info[0] == lexeme:
-                            line_information.append(info)
-                            break
+                        unsorted_lexemes.append(info[0])
+                
+                    # retrieve indeces where lexemes are found
+                    lexeme_indeces = []
+                    lexeme_line = line
+                    for lexeme in unsorted_lexemes:
+                        index = lexeme_line.find(lexeme)
+
+                        space_replace = ""
+                        for i in range(0, len(lexeme)):
+                            space_replace += " "
+                        # remove isntance of lexeme, replace with spaces
+                        lexeme_line = lexeme_line.replace(lexeme, space_replace, 1)
+                        lexeme_indeces.append(index)
+                    
+                    # print(lexeme_indeces)
+                    # print(unsorted_lexemes)
+
+                    # bubble sorting algo
+                    n = len(lexeme_indeces)
+                    for i in range(n):
+                        for j in range(n-1):
+                            # sort indeces and lexeme order
+                            if lexeme_indeces[j] > lexeme_indeces[j+1]:
+                                temp = lexeme_indeces[j]
+                                lexeme_indeces[j] = lexeme_indeces[j+1]
+                                lexeme_indeces[j+1] = temp
+
+                                temp_lexeme = unsorted_lexemes[j]
+                                unsorted_lexemes[j] = unsorted_lexemes[j+1]
+                                unsorted_lexemes[j+1] = temp_lexeme
+
+                    sorted_lexemes = unsorted_lexemes
+
+                    # print(lexeme_indeces)
+                    # print(sorted_lexemes)
+                    # print("")
+
+                    for lexeme in sorted_lexemes:
+                        for info in unsorted_lexemes_info:
+                            if info[0] == lexeme:
+                                line_information.append(info)
+                                break
 
         code_per_line.append(line_information)
         code_line_num += 1
