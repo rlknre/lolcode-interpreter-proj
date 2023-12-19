@@ -199,7 +199,6 @@ def syntax_tester(code_details):
     if varsec_delimiter_start == True:
         errors.append("Line " + varsec_line_start + ": Invalid WAZZUP syntax, BUHBYE keyword not found")
 
-        
     # reading_line = 1
     # while True:
 

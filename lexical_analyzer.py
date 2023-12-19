@@ -92,7 +92,6 @@ def detect_lexemes(line):
         lexeme_classification.append(
             KEYWORD_COMMENT
         )
-
         # also removes the comment line
         comment = line.split("BTW", 1)
         token = "BTW" + comment[1]
