@@ -464,8 +464,7 @@ def detect_lexemes(line):
         )
         token = "AN"
 
-    # yarn literal
-    # BUG: not catching all strings in one line
+    # yarn literal: can catch multiple yarns in one line
     elif (re.search(r'["\'](.)*["\']', line) != None):
 
         #  https://docs.python.org/3/library/re.html
