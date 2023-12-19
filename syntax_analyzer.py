@@ -13,6 +13,7 @@ from lexical_analyzer import sample1, sample2, sample3, sample4, sample5
 from lexical_analyzer import DELIMITER_CODE, DELIMITER_STR, DELIMITER_VAR, DELIMITER_CONDT, DELIMITER_END
 from lexical_analyzer import IDENTIFIER_VARS, IDENTIFIER_FUNC, IDENTIFIER_LOOP
 from lexical_analyzer import VAR_DECLARE, VAR_ASSIGN
+
 from lexical_analyzer import KEYWORD_COMMENT
 from lexical_analyzer import KEYWORD_ARITHMETIC 
 from lexical_analyzer import KEYWORD_SEPERATOR 
@@ -25,7 +26,12 @@ from lexical_analyzer import KEYWORD_INPUT
 from lexical_analyzer import KEYWROD_CONDT 
 from lexical_analyzer import KEYWORD_LOOP 
 from lexical_analyzer import KEYWORD_FUNC 
+
 from lexical_analyzer import LITERAL
+from lexical_analyzer import LITERAL_NUMBAR
+from lexical_analyzer import LITERAL_NUMBR
+from lexical_analyzer import LITERAL_TROOF
+from lexical_analyzer import LITERAL_YARN
 
 
 # arrays for syntax tracking
@@ -36,12 +42,16 @@ def syntax_tester(code_details):
 
     code_delimiter_start = False
     code_delimiter_end = False
+
+    varsec_delimiter_start = False
+    varsec_line_start = 0
+    varsec_line_end = 0
     
     code_block = code_details
 
     # for checking
-    for line in code_block: print(line)
-    print("")
+    # for line in code_block: print(line)
+    # print("")
 
     # variables for comment cleaning
     searching_TLDR = 0
@@ -104,22 +114,92 @@ def syntax_tester(code_details):
     if searching_TLDR == 1:
         errors.append("Invalid multiline syntax, no TLDR for OBTW at Line " + searching_TLDR_from_line)
     
-    # IMPORTANT: In this part, we only the syntax of the whole code if there are no errors
+    # IMPORTANT: In this part, we only check the syntax of the whole code if there are no errors
     # in the comments part. If ever there is an OBTW with a missing TLDR, it sees the code
     # block after the OBTW as a whole multiline comment, hence, no code syntax to check
 
+
     else:
     # for checking
+        print("")
         for line in code_block:
             print(line)
-        print("\nValid comments!")
+            print(str(len(line)) + "\n")
+        # print("\nValid comments!")
 
-    # check values before HAI-KTHXBYE section
+    # IMPORTANT: Here, we start checking the syntax of the keywords in the code block.
+    # We implement a For Loop that checks each code line details and determines whether
+    # the succession of keywords are valid or not.
 
+    for line in code_block:
 
+        if len(line) > 1:
 
+            line_no = str(line[0])
+            
+            # HAI not yet found
+            if code_delimiter_start == False:
 
+                # HAI
+                if line[1][0] in token_list:
+                    if line[1][0] == 'HAI' and line[1][1] == DELIMITER_CODE:
+                        code_delimiter_start = True
+                    elif line[1][0] != 'HAI' and line[1][1] != DELIMITER_CODE:
+                        errors.append("Line " + line_no + ": Invalid syntax, should start with HAI first")
 
+            # HAI code block section
+            elif code_delimiter_start == True:
+
+                # WAZZUP
+                if line[1][0] == 'WAZZUP' and line[1][1] == DELIMITER_VAR:
+                    if len(line) > 2:
+                        errors.append("Line " + line_no + ": Invalid WAZZUP syntax, declaration of variable section")
+                    elif len(line) == 2:
+                        # currently in WAZZUP, should end with BUHBYE
+                        varsec_delimiter_start = True
+                        varsec_line_start = line_no
+
+                # BUHBYE
+                if line[1][0] == 'BUHBYE' and line[1][1] == DELIMITER_VAR:
+                    if len(line) > 2:
+                        errors.append("Line " + line_no + ": Invalid BUHBYE syntax, end of variable section")
+                    elif len(line) == 2:
+                        varsec_delimiter_start = False
+                        varsec_line_end = line_no
+                
+                # I HAS A
+                if line[1][0] == 'I HAS A' and line[1][1] == VAR_DECLARE:
+                    # missing values
+                    if len(line) < 2:
+                        errors.append("Line " + line_no + ": Invalid I HAS A syntax in variable declaration")
+                    # check for literal
+                    if len(line) >= 3:
+                        if line[2][1] != IDENTIFIER_VARS:
+                            errors.append("Line " + line_no + ": Invalid I HAS A syntax, should have valid variable")
+                    # assignment to variable
+                    if len(line) >= 4:
+                        if len(line) == 4:
+                            errors.append("Line " + line_no + ": Invalid I HAS A syntax, should have ITZ to initialize")
+                        else:
+                            # variable
+                            if line[3][1] != VAR_ASSIGN:
+                                errors.append("Line " + line_no + ": Invalid I HAS A syntax, should have ITZ to initialize")
+                            # also checks expression instance
+                            if line[4][1] not in [KEYWORD_ARITHMETIC, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_YARN, IDENTIFIER_VARS]:
+                                errors.append("Line " + line_no + ": Invalid I HAS A syntax, should have valid variable")
+                    
+                    # NOTE: add condition for expressions
+                    if len(line) >= 6:
+                        if line[4][1] != KEYWORD_ARITHMETIC:
+                            errors.append("Line " + line_no + ": Invalid I HAS A syntax, waiting for expression")
+
+    # end of for loop for checking syntax
+
+    # check if variable section is valid
+    if varsec_delimiter_start == True:
+        errors.append("Line " + varsec_line_start + ": Invalid WAZZUP syntax, BUHBYE keyword not found")
+
+        
     # reading_line = 1
     # while True:
 
@@ -254,6 +334,10 @@ def syntax_tester(code_details):
 
 sample = """HAI
 BTW comment here
+WAZZUP
+    I HAS A thing
+    I HAS A thing2 ITZ SUM OF 5 AN 4
+BUHBYE
 GIMMEH var      BTW this asks for an input
 VISIBLE var 
 I HAS A num BTW hello

@@ -99,14 +99,14 @@ def detect_lexemes(line):
 
     # variable declaration section tokens
 
-    elif (re.search("(.)WAZZUP$", line) != None):
+    elif (re.search("(.)?WAZZUP$", line) != None):
         lexeme_tokens.append("WAZZUP")
         lexeme_classification.append(
             DELIMITER_VAR
         )
         token = "WAZZUP"
 
-    elif (re.search("(.)BUHBYE$", line) != None):
+    elif (re.search("(.)?BUHBYE$", line) != None):
         lexeme_tokens.append("BUHBYE")
         lexeme_classification.append(
             DELIMITER_VAR
