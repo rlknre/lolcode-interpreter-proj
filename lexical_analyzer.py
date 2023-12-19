@@ -68,7 +68,7 @@ def detect_lexemes(line):
     
     # comment tokens
 
-    elif (re.search("(^ )?OBTW (.)", line) != None):
+    elif (re.search("(^ )?OBTW(.)", line) != None):
         lexeme_tokens.append("OBTW")
         lexeme_classification.append(
             KEYWORD_COMMENT
