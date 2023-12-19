@@ -40,8 +40,8 @@ def syntax_tester(code_details):
     code_block = code_details
 
     # for checking
-    # for line in code_block: print(line)
-    # print("")
+    for line in code_block: print(line)
+    print("")
 
     # variables for comment cleaning
     searching_TLDR = 0
@@ -113,6 +113,12 @@ def syntax_tester(code_details):
         for line in code_block:
             print(line)
         print("\nValid comments!")
+
+    # check values before HAI-KTHXBYE section
+
+
+
+
 
     # reading_line = 1
     # while True:
@@ -250,12 +256,12 @@ sample = """HAI
 BTW comment here
 GIMMEH var      BTW this asks for an input
 VISIBLE var 
-
-I HAS A num
-
+I HAS A num BTW hello
 OBTW hello naman 
-
 TLDR
+
+VISIBLE "Helloo, string here"
+SMOOSH "Heyy string" AN "HellO"
 
 VISIBLE HAI
 KTHXBYE

@@ -40,6 +40,10 @@ KEYWORD_LOOP = "Loop Keyword"
 KEYWORD_FUNC = "Function Keyword"
 
 LITERAL = "Literal"
+LITERAL_NUMBAR = "NUMBAR Literal"
+LITERAL_NUMBR = "NUMBR Literal"
+LITERAL_TROOF = "TROOF Literal"
+LITERAL_YARN = "YARN Literal"
 
 # add function description here
 
@@ -462,10 +466,10 @@ def detect_lexemes(line):
 
     # yarn literal
     # BUG: not catching all strings in one line
-    elif (re.search(r'["\'](.)+["\']', line) != None):
+    elif (re.search(r'["\'](.)*["\']', line) != None):
 
         #  https://docs.python.org/3/library/re.html
-        yarn_substring = re.search(r'["\'](.)+["\']', line)
+        yarn_substring = re.search(r'["\'](.)*["\']', line)
         yarn_literal = line[yarn_substring.start():yarn_substring.end()]
 
         lexeme_tokens.append('"')
@@ -476,7 +480,7 @@ def detect_lexemes(line):
             DELIMITER_STR
         )
         lexeme_classification.append(
-            LITERAL
+            LITERAL_YARN
         )
         lexeme_classification.append(
             DELIMITER_STR
@@ -509,41 +513,43 @@ def detect_lexemes(line):
 
         lexeme_tokens.append(numbar_literal)
         lexeme_classification.append(
-            LITERAL
+            LITERAL_NUMBAR
         )
         token = numbar_literal
 
     # numbr / integer literal
-    elif (re.search(" (\-)?\d+", line) != None):
+    elif (re.search("(\-)?\d+", line) != None):
 
-        num_substring = re.search(" (\-)?\d+", line)
+        num_substring = re.search("(\-)?\d+", line)
         # print(line[substring.start()])
 
         numbr_literal = line[num_substring.start():num_substring.end()]
 
         lexeme_tokens.append(numbr_literal)
         lexeme_classification.append(
-            LITERAL
+            LITERAL_NUMBR
         )
         token = numbr_literal
     
     # troof literal
-    elif (re.search("(WIN|FAIL)", line) != None):
+    elif (re.search("( WIN$| FAIL$)", line) != None):
 
-        troof_susbtring = re.search("(WIN|FAIL)", line)
+        troof_susbtring = re.search("( WIN$| FAIL$)", line)
         troof_literal = line[troof_susbtring.start():troof_susbtring.end()]
+        troof_literal = troof_literal.replace(" ", "")
 
         lexeme_tokens.append(troof_literal)
         lexeme_classification.append(
-            LITERAL
+            LITERAL_TROOF
         )
         token = troof_literal
 
     # type literal
-    elif (re.search("(NUMBR|NUMBAR|YARN|TROOF)", line) != None):
+    elif (re.search("((.)?NUMBR |(.)?NUMBAR |(.)?YARN |(.)?TROOF )", line) != None):
 
-        type_substring = re.search("(NUMBR|NUMBAR|YARN|TROOF)", line)
+        type_substring = re.search("((.)?NUMBR |(.)?NUMBAR |(.)?YARN |(.)?TROOF )", line)
         type_literal = line[type_substring.start():type_substring.end()]
+        type_literal = type_literal.replace(" ", "")
 
         lexeme_tokens.append(type_literal)
         lexeme_classification.append(
@@ -752,18 +758,44 @@ def lexical_tester(code):
                     
                     # should not be an empty line
                     if len(token_details) > 0:
-                        remove_instance = token_details[2]
-                        cleaned_line = cleaned_line.replace(remove_instance, "", 1)
-                                    
+
+                        # condition for OBTW comment
                         if token_details[1] == KEYWORD_COMMENT and 'OBTW' in token_details[2]:
                             checking_multiline_comments = 1
 
+                        # condition for TLDR comment
                         if 'TLDR' in token_details[2]:
                             unsorted_lexemes_info.append(['TLDR', KEYWORD_COMMENT])
                             checking_multiline_comments = 0
+                        
+                        # condition for multiple YARNs in line
+                        if token_details[1] == LITERAL_YARN:
 
+                            # count if there are multiple string delimiters
+                            string_delimiters = (token_details[2]).count('"')
+
+                            # if there are multiple quotation marks, only retrieve one instance of yarn
+                            if string_delimiters > 2:
+                                clearing_extra_string = list(token_details[2])
+
+                                # clears extra strings
+                                while True:
+                                    # string converted to list and continously pop the string list
+                                    clearing_extra_string.pop()
+                                    if clearing_extra_string[-1] == '"':
+                                        clearing_extra_string.pop()
+                                        break
+                                # include in the details only one instance of a yarn
+                                token_details[2] = "".join(clearing_extra_string)
+                                token_details[0] = "".join(clearing_extra_string)
+                        # end of condition for yarns
+
+                        # add new details to the list of tokens and lexemes
+                        remove_instance = token_details[2]
+                        cleaned_line = cleaned_line.replace(remove_instance, "", 1)
                         token_details.pop()
                         unsorted_lexemes_info.append(token_details)
+
                     # repeat until all tokens are retrieved
                 
                 # sort lexemes based on its appearance in code
