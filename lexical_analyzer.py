@@ -260,7 +260,7 @@ def detect_lexemes(line):
         )
         token = "SMOOSH"
     
-    elif ((re.search(" \+ ", line)) != None):
+    elif ((re.search(" \+(.)?", line)) != None):
         lexeme_tokens.append("+")
         lexeme_classification.append(
             KEYWORD_CONCAT
