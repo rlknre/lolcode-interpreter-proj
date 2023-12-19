@@ -76,7 +76,7 @@ def detect_lexemes(line):
         comment = line.split("OBTW", 1)
         token = "OBTW" + comment[1]
     
-    elif (re.search("(^ )?TLDR$", line) != None):
+    elif (re.search("(^)?TLDR$", line) != None):
         lexeme_tokens.append("TLDR")
         lexeme_classification.append(
             KEYWORD_COMMENT
@@ -111,7 +111,7 @@ def detect_lexemes(line):
 
     # assignment operations 1
 
-    elif (re.search("(^ )? I HAS A (.)", line) != None):
+    elif (re.search("(^ )?I HAS A(.)", line) != None):
         lexeme_tokens.append("I HAS A")
         lexeme_classification.append(
             VAR_DECLARE
@@ -733,8 +733,9 @@ def lexical_tester(code):
                         # retrieves the 'TLDR' multiline ender
                         checking_multiline_comments = 0
                         cleaned_line = cleaned_line.replace('TLDR', "", 1)
-                        token_details.pop()
-                        line_information.append(token_details)
+                        if len(cleaned_line.replace(" ", "")) == 0:
+                            token_details.pop()
+                            line_information.append(token_details)
         
         # we are not checking the 'OBTW' instance, proceed
         else:
@@ -756,6 +757,10 @@ def lexical_tester(code):
                                     
                         if token_details[1] == KEYWORD_COMMENT and 'OBTW' in token_details[2]:
                             checking_multiline_comments = 1
+
+                        if 'TLDR' in token_details[2]:
+                            unsorted_lexemes_info.append(['TLDR', KEYWORD_COMMENT])
+                            checking_multiline_comments = 0
 
                         token_details.pop()
                         unsorted_lexemes_info.append(token_details)
