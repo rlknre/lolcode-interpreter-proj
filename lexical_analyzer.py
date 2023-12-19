@@ -779,13 +779,23 @@ def lexical_tester(code):
                                 # clears extra strings
                                 while True:
                                     # string converted to list and continously pop the string list
-                                    clearing_extra_string.pop()
                                     if clearing_extra_string[-1] == '"':
+
+                                        # checks for multiple strings, make sure to get only first instance at start
                                         clearing_extra_string.pop()
-                                        break
+                                        string_delimiters = string_delimiters - 1
+
+                                        # already at the first instance of string
+                                        if string_delimiters <= 2:
+                                            clearing_extra_string.pop()
+                                            break
+
+                                    clearing_extra_string.pop()
+                                
                                 # include in the details only one instance of a yarn
                                 token_details[2] = "".join(clearing_extra_string)
                                 token_details[0] = "".join(clearing_extra_string)
+                        
                         # end of condition for yarns
 
                         # add new details to the list of tokens and lexemes
