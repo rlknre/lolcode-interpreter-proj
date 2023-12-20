@@ -361,14 +361,14 @@ def detect_lexemes(line):
 
     # loop tokens
 
-    elif ((re.search("(^ )?IM IN YR ", line)) != None):
+    elif ((re.search("(^ )?IM IN YR(.)?", line)) != None):
         lexeme_tokens.append("IM IN YR")
         lexeme_classification.append(
             IDENTIFIER_LOOP
         )
         token = "IM IN YR"
     
-    elif ((re.search("(^ )?IM OUTTA YR ", line)) != None):
+    elif ((re.search("(^ )?IM OUTTA YR(.)?", line)) != None):
         lexeme_tokens.append("IM OUTTA YR")
         lexeme_classification.append(
             IDENTIFIER_LOOP
@@ -426,7 +426,7 @@ def detect_lexemes(line):
         )
         token = "GTFO"
 
-    elif ((re.search("(^ )?FOUND YR (.)", line)) != None):
+    elif ((re.search("(^ )?FOUND YR(.)?", line)) != None):
         lexeme_tokens.append("FOUND YR")
         lexeme_classification.append(
             KEYWORD_FUNC
@@ -449,10 +449,10 @@ def detect_lexemes(line):
         
     # separators
 
-    elif ((re.search(" YR ", line)) != None):
+    elif ((re.search(" YR(.)?", line)) != None):
         lexeme_tokens.append("YR")
         lexeme_classification.append(
-            KEYWORD_LOOP
+            KEYWORD_SEPERATOR
         )
         token = "YR"
 

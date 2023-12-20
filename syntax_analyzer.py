@@ -43,16 +43,20 @@ def syntax_tester(code_details):
     code_delimiter_start = False
     varsec_delimiter_start = False
     func_delimiter_start = False
+    switch_delimiter_start = False
+    loop_delimiter_start = False
 
     func_line_start = 0
+    switch_line_start = 0
+    loop_line_start = 0
     varsec_line_start = 0
     varsec_line_end = 0
     
     code_block = code_details
 
     # for checking
-    for line in code_block: print(line)
-    print("")
+    # for line in code_block: print(line)
+    # print("")
 
     # variables for comment cleaning
     invalid_OBTW = 0
@@ -69,7 +73,7 @@ def syntax_tester(code_details):
 
             # ----------------------------------------------------------------------------------------------------------------------------------------------
 
-            # search for instances for TLDR after reading OBTW
+            # TLDR
             if searching_TLDR == 1:
                 if len(line) == 2:
                     if line[-1][0] == 'TLDR' and line[-1][1] == KEYWORD_COMMENT:
@@ -134,8 +138,8 @@ def syntax_tester(code_details):
 
     # for checking
     # print("")
-    # for line in code_block:
-    #     print(line)
+    for line in code_block:
+        print(line)
     #     print(str(len(line)) + "\n")
 
     else:
@@ -158,7 +162,7 @@ def syntax_tester(code_details):
                     # only checks valid starting keywords before HAI
                     if line[1][0] in token_list:
 
-                        if line[1][0] in ['HAI', 'HOW IZ I']:
+                        if line[1][0] in ['HAI', 'HOW IZ I', 'KTHXBYE']:
 
                             # HAI
                             if line[1][0] == 'HAI' and line[1][1] == DELIMITER_CODE:
@@ -166,22 +170,98 @@ def syntax_tester(code_details):
                                     errors.append("Line " + line_no + ": Invalid HAI syntax")
                                 elif len(line) == 2:
                                     code_delimiter_start = True
+
+                    # ----------------------------------------------------------------------------------------------------------------------------------------------
                             
+                            # Invalid KTHXBYE
+                            if line[1][0] == 'KTHXBYE' and line[1][1] == DELIMITER_CODE:
+                                if len(line) != 2:
+                                    errors.append("Line " + line_no + ": Invalid KTHXBYE syntax")
+                                elif len(line) == 2:
+                                    errors.append("Line " + line_no + ": Invalid KTHXBYE syntax, waiting for HAI keyword")
+
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
                             # HOW IZ I
                             if line[1][0] == 'HOW IZ I' and line[1][1] == IDENTIFIER_FUNC:
                                 if len(line) <= 2:
                                     errors.append("Line " + line_no + ": Invalid HOW IZ I syntax, missing function parameters")
+                                # check its parameters
                                 elif len(line) >= 3:
+
+                                    # Still checks if there is a valid IF U SAY SO
                                     func_delimiter_start = True
                                     func_line_start = line_no
 
+                                    # no parameters
+                                    if len(line) == 3:
+                                        if line[-1][1] != IDENTIFIER_VARS:
+                                            errors.append("Line " + line_no + ": Invalid HOW IZ I function parameters")
+
+                                    # with parameters
+                                    elif len(line) > 3:
+                                        if len(line) == 4:
+                                            errors.append("Line " + line_no + ": Invalid HOW IZ I function parameters")
+
+                                        # one parameter
+                                        elif len(line) == 5:
+                                            if line[3][0] != 'YR' or line[3][1] != KEYWORD_SEPERATOR:
+                                                errors.append("Line " + line_no + ": Invalid HOW IZ I function parameters")
+                                            elif line[4][1] != IDENTIFIER_VARS:
+                                                errors.append("Line " + line_no + ": Invalid HOW IZ I function parameters")
+
+                                        # multiple parameters
+                                        elif len(line) >= 6:
+
+                                            # For value parameters, there should always be an iteration of 3 additional parameters
+                                            # for multiple parameter count. Following the syntax [AN] [YR] [varident]
+                                            parameters = len(line) - 5
+
+                                            # invalid
+                                            if parameters % 3 != 0:
+                                                errors.append("Line " + line_no + ": Invalid HOW IZ I function parameters")
+
+                                            # valid
+                                            else:
+                                                # checker for syntax to check
+                                                check_for_AN = 1
+                                                check_for_YR = 0
+                                                check_for_varident = 0
+
+                                                for x in range(0, len(line)-5):
+
+                                                    # AN keyword
+                                                    if check_for_AN == 1:
+                                                        if line[x+5][0] == 'AN' and line[x+5][1] == KEYWORD_SEPERATOR:
+                                                            check_for_YR = 1
+                                                            check_for_AN = 0
+                                                        else:
+                                                            errors.append("Line " + line_no + ": Invalid function parameter, waiting for AN keyword")
+                                                            break
+
+                                                    # YR keyword
+                                                    elif check_for_YR == 1:
+                                                        if line[x+5][0] == 'YR' and line[x+5][1] == KEYWORD_SEPERATOR:
+                                                            check_for_varident = 1
+                                                            check_for_YR = 0
+                                                        else:
+                                                            errors.append("Line " + line_no + ": Invalid function parameter, waiting for YR keyword")
+                                                            break
+
+                                                    # valid varident keyword
+                                                    elif check_for_varident == 1:
+                                                        if line[x+5][1] == IDENTIFIER_VARS:
+                                                            check_for_AN = 1
+                                                            check_for_varident = 0
+                                                        else:
+                                                            errors.append("Line " + line_no + ": Invalid function parameter, waiting for valid variable")
+                                                            break
+                                        
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
                         # invalid starting keyword before HAI
                         else:
-                            errors.append("Line " + line_no + ": Invalid syntax, should start with HAI first")
+                            errors.append("Line " + line_no + ": Invalid syntax, should be inside valid code sections")
 
                     # invalid lexeme keyword found
                     else: 
@@ -194,13 +274,54 @@ def syntax_tester(code_details):
 
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
+                    # Invalid keywords in HAI-KTHXBYE
+                    if line[1][0] in ['HOW IZ I', 'IF U SAY SO']:
+                        if code_delimiter_start ==  True and func_delimiter_start == False:
+                            errors.append("Line " + line_no + ": Invalid keyword in HAI-KTHXBYE code block")
+
+                    # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+                    # KTHXBYE
+                    if line[1][0] == 'KTHXBYE' and line[1][1] == DELIMITER_CODE:
+                        if code_delimiter_start == True:
+                            if len(line) != 2:
+                                errors.append("Line " + line_no + ": Invalid KTHXBYE syntax")
+                            elif len(line) == 2:
+                                code_delimiter_start = False
+                        else:
+                            errors.append("Line " + line_no + ": Invalid KTHXBYE call")
+                                
+                    # ----------------------------------------------------------------------------------------------------------------------------------------------
+
                     # IF U SAY SO
-                    if func_delimiter_start == True:
-                        if line[1][0] == 'IF U SAY SO' and line[1][1] == IDENTIFIER_FUNC:
+                    if line[1][0] == 'IF U SAY SO' and line[1][1] == IDENTIFIER_FUNC:
+                        if func_delimiter_start == True:
                             if len(line) != 2:
                                 errors.append("Line " + line_no + ": Invalid IF U SAY SO syntax")
                             elif len(line) == 2:
                                 func_delimiter_start = False
+                        else:
+                            errors.append("Line " + line_no + ": Invalid IF U SAY SO call")
+
+                    # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+                    # FOUND YR
+
+
+                    # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+                    # GTFO
+                    if line[1][0] == 'GTFO' and line[1][1] == KEYWORD_FUNC:
+                        if func_delimiter_start == True:
+                            if len(line) != 2:
+                                errors.append("Line " + line_no + ": Invalid GTFO syntax")
+                        else:
+                            errors.append("Line " + line_no + ": Invalid GTFO call")
+
+                    # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+                    # I IZ
+
 
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -222,15 +343,15 @@ def syntax_tester(code_details):
                     # BUHBYE
                     if line[1][0] == 'BUHBYE' and line[1][1] == DELIMITER_VAR:
                         if func_delimiter_start == False:
+                            varsec_line_end = line_no
                             if len(line) > 2:
-                                errors.append("Line " + line_no + ": Invalid BUHBYE syntax, end of variable section")
+                                errors.append("Line " + varsec_line_end + ": Invalid BUHBYE syntax, end of variable section")
                             elif len(line) == 2:
                                 # check if WAZZUP already exists
                                 if varsec_delimiter_start == False:
                                     errors.append("Line " + line_no + ": Invalid BUHBYE syntax, expected WAZZUP before instance")
                                 else:
                                     varsec_delimiter_start = False
-                                    varsec_line_end = line_no
                         # should not be within a function
                         else:
                             errors.append("Line " + line_no + ": Invalid BUHBYE syntax, should not be inside function")
@@ -302,44 +423,48 @@ def syntax_tester(code_details):
 
                     # SMOOSH
                     if line[1][0] == 'SMOOSH' and line[1][1] == KEYWORD_CONCAT:
-                        if len(line) < 4:
-                            errors.append("Line " + line_no + ": Invalid SMOOSH syntax, waiting for values to concatenate")
-                        if len(line) >= 5:
-                            if line[2][1] not in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
+                        # check if nested
+                        if line.count(['SMOOSH', KEYWORD_CONCAT]) > 1:
+                            errors.append("Line " + line_no + ": Invalid SMOOSH syntax, no nesting for this operation")
+                        else:
+                            if len(line) < 4:
                                 errors.append("Line " + line_no + ": Invalid SMOOSH syntax, waiting for values to concatenate")
-                            else:
-                            # check for concatenation, also retrieves MKAY keyword
-                                if ((len(line) - 3) >= 2):
-
-                                    # let x be the index we are checking, note that we adjust +3 since we want to
-                                    # access the indeces after the first instance of the variable to print
-
-                                    for x in range(0, len(line)-3):
-                                        
-                                        # + keyword
-                                        if x % 2 == 0:
-                                            if line[x+3][1] != KEYWORD_SEPERATOR:
-
-                                                # check for MKAY keyword
-                                                if (x+1) == (len(line)-3):
-                                                    if line[x+3][1] != DELIMITER_END:
-                                                        errors.append("Line " + line_no + ": Invalid SMOOSH syntax, invalid concatenate parameters")
-                                                # not yet end of code line
-                                                else:
-                                                    errors.append("Line " + line_no + ": Invalid SMOOSH syntax, waiting for seperator keyword")
-                                            else:
-                                                # check if invalid last value
-                                                if (x+1) == (len(line)-3) and (line[x+3][0] == line[-1][0]):
-                                                    errors.append("Line " + line_no + ": Invalid SMOOSH syntax, waiting for value to print")
-                                        # variables
-                                        elif x % 2 != 0:
-                                            if line[x+3][1] not in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
-                                                errors.append("Line " + line_no + ": Invalid SMOOSH syntax, waiting for value to print")
-                                
-                                # invalid number of multivalues to print
+                            if len(line) >= 5:
+                                if line[2][1] not in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
+                                    errors.append("Line " + line_no + ": Invalid SMOOSH syntax, waiting for values to concatenate")
                                 else:
-                                    if len(line) > 3:
-                                        errors.append("Line " + line_no + ": Invalid SMOOSH syntax, invalid concatenate parameters")
+                                # check for concatenation, also retrieves MKAY keyword
+                                    if ((len(line) - 3) >= 2):
+
+                                        # let x be the index we are checking, note that we adjust +3 since we want to
+                                        # access the indeces after the first instance of the variable to print
+
+                                        for x in range(0, len(line)-3):
+                                            
+                                            # + keyword
+                                            if x % 2 == 0:
+                                                if line[x+3][1] != KEYWORD_SEPERATOR:
+
+                                                    # check for MKAY keyword
+                                                    if (x+1) == (len(line)-3):
+                                                        if line[x+3][1] != DELIMITER_END:
+                                                            errors.append("Line " + line_no + ": Invalid SMOOSH syntax, invalid concatenate parameters")
+                                                    # not yet end of code line
+                                                    else:
+                                                        errors.append("Line " + line_no + ": Invalid SMOOSH syntax, waiting for seperator keyword")
+                                                else:
+                                                    # check if invalid last value
+                                                    if (x+1) == (len(line)-3) and (line[x+3][0] == line[-1][0]):
+                                                        errors.append("Line " + line_no + ": Invalid SMOOSH syntax, waiting for value to print")
+                                            # variables
+                                            elif x % 2 != 0:
+                                                if line[x+3][1] not in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
+                                                    errors.append("Line " + line_no + ": Invalid SMOOSH syntax, waiting for value to print")
+                                    
+                                    # invalid number of multivalues to print
+                                    else:
+                                        if len(line) > 3:
+                                            errors.append("Line " + line_no + ": Invalid SMOOSH syntax, invalid concatenate parameters")
 
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -354,43 +479,51 @@ def syntax_tester(code_details):
 
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
-
         # end of for loop for checking syntax
+    
+    # check if function section is valid
+    if func_delimiter_start == True:
+        errors.append("Line " + func_line_start + ": Invalid HOW IZ I syntax, valid IF U SAY SO keyword not found")
+    
+    # check if code block section is valid
+    if code_delimiter_start == True:
+        errors.append("Line " + func_line_start + ": Invalid HAI syntax, valid KTHXBYE keyword not found")
 
     # check if variable section is valid
     if varsec_delimiter_start == True and invalid_OBTW == 0:
         errors.append("Line " + varsec_line_start + ": Invalid WAZZUP syntax, BUHBYE keyword not found")
     elif varsec_delimiter_start == True and invalid_OBTW == 1:
         errors.append("Line " + varsec_line_start + ": Invalid BUHBYE syntax for WAZZUP keyword")
-    
-    # check if function section is valid
-    if func_delimiter_start == True:
-        errors.append("Line " + func_line_start + ": Invalid HOW IZ I syntax, IF U SAY SO keyword not found")
+
+
+    # IMPORTANT: Here, we pass the values of the cleaned code block and if the code is valid
+    # Returns 0 if syntax errors exist
+    # Returns 1 if there are no syntax errors
+
+    if len(errors) > 0:
+        return [code_block, 0]
+    elif len(errors) == 0:
+        return [code_block, 1]
+    # error trap
+    else: return [code_block, 0]
 
 
 # testing 
 
 sample = """
-HOW IZ I sample_function
+HOW IZ I sample_function YR x
     VISIBLE hello
-IF U SAY SO BTW hello
+    GTFO
+IF U SAY SO
 
 HAI
-BTW comment here
-WAZZUP
-    I HAS A thing
-    I HAS A thing2 ITZ SUM OF 5 AN 4
-BUHBYE 
-OBTW yes
-TLDR
-
 VISIBLE hello
-KTHXBYE
-"""
 
-test = lexical_tester(sample)
-syntax_tester(test)
-print("")
-for error in errors:
-    print(error)
-print("")
+KTHXBYE"""
+
+# test = lexical_tester(sample)
+# syntax_tester(test)
+# print("")
+# for error in errors:
+#     print(error)
+# print("")
