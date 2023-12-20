@@ -72,7 +72,7 @@ def detect_lexemes(line):
     
     # comment tokens
 
-    elif (re.search("(^ )?OBTW(.)", line) != None):
+    elif (re.search("(.)?OBTW(.)?", line) != None):
         lexeme_tokens.append("OBTW")
         lexeme_classification.append(
             KEYWORD_COMMENT
@@ -105,7 +105,7 @@ def detect_lexemes(line):
         )
         token = "WAZZUP"
 
-    elif (re.search("(.)?BUHBYE$", line) != None):
+    elif (re.search("(.)?BUHBYE(.)?", line) != None):
         lexeme_tokens.append("BUHBYE")
         lexeme_classification.append(
             DELIMITER_VAR
@@ -412,14 +412,14 @@ def detect_lexemes(line):
         )
         token = "HOW IZ I"
     
-    elif ((re.search("(^ )?IF U SAY SO", line)) != None):
+    elif ((re.search("(^ )?IF U SAY SO(.)?", line)) != None):
         lexeme_tokens.append("IF U SAY SO")
         lexeme_classification.append(
             IDENTIFIER_FUNC
         )
         token = "IF U SAY SO"
     
-    elif ((re.search("(^ )?GTFO (.)", line)) != None):
+    elif ((re.search("(^ )?GTFO(.)?", line)) != None):
         lexeme_tokens.append("GTFO")
         lexeme_classification.append(
             KEYWORD_FUNC
@@ -456,7 +456,7 @@ def detect_lexemes(line):
         )
         token = "YR"
 
-    elif ((re.search(" AN ", line)) != None):
+    elif ((re.search(" AN(.)?", line)) != None):
         lexeme_tokens.append("AN")
         lexeme_classification.append(
             KEYWORD_SEPERATOR
