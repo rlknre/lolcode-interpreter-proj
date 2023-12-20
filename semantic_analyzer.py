@@ -51,10 +51,15 @@ lexical_test = lexical_tester(sample)
 syntax_test = syntax_tester(lexical_test)
 
 if len(syntax_test) != 2:
-    print("Invalid")
+    print("\nInvalid\n")
 
 # no errors in code
 else:
-    code_block = syntax_test[0]
-    print("\nNo errors")
-    print("")
+
+    syntax_check = syntax_test[1]
+    if syntax_check == 1:
+        code_block = syntax_test[0]
+        print("\nNo errors")
+        print("")
+    else:
+        print("\nInvalid\n")
