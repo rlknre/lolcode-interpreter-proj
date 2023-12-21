@@ -32,6 +32,7 @@ from lexical_analyzer import LITERAL_NUMBAR
 from lexical_analyzer import LITERAL_NUMBR
 from lexical_analyzer import LITERAL_TROOF
 from lexical_analyzer import LITERAL_YARN
+from lexical_analyzer import LITERAL_NOOB
 
 
 # arrays for syntax tracking
@@ -137,7 +138,7 @@ def syntax_tester(code_details):
     # block after the OBTW as a whole multiline comment, hence, no code syntax to check
 
     # for checking
-    # print("")
+    print("")
     for line in code_block:
         print(line)
     #     print(str(len(line)) + "\n")
@@ -278,6 +279,48 @@ def syntax_tester(code_details):
                     if line[1][0] in ['HOW IZ I', 'IF U SAY SO']:
                         if code_delimiter_start ==  True and func_delimiter_start == False:
                             errors.append("Line " + line_no + ": Invalid keyword in HAI-KTHXBYE code block")
+
+                    # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+                    # keywords for varident operations
+                    if line[1][1] == IDENTIFIER_VARS:
+
+                        # valid
+                        if len(line) >= 4:
+
+                            # R and IS NOW A
+                            if len(line) == 4:
+
+                                # R
+                                if line[2][0] == 'R' and line[2][1] == VAR_ASSIGN:
+
+                                    # NOTE: Insert expression instance for succeeding if statement
+
+                                    if line[3][1] not in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_YARN]:
+                                        errors.append("Line " + line_no + ": Invalid R parameter, expecting literal, variable, or expression")
+                                
+                                # IS NOW A
+                                elif line[2][0] == 'IS NOW A' and line[2][1] == KEYWORD_TYPECAST:
+                                    if line[3][1] != LITERAL:
+                                        errors.append("Line " + line_no + ": Invalid typecasting, expecting literal type")
+
+                                else:
+                                    errors.append("Line " + line_no + ": Invalid typecasting parameters")
+
+                            # R MAEK
+                            elif len(line) == 6:
+                                if line[2][0] == 'R' and line[2][1] == VAR_ASSIGN and line[3][0] == 'MAEK' and line[3][1] == KEYWORD_TYPECAST:
+                                    if line[4][1] != IDENTIFIER_VARS or line[5][1] != LITERAL:
+                                        errors.append("Line " + line_no + ": Invalid typecasting parameters")
+                                else:
+                                    errors.append("Line " + line_no + ": Invalid typecasting parameters")
+                            
+                            else:
+                                errors.append("Line " + line_no + ": Invalid typecasting parameters")
+                                
+                        # invalid
+                        else:
+                            errors.append("Line " + line_no + ": Waiting for an operation for the variable")
 
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -510,20 +553,32 @@ def syntax_tester(code_details):
 
 # testing 
 
-sample = """
-HOW IZ I sample_function YR x
-    VISIBLE hello
-    GTFO
-IF U SAY SO
+sample = """HAI
+    I HAS A var1
+    I HAS A var2 ITZ 12
+    I HAS A var3
 
-HAI
-VISIBLE hello
+    VISIBLE "noot noot" + var2
+
+    var2 IS NOW A NUMBAR
+    VISIBLE var2
+
+    var1 R 17
+    var2 R var1
+
+    var2 R MAEK var2 YARN
+
+    VISIBLE "Need input: "
+    GIMMEH var3
 
 KTHXBYE"""
 
+# print("")
 # test = lexical_tester(sample)
 # syntax_tester(test)
 # print("")
-# for error in errors:
-#     print(error)
-# print("")
+
+if len(errors) > 0:
+    for error in errors:
+        print(error)
+    print("")

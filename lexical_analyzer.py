@@ -44,6 +44,7 @@ LITERAL_NUMBAR = "NUMBAR Literal"
 LITERAL_NUMBR = "NUMBR Literal"
 LITERAL_TROOF = "TROOF Literal"
 LITERAL_YARN = "YARN Literal"
+LITERAL_NOOB = "NOOB Literal"
 
 # add function description here
 
@@ -128,7 +129,7 @@ def detect_lexemes(line):
         )
         token = "ITZ"
 
-    elif (re.search("(^ )?IT ", line) != None):
+    elif (re.search("(^ )?IT(.)?", line) != None):
         lexeme_tokens.append("IT")
         lexeme_classification.append(
             VAR_ASSIGN
@@ -543,9 +544,9 @@ def detect_lexemes(line):
         token = troof_literal
 
     # type literal
-    elif (re.search("((.)?NUMBR |(.)?NUMBAR |(.)?YARN |(.)?TROOF )", line) != None):
+    elif (re.search("((.)? NUMBR(.)?|(.)? NUMBAR(.)?|(.)? YARN(.)?|(.)? TROOF(.)?)", line) != None):
 
-        type_substring = re.search("((.)?NUMBR |(.)?NUMBAR |(.)?YARN |(.)?TROOF )", line)
+        type_substring = re.search("((.)? NUMBR(.)?|(.)? NUMBAR(.)?|(.)? YARN(.)?|(.)? TROOF(.)?)", line)
         type_literal = line[type_substring.start():type_substring.end()]
         type_literal = type_literal.replace(" ", "")
 
