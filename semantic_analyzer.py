@@ -48,7 +48,7 @@ symbol_table_type.append(LITERAL_NOOB)
 def semantic_perform(code_details):
 
     code_block = code_details
-    
+
     for line in code_block:
 
         if len(line) > 1:
@@ -66,6 +66,9 @@ def semantic_perform(code_details):
 
                 # initialized variable
                 elif len(line) == 5:
+
+                    # NOTE: add condition where it overwrites the value if variable already exists
+
                     symbol_table_identifiers.append(line[2][0])
 
                     if line[4][1] == LITERAL_YARN:
@@ -80,8 +83,9 @@ def semantic_perform(code_details):
                     
                     elif line[4][1] == LITERAL_TROOF:
                         symbol_table_values.append(line[4][0])
-                        symbol_table_type.append(LITERAL_YARN)
+                        symbol_table_type.append(LITERAL_TROOF)
                     
+                    # convert values to its corresponding type
                     elif line[4][1] == LITERAL_NUMBR:
                         symbol_table_values.append(int(line[4][0]))
                         symbol_table_type.append(LITERAL_NUMBR)
@@ -90,7 +94,7 @@ def semantic_perform(code_details):
                         symbol_table_values.append(float(line[4][0]))
                         symbol_table_type.append(LITERAL_NUMBAR)
 
-             # ----------------------------------------------------------------------------------------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------------------------------------------
 
             # VISIBLE
             if line[1][0] == 'VISIBLE' and line[1][1] == KEYWORD_PRINT:
@@ -109,15 +113,26 @@ def semantic_perform(code_details):
                         symbol_table_type[0] = LITERAL_YARN
 
                         print(symbol_table_values[0])
-                    else:
-                        print(line[2][0])
 
+                    else:
+                        if line[2][0] in symbol_table_identifiers:
+                            var_index = symbol_table_identifiers.index(line[2][0])
+                            
+                            symbol_table_values[0] = ''
+
+                            it_var = str(symbol_table_values[var_index])
+                            symbol_table_values[0] = it_var
+                            symbol_table_type[0] = LITERAL_YARN
+
+                            print(symbol_table_values[0])
+                        
                 # multiple values
                 else:
                     # use the IT variable
                     symbol_table_values[0] = ''
                     it_var = ''
-                    for x in range(1, len(line)-1):
+                    valid_visible = 1
+                    for x in range(1, len(line)):
                         if (x % 2) == 0:
                             if line[x][1] == LITERAL_YARN:
                                 to_print = list(line[x][0])
@@ -126,40 +141,188 @@ def semantic_perform(code_details):
                                 to_print = ''.join(to_print)
 
                                 it_var = ''.join([it_var, to_print])
-                            else:
-                                print(line[x][0], end=" ")
 
+                            else:
+                                if line[x][0] in symbol_table_identifiers:
+                                    var_index = symbol_table_identifiers.index(line[x][0])
+                                    to_yarn = str(symbol_table_values[var_index])
+                                    it_var = ' '.join([it_var, to_yarn])
+                                else:
+                                    valid_visible = 0
+
+                    # does not print if a variable not found 
+                    if valid_visible == 1:
+                        symbol_table_values[0] = it_var
+                        symbol_table_type[0] = LITERAL_YARN
+                        print(symbol_table_values[0])
+
+                    # NOTE: add error condition
+                    
+            # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+            
+            if line[1][1] == IDENTIFIER_VARS:
+
+                if line[1][0] in symbol_table_identifiers:
+
+                    var_index = symbol_table_identifiers.index(line[1][0])
+
+                    # IS NOW A
+                    if line[2][0] == 'IS NOW A' and line[2][1] == KEYWORD_TYPECAST:
+
+                        # NUMBR cases
+                        if symbol_table_type[var_index] == LITERAL_NUMBR:
+                            # proceed to conversion
+                            if line[3][0] == 'NUMBAR':
+                                to_numbar = float(symbol_table_values[var_index])
+                                symbol_table_values[var_index] = to_numbar
+                                symbol_table_type[var_index] = LITERAL_NUMBAR
+                            elif line[3][0] == 'YARN':
+                                to_str = str(symbol_table_values[var_index])
+                                symbol_table_values[var_index] = to_str
+                                symbol_table_type[var_index] = LITERAL_YARN
+                            elif line[3][0] == 'TROOF':
+                                if symbol_table_values[var_index] == 1:
+                                    symbol_table_values[var_index] = 'WIN'
+                                    symbol_table_type[var_index] = LITERAL_TROOF
+                                elif symbol_table_values[var_index] == 0:
+                                    symbol_table_values[var_index] = 'FAIL'
+                                    symbol_table_type[var_index] = LITERAL_TROOF
+                                # NOTE: Add else statement
+                            
+                            # NOTE: Add else statement
+
+                        # NUMBAR cases
+                        elif symbol_table_type[var_index] == LITERAL_NUMBAR:
+                            # proceed to conversion
+                            if line[3][0] == 'NUMBR':
+                                to_numbr = int(symbol_table_values[var_index])
+                                symbol_table_values[var_index] = to_numbr
+                                symbol_table_type[var_index] = LITERAL_NUMBR
+                            elif line[3][0] == 'YARN':
+                                to_str = str(symbol_table_values[var_index])
+                                symbol_table_values[var_index] = to_str
+                                symbol_table_type[var_index] = LITERAL_YARN
+                            elif line[3][0] == 'TROOF':
+                                if symbol_table_values[var_index] == 1.0:
+                                    symbol_table_values[var_index] = 'WIN'
+                                    symbol_table_type[var_index] = LITERAL_TROOF
+                                elif symbol_table_values[var_index] == 0:
+                                    symbol_table_values[var_index] = 'FAIL'
+                                    symbol_table_type[var_index] = LITERAL_TROOF
+                                # NOTE: Add else statement
+                            
+                            # NOTE: Add else statement
+
+
+                        # TROOF cases
+
+
+                        # YARN case
+
+                # NOTE: Add error message for nonexisting varidents
+
+            # ----------------------------------------------------------------------------------------------------------------------------------------------
+            
+
+            # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+            # GIMMEH
+            if line[1][0] == 'GIMMEH' and line[1][1] == KEYWORD_INPUT:
+                if line[2][0] in symbol_table_identifiers:
+                    var_index = symbol_table_identifiers.index(line[2][0])
+                    val_input = input('')
+                    val_input = val_input.strip('\n')
+                    
+                    symbol_table_values[var_index] = val_input
+                    symbol_table_type[var_index] = LITERAL_YARN
+
+                # NOTE: add error condition
+
+            
+            # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+            # SMOOSH
+            # BUG: Concat problems with varidednts in between YARNs (lexical / syntax problem)
+
+            if line[1][0] == 'SMOOSH' and line[1][1] == KEYWORD_CONCAT:
+                # should place concatenated string to IT variable
+                it_var = ''
+                valid_concat = 1
+
+                for x in range(1, len(line)):
+                    if (x % 2) == 0:
+                        if line[x][1] == LITERAL_YARN:
+                            to_concat = list(line[x][0])
+                            to_concat = to_concat[:-1]
+                            to_concat = to_concat[1:]
+                            to_concat = ''.join(to_concat)
+
+                            it_var = ''.join([it_var, to_concat])
+                        else:
+                            if line[x][0] in symbol_table_identifiers:
+                                var_index = symbol_table_identifiers.index(line[x][0])
+                                to_yarn = symbol_table_values[var_index]
+
+                                # typecast
+                                if symbol_table_type[var_index] != LITERAL_YARN:
+                                    to_yarn = str(symbol_table_values[var_index])
+
+                                    # implicit recast of variables
+                                    symbol_table_values[var_index] = to_yarn
+                                    symbol_table_type[var_index] = LITERAL_YARN
+
+                                it_var = ' '.join([it_var, to_yarn])
+                            
+                            else:
+                                valid_concat = 0
+
+                # initialze CONCAT values to IT variable if valid
+                if valid_concat == 1:
                     symbol_table_values[0] = it_var
                     symbol_table_type[0] = LITERAL_YARN
-                    print(symbol_table_values[0])
 
-    # checker
-    print("\n -- ")
-    print(symbol_table_identifiers)
-    print(symbol_table_values)
-    print(symbol_table_type)
+                # NOTE: Add error message
+
+            # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+
+            # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+
+            # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+
+    # checker of symbol table
+    print("\n--- ")
+    # print(symbol_table_identifiers)
+    # print(symbol_table_values)
+    # print(symbol_table_type)
 
 # testing
 
 sample = """HAI
-    I HAS A var1
+    I HAS A var1 ITZ "hello"
     I HAS A var2 ITZ 12
-    I HAS A var3
-    I HAS A var4 ITZ WIN
-    I HAS A var5 ITZ 12.5
+    I HAS A var3 ITZ WIN
+    I HAS A var4 ITZ 12.5
 
     VISIBLE "noot noot" + var2
+    BTW VISIBLE var2
 
     var2 IS NOW A NUMBAR
-    VISIBLE var2
 
-    var1 R 17
-    var2 R var1
+    OBTW
+    VISIBLE ""
+    VISIBLE "String before input: " + var1
+    VISIBLE "Need input: "
+    GIMMEH var1
 
-    var2 R MAEK var2 YARN
+    VISIBLE ""
+    VISIBLE "String after input: " + var1
+    TLDR
 
-    BTW VISIBLE "Need input: "
-    GIMMEH var3
+    SMOOSH "hellO" AN var3 AN var1
 
 KTHXBYE"""
 

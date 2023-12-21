@@ -138,9 +138,9 @@ def syntax_tester(code_details):
     # block after the OBTW as a whole multiline comment, hence, no code syntax to check
 
     # for checking
-    print("")
-    for line in code_block:
-        print(line)
+    # print("")
+    # for line in code_block:
+    #     print(line)
     #     print(str(len(line)) + "\n")
 
     else:
