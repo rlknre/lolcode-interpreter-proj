@@ -777,26 +777,38 @@ def lexical_tester(code):
                             if string_delimiters > 2:
                                 clearing_extra_string = list(token_details[2])
 
-                                # clears extra strings
+                                # where we place the string
+                                retrieve_string = []
+
+                                delimiters_found = 0
                                 while True:
-                                    # string converted to list and continously pop the string list
+
                                     if clearing_extra_string[-1] == '"':
+                                        delimiters_found += 1
 
-                                        # checks for multiple strings, make sure to get only first instance at start
-                                        clearing_extra_string.pop()
-                                        string_delimiters = string_delimiters - 1
-
-                                        # already at the first instance of string
-                                        if string_delimiters <= 2:
-                                            clearing_extra_string.pop()
-                                            break
-
+                                    retrieve_string.insert(0, clearing_extra_string[-1])
                                     clearing_extra_string.pop()
+
+                                    if delimiters_found == 2:
+                                        break
                                 
-                                # include in the details only one instance of a yarn
-                                token_details[2] = "".join(clearing_extra_string)
-                                token_details[0] = "".join(clearing_extra_string)
-                        
+                                # instance to remove
+                                token_details[2] = "".join(retrieve_string)
+
+                                # insert here string without the quotation marks
+                                retrieve_string = retrieve_string[:-1]
+                                retrieve_string = retrieve_string[1:]
+                                clean_string = ''.join(retrieve_string)
+                                token_details[0] = "".join(clean_string)
+                            
+                            # single yarn left
+                            else:
+                                clean_string = list(token_details[2])
+                                clean_string = clean_string[:-1]
+                                clean_string = clean_string[1:]
+                                clean_string = ''.join(clean_string)
+                                token_details[0] = "".join(clean_string)
+
                         # end of condition for yarns
 
                         # add new details to the list of tokens and lexemes

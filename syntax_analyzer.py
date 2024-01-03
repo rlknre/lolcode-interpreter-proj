@@ -130,18 +130,18 @@ def syntax_tester(code_details):
                  
     # end of loop for cleaning up comments
 
+    # for checking
+    # print("")
+    for line in code_block:
+        print(line)
+    #     print(str(len(line)) + "\n")
+
     if searching_TLDR == 1 or invalid_TLDR == 1:
         errors.append("Line " + searching_TLDR_from_line + ": Invalid multiline syntax, no TLDR for OBTW")
     
     # IMPORTANT: In this part, we only check the syntax of the whole code if there are no errors
     # in the comments part. If ever there is an OBTW with a missing TLDR, it sees the code
     # block after the OBTW as a whole multiline comment, hence, no code syntax to check
-
-    # for checking
-    # print("")
-    # for line in code_block:
-    #     print(line)
-    #     print(str(len(line)) + "\n")
 
     else:
 
@@ -566,7 +566,7 @@ sample = """HAI
     var1 R 17
     var2 R var1
 
-    var2 R MAEK var2 YARN
+    SMOOSH "var2" AN "string" AN var3 AN "string"
 
     VISIBLE "Need input: "
     GIMMEH var3

@@ -73,12 +73,12 @@ def semantic_perform(code_details):
 
                     if line[4][1] == LITERAL_YARN:
                         # clear string
-                        yarn_val = line[4][0]
-                        yarn_val = list(yarn_val)
-                        yarn_val = yarn_val[:-1]
-                        yarn_val = yarn_val[1:]
-                        yarn_val = ''.join(yarn_val)
-                        symbol_table_values.append(yarn_val)
+                        # yarn_val = line[4][0]
+                        # yarn_val = list(yarn_val)
+                        # yarn_val = yarn_val[:-1]
+                        # yarn_val = yarn_val[1:]
+                        # yarn_val = ''.join(yarn_val)
+                        symbol_table_values.append(line[4][0])
                         symbol_table_type.append(LITERAL_YARN)
                     
                     elif line[4][1] == LITERAL_TROOF:
@@ -96,7 +96,7 @@ def semantic_perform(code_details):
 
             # ----------------------------------------------------------------------------------------------------------------------------------------------
 
-            # VISIBLE
+            # VSIBLIE
             if line[1][0] == 'VISIBLE' and line[1][1] == KEYWORD_PRINT:
                 # only one to print
                 if len(line) <= 3:
@@ -104,12 +104,12 @@ def semantic_perform(code_details):
                         # use the IT variable 
                         symbol_table_values[0] = ''
 
-                        # cleans string
-                        it_var = line[2][0]
-                        it_var = list(it_var)
-                        it_var = it_var[:-1]
-                        it_var = it_var[1:]
-                        symbol_table_values[0] = ''.join(it_var)
+                        # # cleans string
+                        # it_var = line[2][0]
+                        # it_var = list(it_var)
+                        # it_var = it_var[:-1]
+                        # it_var = it_var[1:]
+                        symbol_table_values[0] = (line[2][0])
                         symbol_table_type[0] = LITERAL_YARN
 
                         print(symbol_table_values[0])
@@ -135,12 +135,12 @@ def semantic_perform(code_details):
                     for x in range(1, len(line)):
                         if (x % 2) == 0:
                             if line[x][1] == LITERAL_YARN:
-                                to_print = list(line[x][0])
-                                to_print = to_print[:-1]
-                                to_print = to_print[1:]
-                                to_print = ''.join(to_print)
+                                # to_print = list(line[x][0])
+                                # to_print = to_print[:-1]
+                                # to_print = to_print[1:]
+                                # to_print = ''.join(to_print)
 
-                                it_var = ''.join([it_var, to_print])
+                                it_var = ''.join([it_var, (line[x][0])])
 
                             else:
                                 if line[x][0] in symbol_table_identifiers:
@@ -170,7 +170,7 @@ def semantic_perform(code_details):
                     # IS NOW A
                     if line[2][0] == 'IS NOW A' and line[2][1] == KEYWORD_TYPECAST:
 
-                        # NUMBR cases
+                        # NUBR cases
                         if symbol_table_type[var_index] == LITERAL_NUMBR:
                             # proceed to conversion
                             if line[3][0] == 'NUMBAR':
@@ -253,12 +253,12 @@ def semantic_perform(code_details):
                 for x in range(1, len(line)):
                     if (x % 2) == 0:
                         if line[x][1] == LITERAL_YARN:
-                            to_concat = list(line[x][0])
-                            to_concat = to_concat[:-1]
-                            to_concat = to_concat[1:]
-                            to_concat = ''.join(to_concat)
+                            # to_concat = list(line[x][0])
+                            # to_concat = to_concat[:-1]
+                            # to_concat = to_concat[1:]
+                            # to_concat = ''.join(to_concat)
 
-                            it_var = ''.join([it_var, to_concat])
+                            it_var = ''.join([it_var, (line[x][0])])
                         else:
                             if line[x][0] in symbol_table_identifiers:
                                 var_index = symbol_table_identifiers.index(line[x][0])
@@ -295,9 +295,9 @@ def semantic_perform(code_details):
 
     # checker of symbol table
     print("\n--- ")
-    # print(symbol_table_identifiers)
-    # print(symbol_table_values)
-    # print(symbol_table_type)
+    print(symbol_table_identifiers)
+    print(symbol_table_values)
+    print(symbol_table_type)
 
 # testing
 
@@ -305,24 +305,23 @@ sample = """HAI
     I HAS A var1 ITZ "hello"
     I HAS A var2 ITZ 12
     I HAS A var3 ITZ WIN
-    I HAS A var4 ITZ 12.5
 
+    OBTW
     VISIBLE "noot noot" + var2
     BTW VISIBLE var2
 
-    var2 IS NOW A NUMBAR
+    BTW var2 IS NOW A NUMBAR
 
-    OBTW
     VISIBLE ""
     VISIBLE "String before input: " + var1
     VISIBLE "Need input: "
-    GIMMEH var1
+    BTW GIMMEH var1
 
     VISIBLE ""
     VISIBLE "String after input: " + var1
     TLDR
 
-    SMOOSH "hellO" AN var3 AN var1
+    BTW SMOOSH "hellO" AN var3 AN var1
 
 KTHXBYE"""
 
@@ -337,13 +336,14 @@ for line in lexical_test:
 if found_lexeme == 1:
     syntax_test = syntax_tester(lexical_test)
 
-    # check if there are errors in the code
+    # check if return value of syntax is correct
     if len(syntax_test) != 2:
         print("\nInvalid\n")
 
-    # no errors in code
     else:
         syntax_check = syntax_test[1]
+
+        # no errors in code
         if syntax_check == 1:
             code_block = syntax_test[0]
             print("\nNo errors. Running code... \n")
@@ -353,5 +353,6 @@ if found_lexeme == 1:
             semantic_perform(code_block)
             print("")
             
+        # errors in code
         else:
             print("\nInvalid\n")
