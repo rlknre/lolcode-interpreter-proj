@@ -13,38 +13,31 @@ token_list = []
 token_classification = []
 
 # constants for lexeme classification
-DELIMITER_CODE = "Code Delimiter"
-DELIMITER_STR = "String Delimiter"
-DELIMITER_VAR = "Declaration Delimiter"
-DELIMITER_CONDT = "Conditionals Delimiter"
-DELIMITER_END = "End of Expression Delimiter"
+# import keyword classifiers
+from keywords import DELIMITER_CODE, DELIMITER_STR, DELIMITER_VAR, DELIMITER_CONDT, DELIMITER_END
+from keywords import IDENTIFIER_VARS, IDENTIFIER_FUNC, IDENTIFIER_LOOP
+from keywords import VAR_DECLARE, VAR_ASSIGN
 
-IDENTIFIER_VARS = "Variable Identifier"
-IDENTIFIER_FUNC = "Function Identifier"
-IDENTIFIER_LOOP = "Loop Identifier"
+from keywords import KEYWORD_COMMENT
+from keywords import KEYWORD_ARITHMETIC 
+from keywords import KEYWORD_SEPERATOR 
+from keywords import KEYWORD_SEPERATOR 
+from keywords import KEYWORD_BOOLEAN 
+from keywords import KEYWORD_CONCAT 
+from keywords import KEYWORD_TYPECAST 
+from keywords import KEYWORD_PRINT 
+from keywords import KEYWORD_INPUT 
+from keywords import KEYWROD_CONDT 
+from keywords import KEYWORD_LOOP 
+from keywords import KEYWORD_FUNC 
 
-VAR_DECLARE = "Variable Declaration"
-VAR_ASSIGN = "Variable Assignment"
+from keywords import LITERAL
+from keywords import LITERAL_NUMBAR
+from keywords import LITERAL_NUMBR
+from keywords import LITERAL_TROOF
+from keywords import LITERAL_YARN
+from keywords import LITERAL_NOOB
 
-KEYWORD_COMMENT = "Comment Keyword"
-KEYWORD_ARITHMETIC = "Arithmetic Keyword"
-KEYWORD_SEPERATOR = "Separator Keyword"
-KEYWORD_COMPARE = "Comparison Keyword"
-KEYWORD_BOOLEAN = "Boolean Keyword"
-KEYWORD_CONCAT = "Concatenate Keyword"
-KEYWORD_TYPECAST = "Typecasting Keyword"
-KEYWORD_PRINT = "Output Keyword"
-KEYWORD_INPUT = "Input Keyword"
-KEYWROD_CONDT = "Conditional Keyword"
-KEYWORD_LOOP = "Loop Keyword"
-KEYWORD_FUNC = "Function Keyword"
-
-LITERAL = "Literal"
-LITERAL_NUMBAR = "NUMBAR Literal"
-LITERAL_NUMBR = "NUMBR Literal"
-LITERAL_TROOF = "TROOF Literal"
-LITERAL_YARN = "YARN Literal"
-LITERAL_NOOB = "NOOB Literal"
 
 # add function description here
 
@@ -99,14 +92,14 @@ def detect_lexemes(line):
 
     # variable declaration section tokens
 
-    elif (re.search("(.)?WAZZUP$", line) != None):
+    elif (re.search("(^.)?WAZZUP(.)?", line) != None):
         lexeme_tokens.append("WAZZUP")
         lexeme_classification.append(
             DELIMITER_VAR
         )
         token = "WAZZUP"
 
-    elif (re.search("(.)?BUHBYE(.)?", line) != None):
+    elif (re.search("(^.)?BUHBYE(.)?", line) != None):
         lexeme_tokens.append("BUHBYE")
         lexeme_classification.append(
             DELIMITER_VAR
@@ -286,12 +279,14 @@ def detect_lexemes(line):
 
     elif ((re.search(" A ", line)) != None):
         lexeme_tokens.append("A")
-        lexeme_classification.append("keyword")
+        lexeme_classification.append(
+            "Keyword"
+        )
         token = "A"
     
     # print function token
 
-    elif ((re.search("(^ )?VISIBLE ", line)) != None):
+    elif ((re.search("(^ )?VISIBLE(.)?", line)) != None):
         lexeme_tokens.append("VISIBLE")
         lexeme_classification.append(
             KEYWORD_PRINT
@@ -300,7 +295,7 @@ def detect_lexemes(line):
         
     # input function token
 
-    elif ((re.search("(^ )?GIMMEH ", line)) != None):
+    elif ((re.search("(^ )?GIMMEH(.)?", line)) != None):
         lexeme_tokens.append("GIMMEH")
         lexeme_classification.append(
             KEYWORD_INPUT
@@ -309,28 +304,28 @@ def detect_lexemes(line):
 
     # if-then tokens
 
-    elif ((re.search("(^ )?O RLY\?$", line)) != None):
+    elif ((re.search("(^.)?O RLY\?$", line)) != None):
         lexeme_tokens.append("O RLY?")
         lexeme_classification.append(
             DELIMITER_CONDT
         )
         token = "O RLY?"
     
-    elif ((re.search("(^ )?YA RLY$", line)) != None):
+    elif ((re.search("(^.)?YA RLY$", line)) != None):
         lexeme_tokens.append("YA RLY")
         lexeme_classification.append(
             KEYWROD_CONDT
         )
         token = "YA RLY"
     
-    elif ((re.search("(^ )?NO WAI$", line)) != None):
+    elif ((re.search("(^.)?NO WAI(.)?", line)) != None):
         lexeme_tokens.append("NO WAI")
         lexeme_classification.append(
             KEYWROD_CONDT
         )
         token = "NO WAI"
 
-    elif ((re.search("(^ )?OIC$", line)) != None):
+    elif ((re.search("(^.)?OIC(.)?", line)) != None):
         lexeme_tokens.append("OIC")
         lexeme_classification.append(
             DELIMITER_CONDT
@@ -338,27 +333,27 @@ def detect_lexemes(line):
         token = "OIC"
 
     # switch case tokens
-
-    elif ((re.search("(^ )?WTF$", line)) != None):
-        lexeme_tokens.append("WTF")
-        lexeme_classification.append(
-            DELIMITER_CONDT
-        )
-        token = "WTF"
-    
-    elif ((re.search("(^ )?OMG ", line)) != None):
-        lexeme_tokens.append("OMG")
-        lexeme_classification.append(
-            KEYWROD_CONDT
-        )
-        token = "OMG"
-    
+        
     elif ((re.search("(^ )?OMGWTF$", line)) != None):
         lexeme_tokens.append("OMGWTF")
         lexeme_classification.append(
             KEYWROD_CONDT
         )
         token = "OMGWTF"
+
+    elif ((re.search("(^ )?WTF\?$", line)) != None):
+        lexeme_tokens.append("WTF?")
+        lexeme_classification.append(
+            DELIMITER_CONDT
+        )
+        token = "WTF"
+    
+    elif ((re.search("(^ )?OMG(.)?", line)) != None):
+        lexeme_tokens.append("OMG")
+        lexeme_classification.append(
+            KEYWROD_CONDT
+        )
+        token = "OMG"
 
     # loop tokens
 
@@ -423,7 +418,7 @@ def detect_lexemes(line):
     elif ((re.search("(^ )?GTFO(.)?", line)) != None):
         lexeme_tokens.append("GTFO")
         lexeme_classification.append(
-            KEYWORD_FUNC
+            KEYWROD_CONDT
         )
         token = "GTFO"
 
@@ -434,7 +429,7 @@ def detect_lexemes(line):
         )
         token = "FOUND YR"
     
-    elif ((re.search("(^ )?I IZ (.)", line)) != None):
+    elif ((re.search("(^ )?I IZ (.)?", line)) != None):
         lexeme_tokens.append("I IZ")
         lexeme_classification.append(
             IDENTIFIER_FUNC
