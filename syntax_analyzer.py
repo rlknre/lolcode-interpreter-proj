@@ -16,6 +16,7 @@ from keywords import IDENTIFIER_VARS, IDENTIFIER_FUNC, IDENTIFIER_LOOP
 from keywords import VAR_DECLARE, VAR_ASSIGN
 
 from keywords import KEYWORD_COMMENT
+from keywords import KEYWORD_COMPARE
 from keywords import KEYWORD_ARITHMETIC 
 from keywords import KEYWORD_SEPERATOR 
 from keywords import KEYWORD_SEPERATOR 
@@ -54,7 +55,8 @@ def expression_tester(line_no, line, operation_type):
 
         # ----------------------------------------------------------------------------------------------------------------------------------------------
 
-        if line[0][1] == operation_type:
+        # Arithmetic / Boolean Operations
+        if operation_type == KEYWORD_ARITHMETIC or operation_type == KEYWORD_BOOLEAN:
 
             if len(line) < 2:
                  errors.append("Line " + line_no + ": Operation missing some values")
@@ -156,6 +158,88 @@ def expression_tester(line_no, line, operation_type):
                     else:
                         errors.append("Line " + line_no + ": Invalid operation syntax detected")
                         return 0
+
+        # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+        # Comparison / Relational Operations
+        elif operation_type == KEYWORD_COMPARE:
+
+            # Comparison Operations
+            if len(line) == 4:
+                if line[0][0] not in ['DIFFRINT', 'BOTH SAEM'] and line[0][1] != KEYWORD_COMPARE:
+                    errors.append("Line " + line_no + ": Invalid comparison syntax detected")
+                else:
+                    # check if valid seperator
+                    if line[2][0] == 'AN' and line[2][1] == KEYWORD_SEPERATOR:
+
+                        # varidents
+                        if line[1][1] == IDENTIFIER_VARS:
+                            if line[3][1] not in [IDENTIFIER_VARS, LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_TROOF, LITERAL_YARN]:
+                                errors.append("Line " + line_no + ": Waiting for comparison variable keyword")
+                        # NUMBR
+                        if line[1][1] == LITERAL_NUMBR and line[3][1] != LITERAL_NUMBR:
+                            errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+
+                        # NUMBAR
+                        if line[1][1] == LITERAL_NUMBAR and line[3][1] != LITERAL_NUMBAR:
+                            errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+
+                        # TROOF
+                        if line[1][1] == LITERAL_TROOF and line[3][1] != LITERAL_TROOF:
+                            errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+
+                        # YARN
+                        if line[1][1] == LITERAL_YARN and line[3][1] != LITERAL_YARN:
+                            errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+
+                    else:
+                        errors.append("Line " + line_no + ": Waiting for separator keyword")
+
+            # Relational Operations
+            elif len(line) == 7:
+                if line[0][0] not in ['DIFFRINT', 'BOTH SAEM'] and line[0][1] != KEYWORD_COMPARE:
+                    errors.append("Line " + line_no + ": Invalid comparison syntax detected")
+                else:
+
+                    # check if valid relational operation
+                    if line[3][0] not in ['BIGGR OF', 'SMALLR OF'] and line[3][1] != KEYWORD_ARITHMETIC:
+                        errors.append("Line " + line_no + ": Waiting for comparison variable keyword")
+                    else:
+
+                        # checker if valid call for first variable
+                        if line[1][0] != line[4][0] or line[1][1] != line[4][1]:
+                            errors.append("Line " + line_no + ": Check comparison variables for errors")
+                        else:
+
+                            # check if valid seperator
+                            if line[2][0] == 'AN' and line[2][1] == KEYWORD_SEPERATOR and line[5][0] == 'AN' and line[5][1] == KEYWORD_SEPERATOR:
+
+                                # varidents
+                                if line[1][1] == IDENTIFIER_VARS:
+                                    if line[6][1] not in [IDENTIFIER_VARS, LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_TROOF, LITERAL_YARN]:
+                                        errors.append("Line " + line_no + ": Waiting for comparison variable keyword")
+                                # NUMBR
+                                if line[1][1] == LITERAL_NUMBR and line[6][1] != LITERAL_NUMBR:
+                                    errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+
+                                # NUMBAR
+                                if line[1][1] == LITERAL_NUMBAR and line[6][1] != LITERAL_NUMBAR:
+                                    errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+
+                                # TROOF
+                                if line[1][1] == LITERAL_TROOF and line[6][1] != LITERAL_TROOF:
+                                    errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+
+                                # YARN
+                                if line[1][1] == LITERAL_YARN and line[6][1] != LITERAL_YARN:
+                                    errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+
+                            else:
+                                errors.append("Line " + line_no + ": Waiting for separator keyword")
+
+            else:
+                errors.append("Line " + line_no + ": Invalid comparison syntax detected")
+                return 0               
 
         # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -336,6 +420,11 @@ def syntax_tester(code_details):
                     if line[1][1] == KEYWORD_BOOLEAN:
                         check_syntax = line[1:]
                         valid_arithmetic = expression_tester(line_no, check_syntax, KEYWORD_BOOLEAN)
+
+                    # Comparison / Relational Operations
+                    if line[1][1] == KEYWORD_COMPARE:
+                        check_syntax = line[1:]
+                        valid_arithmetic = expression_tester(line_no, check_syntax, KEYWORD_COMPARE)
                     
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 

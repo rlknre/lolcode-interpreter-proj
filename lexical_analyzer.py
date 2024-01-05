@@ -19,6 +19,7 @@ from keywords import IDENTIFIER_VARS, IDENTIFIER_FUNC, IDENTIFIER_LOOP
 from keywords import VAR_DECLARE, VAR_ASSIGN
 
 from keywords import KEYWORD_COMMENT
+from keywords import KEYWORD_COMPARE
 from keywords import KEYWORD_ARITHMETIC 
 from keywords import KEYWORD_SEPERATOR 
 from keywords import KEYWORD_SEPERATOR 
