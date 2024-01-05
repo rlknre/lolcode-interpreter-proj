@@ -145,12 +145,12 @@ def detect_lexemes(line):
         )
         token = "SUM OF"
 
-    elif ((re.search("(^ )?PRODUCKT OF ", line)) != None):
-        lexeme_tokens.append("PRODUCKT OF")
+    elif ((re.search("(^ )?PRODUKT OF ", line)) != None):
+        lexeme_tokens.append("PRODUKT OF")
         lexeme_classification.append(
             KEYWORD_ARITHMETIC
         )
-        token = "PRODUCKT OF"
+        token = "PRODUKT OF"
     
     elif ((re.search("(^ )?DIFF OF ", line)) != None):
         lexeme_tokens.append("DIFF OF")
@@ -173,21 +173,21 @@ def detect_lexemes(line):
         )
         token = "MOD OF"
 
-    # comparison operations
-
     elif ((re.search("(^ )?BIGGR OF ", line)) != None):
         lexeme_tokens.append("BIGGR OF")
         lexeme_classification.append(
-            KEYWORD_COMPARE
+            KEYWORD_ARITHMETIC
         )
         token = "BIGGR OF"
 
     elif ((re.search("(^ )?SMALLR OF ", line)) != None):
         lexeme_tokens.append("SMALLR OF")
         lexeme_classification.append(
-            KEYWORD_COMPARE
+            KEYWORD_ARITHMETIC
         )
         token = "SMALLR OF"
+    
+    # comparison operations
     
     elif ((re.search("(^ )?BOTH OF ", line)) != None):
         lexeme_tokens.append("BOTH OF")
@@ -526,9 +526,9 @@ def detect_lexemes(line):
         token = numbr_literal
     
     # troof literal
-    elif (re.search("( WIN$| FAIL$)", line) != None):
+    elif (re.search("( WIN| FAIL)", line) != None):
 
-        troof_susbtring = re.search("( WIN$| FAIL$)", line)
+        troof_susbtring = re.search("( WIN| FAIL)", line)
         troof_literal = line[troof_susbtring.start():troof_susbtring.end()]
         troof_literal = troof_literal.replace(" ", "")
 

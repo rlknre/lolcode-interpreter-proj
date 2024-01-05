@@ -39,9 +39,121 @@ from keywords import LITERAL_NOOB
 # arrays for syntax tracking
 errors = []
 
-# function for checking code syntax of expressions (operations)
-def expression_tester(line_no, code_line):
-    None
+# function for checking code syntax of expressions (arithmetic/boolean operations)
+def expression_tester(line_no, line):
+    
+    # checker
+    operation = 0
+    operand = 0
+    expecting_seperator = 0
+
+    if len(line) < 2:
+        errors.append("Line " + line_no + ": Invalid operation syntax detected")
+    else:
+
+        # ----------------------------------------------------------------------------------------------------------------------------------------------
+        
+        # Arithmetic Operations
+        if line[0][1] == KEYWORD_ARITHMETIC:
+
+            if len(line) < 3:
+                 errors.append("Line " + line_no + ": Arithmetic operation missing some values")
+                 return 0
+            
+            else:
+                # Last value should be an operand
+                if line[-1][1] not in [IDENTIFIER_VARS, LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_TROOF, LITERAL_YARN]:
+                    errors.append("Line " + line_no + ": Invalid operation, should end with operand")
+                    return 0
+                else:
+
+                    # since we already checked first value
+                    operation += 1
+
+                    # count operand and operations / also check if seperator syntax is correct
+                    for x in range(1, len(line)):
+
+                        # expecting operation / operand
+                        if expecting_seperator == 0:
+
+                            # operation
+                            if line[x][1] == KEYWORD_ARITHMETIC:
+                                operation += 1
+                                if operand > 0:
+                                    expecting_seperator = 1
+                                
+                            # operand
+                            elif line[x][1] in [IDENTIFIER_VARS, LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_TROOF, LITERAL_YARN]:
+                                expecting_seperator = 1
+                                operand += 1
+                            
+                            # invalid
+                            else:
+                                errors.append("Line " + line_no + ": Invalid call, waiting for operation / value")
+                                return 0
+
+                        # expecting separator keyword
+                        elif expecting_seperator == 1:
+                            if line[x][0] == 'AN' and line[x][1] == KEYWORD_SEPERATOR:
+                                expecting_seperator = 0
+                            # nested operations
+                            elif line[x][1] == KEYWORD_ARITHMETIC:
+                                expecting_seperator = 0
+                                operation += 1
+                            elif line[x][1] in [IDENTIFIER_VARS, LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_TROOF, LITERAL_YARN]:
+                                operand += 1
+                            else:
+                                if operand == 0:
+                                    errors.append("Line " + line_no + ": Invalid operation, waiting for separator")
+                                    return 0
+                        
+                        # check if operation / operand count is still valid
+                        if operand > operation:
+                            if operand == operation + 3:
+                                errors.append("Line " + line_no + ": Invalid operation / operand placements")
+                                return 0
+                    
+                    # for checking
+                    # print(operand)
+                    # print(operation)
+
+                    # end of for loop
+                    # check if number of operands and operations is valid
+                    if (operation+1) == operand:
+                        return 1
+                    else:
+                        errors.append("Line " + line_no + ": Invalid arithmetic operation syntax detected")
+                        return 0
+
+        # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+        # Boolean Operations
+        elif line[0][1] == KEYWORD_BOOLEAN:
+
+            if line[1][0] not in ['ALL OF', 'ANY OF']:
+
+                # First value should be an operation
+                if line[0][1] not in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN]:
+                    errors.append("Line " + line_no + ": Invalid operation syntax detected")
+                else:
+                    # Last value should be an operand
+                    if line[-1][1] not in [IDENTIFIER_VARS, LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_TROOF]:
+                        errors.append("Line " + line_no + ": Invalid operation syntax detected") 
+
+        # ----------------------------------------------------------------------------------------------------------------------------------------------
+            
+            # ALL OF / ANY OF
+            else:
+
+                # ALL OF / ANY OF should end with MKAY
+                if line[-1][0] != 'MKAY' and line[-1][1] != DELIMITER_END:
+                    errors.append("Line " + line_no + ": Missing MKAY call for operation")
+                else:
+                    # Value before MKAY should be an operand
+                    if line[len(line)-2][1] not in [IDENTIFIER_VARS, LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_TROOF]:
+                        errors.append("Line " + line_no + ": Invalid operation syntax detected")
+            
+        # ----------------------------------------------------------------------------------------------------------------------------------------------
 
 
 # test if code syntax of lolcode is valid
@@ -54,9 +166,11 @@ def syntax_tester(code_details):
     code_delimiter_start = False
     varsec_delimiter_start = False
     func_delimiter_start = False
+    condt_delimiter_start = False
     loop_delimiter_start = False
 
     func_line_start = 0
+    condt_line_start = 0
     loop_line_start = 0
     varsec_line_start = 0
     varsec_line_end = 0
@@ -201,6 +315,16 @@ def syntax_tester(code_details):
 
                 # Main program or Function code block section
                 elif (code_delimiter_start == True):
+
+                    # Arithmetic Operation
+                    if line[1][1] == KEYWORD_ARITHMETIC:
+                        check_syntax = line[1:]
+                        valid_arithmetic = expression_tester(line_no, check_syntax)
+
+                        # for checking
+                        # if valid_arithmetic == 1: print("Valid!")
+                        # else:
+                        #     print("Not valid!")
                     
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -297,6 +421,17 @@ def syntax_tester(code_details):
                     if line[1][0] in ['O RLY?', 'WTF?', 'OIC'] and line[1][1] == DELIMITER_CONDT:
                         if len(line) != 2:
                             errors.append("Line " + line_no + ": Invalid condition delimiter syntax")
+                        else:
+                            if line[1][0] == 'O RLY?':
+                                if condt_delimiter_start == True:
+                                    errors.append("Line " + line_no + ": Invalid O RLY? if-else call")
+                                else:
+                                    condt_delimiter_start = True
+                                    condt_line_start = line_no                                
+                            elif line[1][0] == 'OIC':
+                                if condt_delimiter_start == True:
+                                    condt_delimiter_start = False
+                                    condt_line_start = 0
 
                     if line[1][0] in ['YA RLY', 'NO WAI'] and line[1][1] == KEYWROD_CONDT:
                         if len(line) != 2:
@@ -557,6 +692,10 @@ def syntax_tester(code_details):
     if code_delimiter_start == True:
         errors.append("Line " + func_line_start + ": Invalid HAI syntax, valid KTHXBYE keyword not found")
 
+    # check if flow-control statement sections are valid
+    if condt_delimiter_start == True:
+        errors.append("Line " + condt_line_start + ": Invalid O RLY? syntax, valid OIC keyword not found")
+
     # check if variable section is valid
     if varsec_delimiter_start == True and invalid_OBTW == 0:
         errors.append("Line " + varsec_line_start + ": Invalid WAZZUP syntax, BUHBYE keyword not found")
@@ -584,71 +723,17 @@ def syntax_tester(code_details):
 
 sample = """HAI
 
-    WAZZUP
-		I HAS A choice
-		I HAS A input
-    BUHBYE
-	
-	BTW if w/o MEBBE, 1 only, everything else is invalid
-	VISIBLE "1. Compute age"
-	VISIBLE "2. Compute tip"
-	VISIBLE "3. Compute square area"
-	VISIBLE "0. Exit"
-
-	VISIBLE "Choice: "
-    GIMMEH choice
-
-    choice
-    WTF?
-        OMG 1
-			VISIBLE "Enter birth year: "
-            GIMMEH input
-			BTW VISIBLE DIFF OF 2022 AN input
-		    GTFO
-        OMG 2
-			VISIBLE "Enter bill cost: "
-            GIMMEH input
-			BTW VISIBLE "Tip: " PRODUCKT OF input AN 0.1
-		    GTFO
-        OMG 3
-			VISIBLE "Enter width: "
-            GIHAI
-    WAZZUP
-		I HAS A choice
-		I HAS A input
-    BUHBYE
-	
-	BTW if w/o MEBBE, 1 only, everything else is invalid
-	VISIBLE "1. Compute age"
-	VISIBLE "2. Compute tip"
-	VISIBLE "3. Compute square area"
-	VISIBLE "0. Exit"
-
-	VISIBLE "Choice: "
-    GIMMEH choice
-
-    choice
-    WTF?
-        OMG 1
-			VISIBLE "Enter birth year: "
-            GIMMEH input
-			BTW VISIBLE DIFF OF 2022 AN input
-		    GTFO
-        OMG 2
-			VISIBLE "Enter bill cost: "
-            GIMMEH input
-			BTW VISIBLE "Tip: " PRODUCKT OF input AN 0.1
-		    GTFO
-        OMG 3
-			VISIBLE "Enter width: "
-            GIMMEH input
-			BTW VISIBLE "Square Area: " PRODUCKT OF input AN input
-		    GTFO
-        OMG 0
-            VISIBLE "Goodbye"
-	    OMGWTF
-            VISIBLE "Invalid Input!"
-    OIC
+    MOD OF x AN y
+    SUM OF x AN y
+    PRODUKT OF x AN y
+    QUOSHUNT OF x AN y
+    BIGGR OF x AN y
+    SMALLR OF x AN y
+    PRODUKT OF SUM OF x AN y AN SUM OF x AN y
+    PRODUKT OF SUM OF x AN y AN SUM OF x AN y
+    DIFF OF BIGGR OF x AN y AN SMALLR OF x AN y
+    SUM OF x AN SUM OF QUOSHUNT OF y AN x AN FAIL
+    SUM OF x AN SUM OF QUOSHUNT OF "17" AN x AN FAIL
 
 KTHXBYE"""
 
