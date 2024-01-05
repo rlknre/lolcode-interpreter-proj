@@ -122,7 +122,7 @@ def detect_lexemes(line):
         )
         token = "ITZ"
 
-    elif (re.search("(^ )?IT(.)?", line) != None):
+    elif (re.search("(^ )?IT (.)?", line) != None):
         lexeme_tokens.append("IT")
         lexeme_classification.append(
             VAR_ASSIGN
@@ -186,7 +186,7 @@ def detect_lexemes(line):
             KEYWORD_ARITHMETIC
         )
         token = "SMALLR OF"
-    
+
     # comparison operations
     
     elif ((re.search("(^ )?BOTH OF ", line)) != None):
@@ -218,11 +218,11 @@ def detect_lexemes(line):
         token = "NOT"
 
     elif ((re.search("(^ )?ANY OF ", line)) != None):
-        lexeme_tokens.append("NOT")
+        lexeme_tokens.append("ANY OF")
         lexeme_classification.append(
             KEYWORD_BOOLEAN
         )
-        token = "NOT"
+        token = "ANY OF"
 
     elif ((re.search("(^ )?ALL OF ", line)) != None):
         lexeme_tokens.append("ALL OF")
