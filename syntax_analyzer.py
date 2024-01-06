@@ -49,7 +49,7 @@ def expression_tester(line_no, line, operation_type):
     not_count = 0
     expecting_seperator = 0
 
-    if operation_type not in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE]:
+    if operation_type not in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE, KEYWORD_TYPECAST]:
         errors.append("Line " + line_no + ": Invalid operation type detected")
         return 0
 
@@ -244,6 +244,22 @@ def expression_tester(line_no, line, operation_type):
             else:
                 errors.append("Line " + line_no + ": Invalid comparison syntax detected")
                 return 0               
+
+        # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+        # TYPECAST
+        elif operation_type == KEYWORD_TYPECAST:
+            if line[1][0] == 'MAEK' and line[1][1] == KEYWORD_TYPECAST:
+                if len(line) == 4:
+                    if line[2][1] != IDENTIFIER_VARS or line[3][1] != LITERAL:
+                        errors.append("Line " + line_no + ": Invalid typecasting parameters")
+                    elif len(line) == 5:
+                        if line[2][1] != IDENTIFIER_VARS or line[3][0] != 'A' or line[4][1] != LITERAL:
+                            errors.append("Line " + line_no + ": Invalid typecasting parameters")
+                    else:
+                        errors.append("Line " + line_no + ": Invalid MAEK usage / parameters")
+            else:
+                errors.append("Line " + line_no + ": Invalid MAEK usage / parameters")
 
         # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -662,8 +678,27 @@ def syntax_tester(code_details):
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
                     # IM IN YR
-                    
-                    
+                    if line[1][0] == 'IM IN YR' and line[1][1] == IDENTIFIER_LOOP:
+                        # valid number of keywords
+                        if len(line) > 6:
+                            # no condition
+                            if line[2][1] != IDENTIFIER_VARS or line[3][0] not in ['UPPIN', 'NERFIN'] or line[4][0] != 'YR' or line[5][1] != IDENTIFIER_VARS:
+                                errors.append("Line " + line_no + ": Invalid loop parameters")
+                            # with condition
+                            else:
+                                if len(line) > 9:
+                                    if line[6][0] not in ['WILE', 'TIL'] or line[7][1] not in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE]:
+                                        errors.append("Line " + line_no + ": Invalid loop parameters")
+                                    # check expression syntax
+                                    else:
+                                        testing_list = line[7:]
+                                        valid_operation = expression_tester(line_no, testing_list, line[7][1]) 
+                                else:
+                                    errors.append("Line " + line_no + ": Invalid loop parameters")
+                        # invalid
+                        else:
+                            errors.append("Line " + line_no + ": Invalid loop parameters")
+
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
                     # IM OUTTA YR
@@ -723,8 +758,6 @@ def syntax_tester(code_details):
                                 # R
                                 if line[2][0] == 'R' and line[2][1] == VAR_ASSIGN:
 
-                                    # NOTE: Insert expression instance for succeeding if statement
-
                                     if line[3][1] not in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_YARN]:
                                         errors.append("Line " + line_no + ": Invalid R parameter, expecting literal, variable, or expression")
                                 
@@ -744,9 +777,16 @@ def syntax_tester(code_details):
                                 else:
                                     errors.append("Line " + line_no + ": Invalid typecasting parameters")
                             
+                            # R expression
                             else:
-                                errors.append("Line " + line_no + ": Invalid typecasting parameters")
-                                
+                                if line[2][0] == 'R' and line[2][1] == VAR_ASSIGN:
+                                    # check for operations
+                                    if line[3][1] in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE, KEYWORD_TYPECAST]:
+                                        operation_perform = line[3][1]
+                                        testing_list = line[3:]
+                                        valid_operation = expression_tester(line_no, testing_list, operation_perform)
+                                    else:
+                                        errors.append("Line " + line_no + ": Waiting for an operation expression")
                         # invalid
                         else:
                             errors.append("Line " + line_no + ": Waiting for an operation for the variable")
@@ -1014,8 +1054,8 @@ def syntax_tester(code_details):
     # Returns 1 if there are no syntax errors
 
     # for checking
-    for line in code_block:
-        print(line)
+    # for line in code_block:
+    #     print(line)
 
     if len(errors) > 0:
         return [code_block, 0]
@@ -1025,20 +1065,19 @@ def syntax_tester(code_details):
     else: return [code_block, 0]
 
 
-# testing 
+# testing area ---------------------------------------------------------------------------------------------------------------------------------
 
-sample = """HAI
+# sample = """HAI
 
-IM IN YR asc UPPIN YR num2 WILE BOTH SAEM num2 AN SMALLR OF num2 AN num1
-    VISIBLE num2
-IM OUTTA YR asc
 
-KTHXBYE"""
+# KTHXBYE"""
 
-print("")
-test = lexical_tester(sample)
-syntax_tester(test)
-print("")
+# print("")
+# test = lexical_tester(sample)
+# syntax_tester(test)
+# print("")
+
+# testing area ---------------------------------------------------------------------------------------------------------------------------------
 
 if len(errors) > 0:
     for error in errors:
