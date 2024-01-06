@@ -521,6 +521,141 @@ def syntax_tester(code_details):
                   
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
+                    # I IZ
+                    if line[1][0] == 'I IZ' and line[1][1] == IDENTIFIER_FUNC:
+                        if len(line) > 2:
+                            # check if valid function calls
+                            if line[2][1] == IDENTIFIER_VARS and line[-1][0] == 'MKAY' and line[-1][1] == DELIMITER_END:
+
+                                # no parameters
+                                if len(line) == 3:
+                                    if line[len(line)-1][0] != IDENTIFIER_VARS:
+                                        errors.append("Line " + line_no + ": Invalid call, waiting for function name")
+
+                                # with parameters
+                                elif len(line) > 3:
+
+                                    testing_list = []           # for expressions
+                                    expected_operation = ''     # for operation type
+                                    expect_expr_token = 0       # check for expression tokens
+                                    expecting_seperator = 1     # check for YR seperator
+                                    expect_concat = 0           # check for concat keyword
+                                    parameter_count = 0         # check for parameter count
+
+                                    for x in range(3, len(line)):
+
+                                        # Operations
+                                        if line[x][1] in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE]:
+                                            # start of testing list
+                                            if expecting_seperator == 0:
+                                                if expect_expr_token == 0:
+                                                    expected_operation = line[x][1]
+                                                    expect_expr_token = 1
+                                                    expect_concat = 1
+                                                    parameter_count += 1
+                                                testing_list.append(line[x])
+                                            else:
+                                                errors.append("Line " + line_no + ": Invalid function call, waiting for YR token")
+                                        
+                                        # AN
+                                        if line[x][0] == 'AN' and line[x][1] == KEYWORD_SEPERATOR:
+                                            # add in expression
+                                            if expect_expr_token == 1:
+                                                testing_list.append(line[x])
+                                            # check for YR next
+                                            elif expect_concat == 1:
+                                                expect_concat = 0
+                                                expecting_seperator = 1
+                                            else:
+                                                errors.append("Line " + line_no + ": Invalid function call, waiting for operation token")
+                                        
+                                        # Operands
+                                        if line[x][1] in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
+                                            if expect_expr_token == 1:
+                                                if x != len(line)-1:
+                                                    testing_list.append(line[x])
+                                            # not checking for expressions
+                                            else:
+                                                if expect_concat == 1 or expecting_seperator == 1:
+                                                    errors.append("Line " + line_no + ": Invalid function call, waiting AN / YR token")
+                                                # new parameter
+                                                else:
+                                                    parameter_count += 1
+                                                    expect_concat = 1
+
+                                        # MKAY
+                                        if line[x][0] == 'MKAY' and line[x][1] == DELIMITER_END:
+                                            if expect_expr_token == 1:
+                                                if x != len(line)-1:
+                                                    testing_list.append(line[x])
+                                            # not checking for expressions
+                                            else:
+                                                if expect_concat == 1 or expecting_seperator == 1:
+                                                    if x != len(line)-1:
+                                                        errors.append("Line " + line_no + ": Invalid function call, waiting AN / YR token")
+                                                else:
+                                                    expect_concat = 1
+
+                                        # YR
+                                        if line[x][0] == 'YR' and line[x][1] == KEYWORD_SEPERATOR:
+                                            # first parameter
+                                            if parameter_count == 0:
+                                                expecting_seperator = 0
+                                            # multiple parameters
+                                            else:
+                                                if expect_concat == 1 and expecting_seperator == 1:
+                                                    errors.append("Line " + line_no + ": Invalid function call syntax, waiting for values")
+                                                else:
+                                                    # expressions
+                                                    if expect_expr_token == 1:
+                                                        testing_list.pop()      # remove excess AN keyword
+                                                        valid_operation = expression_tester(line_no, testing_list, expected_operation)
+                                                        testing_list = []
+                                                        expected_operation = ''
+                                                        expect_expr_token = 0
+                                                        expect_concat = 0
+                                                    # non expressions
+                                                    else:
+                                                        expecting_seperator = 0
+
+                                    # for single expression parameter
+                                    if expect_expr_token == 1:
+                                        valid_operation = expression_tester(line_no, testing_list, expected_operation)
+                                        testing_list = []
+                                        expected_operation = ''
+                                        expect_expr_token = 0
+                                        expect_concat = 0
+
+                                # end of multiple paramater checking syntax here
+
+                            else:
+                                errors.append("Line " + line_no + ": Invalid call, waiting for function name")
+                        else:
+                            errors.append("Line " + line_no + ": Invalid function call")
+
+
+                    # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+                    # FOUND YR
+
+                    # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+                    # IM IN YR
+                    
+                    
+                    # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+                    # IM OUTTA YR
+                    if line[1][0] == 'IM OUTTA YR' and line[1][1] == IDENTIFIER_LOOP:
+                        if len(line) != 3:
+                            errors.append("Line " + line_no + ": Invalid loop delimiter syntax")
+                        else:
+                            if line[2][1] != IDENTIFIER_VARS:
+                                errors.append("Line " + line_no + ": Invalid loop syntax, waiting for variable call")
+
+                    # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+
                     # IF-THEN, SWITCH keywords
                     if line[1][0] in ['O RLY?', 'WTF?', 'OIC'] and line[1][1] == DELIMITER_CONDT:
                         if len(line) != 2:
@@ -747,7 +882,6 @@ def syntax_tester(code_details):
                                             else:
                                                 expect_concat = 1
 
-
                                     # Concat
                                     if line[x][1] == KEYWORD_CONCAT:
                                         if expect_concat == 0:
@@ -774,7 +908,7 @@ def syntax_tester(code_details):
 
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
-                    # SMOOSH
+                    # SMOOSH (without expressions)
                     if line[1][0] == 'SMOOSH' and line[1][1] == KEYWORD_CONCAT:
                         # check if nested
                         if line.count(['SMOOSH', KEYWORD_CONCAT]) > 1:
@@ -873,7 +1007,29 @@ def syntax_tester(code_details):
 # testing 
 
 sample = """HAI
+OBTW
+HOW IZ I addNum YR x AN YR y
+    FOUND YR SUM OF x an y
+IF U SAY SO
 
+
+HOW IZ I printName YR person
+    VISIBLE "Hello, " + person
+    GTFO
+IF U SAY SO
+
+HOW IZ I printNum YR x
+    FOUND YR x
+IF U SAY SO
+TLDR
+OBTW
+IM IN YR asc UPPIN YR num2 WILE BOTH SAEM num2 AN SMALLR OF num2 AN num1
+    VISIBLE num2
+IM OUTTA YR asc
+TLDR
+
+BTW I IZ printName YR name MKAY
+BTW I IZ printNum YR SUM OF x AN 2 MKAY
 
 KTHXBYE"""
 
