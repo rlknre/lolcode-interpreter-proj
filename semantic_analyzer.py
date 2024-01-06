@@ -34,6 +34,12 @@ from lexical_analyzer import LITERAL_TROOF
 from lexical_analyzer import LITERAL_YARN
 from lexical_analyzer import LITERAL_NOOB
 
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------
+
+# errors
+semantic_errors = []
+
 # symbol table 
 symbol_table_identifiers = []
 symbol_table_values = []
@@ -43,7 +49,27 @@ symbol_table_identifiers.append('IT')
 symbol_table_values.append('')
 symbol_table_type.append(LITERAL_NOOB)
 
-# perform the code if semantics are valid
+# ----------------------------------------------------------------------------------------------------------------------------------------------
+
+def perform_arithmetic():
+    None
+
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------
+
+def perform_boolean():
+    None
+
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------
+
+def perform_comparison():
+    None
+
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------
+
+# perform the code if syntax is valid
 
 def semantic_perform(code_details):
 
@@ -72,12 +98,6 @@ def semantic_perform(code_details):
                     symbol_table_identifiers.append(line[2][0])
 
                     if line[4][1] == LITERAL_YARN:
-                        # clear string
-                        # yarn_val = line[4][0]
-                        # yarn_val = list(yarn_val)
-                        # yarn_val = yarn_val[:-1]
-                        # yarn_val = yarn_val[1:]
-                        # yarn_val = ''.join(yarn_val)
                         symbol_table_values.append(line[4][0])
                         symbol_table_type.append(LITERAL_YARN)
                     
@@ -103,12 +123,6 @@ def semantic_perform(code_details):
                     if line[2][1] == LITERAL_YARN:
                         # use the IT variable 
                         symbol_table_values[0] = ''
-
-                        # # cleans string
-                        # it_var = line[2][0]
-                        # it_var = list(it_var)
-                        # it_var = it_var[:-1]
-                        # it_var = it_var[1:]
                         symbol_table_values[0] = (line[2][0])
                         symbol_table_type[0] = LITERAL_YARN
 
@@ -119,7 +133,6 @@ def semantic_perform(code_details):
                             var_index = symbol_table_identifiers.index(line[2][0])
                             
                             symbol_table_values[0] = ''
-
                             it_var = str(symbol_table_values[var_index])
                             symbol_table_values[0] = it_var
                             symbol_table_type[0] = LITERAL_YARN
@@ -135,10 +148,6 @@ def semantic_perform(code_details):
                     for x in range(1, len(line)):
                         if (x % 2) == 0:
                             if line[x][1] == LITERAL_YARN:
-                                # to_print = list(line[x][0])
-                                # to_print = to_print[:-1]
-                                # to_print = to_print[1:]
-                                # to_print = ''.join(to_print)
 
                                 it_var = ''.join([it_var, (line[x][0])])
 
@@ -146,7 +155,7 @@ def semantic_perform(code_details):
                                 if line[x][0] in symbol_table_identifiers:
                                     var_index = symbol_table_identifiers.index(line[x][0])
                                     to_yarn = str(symbol_table_values[var_index])
-                                    it_var = ' '.join([it_var, to_yarn])
+                                    it_var = ''.join([it_var, to_yarn])
                                 else:
                                     valid_visible = 0
 
@@ -243,8 +252,6 @@ def semantic_perform(code_details):
             # ----------------------------------------------------------------------------------------------------------------------------------------------
 
             # SMOOSH
-            # BUG: Concat problems with varidednts in between YARNs (lexical / syntax problem)
-
             if line[1][0] == 'SMOOSH' and line[1][1] == KEYWORD_CONCAT:
                 # should place concatenated string to IT variable
                 it_var = ''
@@ -294,19 +301,18 @@ def semantic_perform(code_details):
 
 
     # checker of symbol table
-    print("\n--- ")
-    print(symbol_table_identifiers)
-    print(symbol_table_values)
-    print(symbol_table_type)
+    print("\n--- \n\nSymbol Table: ")
+    print("\nVariables: \n" + str(symbol_table_identifiers))
+    print("\nValues: \n" + str(symbol_table_values))
+    print("\nTypes: \n" + str(symbol_table_type))
 
-# testing
+# testing area ---------------------------------------------------------------------------------------------------------------------------------
 
 sample = """HAI
     I HAS A var1 ITZ "hello"
     I HAS A var2 ITZ 12
     I HAS A var3 ITZ WIN
 
-    OBTW
     VISIBLE "noot noot" + var2
     BTW VISIBLE var2
 
@@ -318,41 +324,39 @@ sample = """HAI
     BTW GIMMEH var1
 
     VISIBLE ""
-    VISIBLE "String after input: " + var1
-    TLDR
+    VISIBLE "String after input: " + var2
 
     BTW SMOOSH "hellO" AN var3 AN var1
 
 KTHXBYE"""
 
-# check if lexical test found a lexeme
-found_lexeme = 0
-lexical_test = lexical_tester(sample)
-for line in lexical_test:
-    if len(line) > 1:
-        found_lexeme = 1
-        break
+# # check if lexical test found a lexeme
+# found_lexeme = 0
+# lexical_test = lexical_tester(sample)
+# for line in lexical_test:
+#     if len(line) > 1:
+#         found_lexeme = 1
+#         break
 
-if found_lexeme == 1:
-    syntax_test = syntax_tester(lexical_test)
+# if found_lexeme == 1:
+#     syntax_test = syntax_tester(lexical_test)
 
-    # check if return value of syntax is correct
-    if len(syntax_test) != 2:
-        print("\nInvalid\n")
+#     # check if return value of syntax is correct
+#     if len(syntax_test) != 2:
+#         print("\nInvalid\n")
 
-    else:
-        syntax_check = syntax_test[1]
+#     else:
+#         syntax_check = syntax_test[1]
 
-        # no errors in code
-        if syntax_check == 1:
-            code_block = syntax_test[0]
-            print("\nNo errors. Running code... \n")
-            print("--- \n")
+#         # no errors in code
+#         if syntax_check == 1:
+#             code_block = syntax_test[0]
 
-            # run code here
-            semantic_perform(code_block)
-            print("")
+#             # run code here
+#             print("")
+#             semantic_perform(code_block)
+#             print("")
             
-        # errors in code
-        else:
-            print("\nInvalid\n")
+#         # errors in code
+#         else:
+#             print("\nInvalid\n")

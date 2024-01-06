@@ -820,7 +820,17 @@ def syntax_tester(code_details):
 
                     # GTFO
                     if line[1][0] == 'GTFO' and line[1][1] == KEYWROD_CONDT:
-                        if len(line) != 2:
+                        if len(line) <= 2:
+                            errors.append("Line " + line_no + ": Invalid GTFO syntax")
+                        elif len(line) > 3:
+                            # expressions
+                            if line[2][1] not in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE]:
+                                    errors.append("Line " + line_no + ": Invalid I HAS A syntax, waiting for expression")
+                            else:
+                                operation_perform = line[2][1]
+                                check_syntax = line[2:]
+                                valid_operation = expression_tester(line_no, check_syntax, operation_perform)
+                        else:
                             errors.append("Line " + line_no + ": Invalid GTFO syntax")
 
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -1054,8 +1064,10 @@ def syntax_tester(code_details):
     # Returns 1 if there are no syntax errors
 
     # for checking
-    # for line in code_block:
-    #     print(line)
+    print("\n Printing each lines of code: ")
+    for line in code_block:
+        print(line)
+    print("\n--- ")
 
     if len(errors) > 0:
         return [code_block, 0]
@@ -1077,9 +1089,7 @@ def syntax_tester(code_details):
 # syntax_tester(test)
 # print("")
 
-# testing area ---------------------------------------------------------------------------------------------------------------------------------
-
-if len(errors) > 0:
-    for error in errors:
-        print(error)
-    print("")
+# if len(errors) > 0:
+#     for error in errors:
+#         print(error)
+#     print("")
