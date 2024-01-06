@@ -116,7 +116,7 @@ def detect_lexemes(line):
         )
         token = "I HAS A"
 
-    elif (re.search(" ITZ [a-zA-Z0-9\.]+", line) != None):
+    elif (re.search(" ITZ([a-zA-Z0-9\.]+)?", line) != None):
         lexeme_tokens.append("ITZ")
         lexeme_classification.append(
             VAR_ASSIGN
@@ -255,7 +255,7 @@ def detect_lexemes(line):
         )
         token = "SMOOSH"
     
-    elif ((re.search(" \+(.)?", line)) != None):
+    elif ((re.search(r'[^("\')] \+ [^("\')]', line)) != None):
         lexeme_tokens.append("+")
         lexeme_classification.append(
             KEYWORD_CONCAT

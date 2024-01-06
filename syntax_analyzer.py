@@ -49,6 +49,10 @@ def expression_tester(line_no, line, operation_type):
     not_count = 0
     expecting_seperator = 0
 
+    if operation_type not in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE]:
+        errors.append("Line " + line_no + ": Invalid operation type detected")
+        return 0
+
     if len(line) < 1:
         errors.append("Line " + line_no + ": Invalid operation syntax detected")
     else:
@@ -419,12 +423,12 @@ def syntax_tester(code_details):
                     # Boolean Operation
                     if line[1][1] == KEYWORD_BOOLEAN:
                         check_syntax = line[1:]
-                        valid_arithmetic = expression_tester(line_no, check_syntax, KEYWORD_BOOLEAN)
+                        valid_boolean = expression_tester(line_no, check_syntax, KEYWORD_BOOLEAN)
 
                     # Comparison / Relational Operations
                     if line[1][1] == KEYWORD_COMPARE:
                         check_syntax = line[1:]
-                        valid_arithmetic = expression_tester(line_no, check_syntax, KEYWORD_COMPARE)
+                        valid_comparison = expression_tester(line_no, check_syntax, KEYWORD_COMPARE)
                     
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -678,14 +682,14 @@ def syntax_tester(code_details):
                                 # also checks expression instance
                                 if line[4][1] not in [KEYWORD_ARITHMETIC, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_YARN, IDENTIFIER_VARS]:
                                     errors.append("Line " + line_no + ": Invalid I HAS A syntax, should have valid variable")
-                        
-                        # NOTE: add condition for expressions
-
+                        # expressions
                         if len(line) >= 6:
-                            if line[4][1] != KEYWORD_ARITHMETIC:
+                            if line[4][1] not in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE]:
                                 errors.append("Line " + line_no + ": Invalid I HAS A syntax, waiting for expression")
-                        
-                        # NOTE: for editing here ^
+                            else:
+                                operation_perform = line[4][1]
+                                check_syntax = line[4:]
+                                valid_operation = expression_tester(line_no, check_syntax, operation_perform)
 
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -694,32 +698,79 @@ def syntax_tester(code_details):
                         if len(line) <= 2:
                             errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting for values to print")
                         if len(line) >= 3:
-                            if line[2][1] not in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
+                            if line[2][1] not in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN, KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE]:
                                 errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting for values to print")
                             else:
-                            # check for multiple values (should be even len(line)-3 since 1 concat keyword is to 1 var)
-                                if ((len(line) - 3) >= 2) and ((len(line) - 3) % 2 == 0):
+                                testing_list = []           # for expressions
+                                expected_operation = ''     # for operation type
+                                expect_expr_token = 0       # check for expression tokens
+                                expect_concat = 0           # check for concat keyword
 
-                                    # let x be the index we are checking, note that we adjust +3 since we want to
-                                    # access the indeces after the first instance of the variable to print
+                                # for multiple values of printing
+                                for x in range(2, len(line)):
 
-                                    for x in range(0, len(line)-3):
-                                        
-                                        # + keyword
-                                        if x % 2 == 0:
-                                            if line[x+3][1] != KEYWORD_CONCAT:
-                                                errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting for concatenation keyword")
-                                        # variables
-                                        elif x % 2 != 0:
-                                            if line[x+3][1] not in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
-                                                errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting for value to print")
-                                
-                                # invalid number of multivalues to print
-                                else:
-                                    if len(line) > 3:
-                                        errors.append("Line " + line_no + ": Invalid VISIBLE syntax, invalid print parameters")
+                                    # Operations
+                                    if line[x][1] in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE]:
+                                        # start of testing list
+                                        if expect_expr_token == 0:
+                                            expected_operation = line[x][1]
+                                            expect_expr_token = 1
+                                            expect_concat = 1
+                                        testing_list.append(line[x])
+                                    
+                                    # AN
+                                    if line[x][0] == 'AN' and line[x][1] == KEYWORD_SEPERATOR:
+                                        if expect_expr_token == 1:
+                                            testing_list.append(line[x])
+                                        else:
+                                            errors.append("Line " + line_no + ": Invalid VISIBLE, waiting for operation token")
+                                    
+                                    # Operands
+                                    if line[x][1] in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
+                                        if expect_expr_token == 1:
+                                            testing_list.append(line[x])
+                                        # not checking for expressions
+                                        else:
+                                            if expect_concat == 1:
+                                                errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting concat token")
+                                            else:
+                                                expect_concat = 1
 
-                                # NOTE: Insert condition for expressions
+                                    # MKAY
+                                    if line[x][0] == 'MKAY' and line[x][1] == DELIMITER_END:
+                                        if expect_expr_token == 1:
+                                            testing_list.append(line[x])
+                                        # not checking for expressions
+                                        else:
+                                            if expect_concat == 1:
+                                                errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting concat token")
+                                            else:
+                                                expect_concat = 1
+
+
+                                    # Concat
+                                    if line[x][1] == KEYWORD_CONCAT:
+                                        if expect_concat == 0:
+                                            errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting for values to print")
+                                        else:
+                                            # expressions
+                                            if expect_expr_token == 1:
+                                                valid_operation = expression_tester(line_no, testing_list, expected_operation)
+                                                testing_list = []
+                                                expected_operation = ''
+                                                expect_expr_token = 0
+                                                expect_concat = 0
+                                            # non expressions
+                                            else:
+                                                expect_concat = 0
+
+                                # for single values to print
+                                if expect_expr_token == 1:
+                                    valid_operation = expression_tester(line_no, testing_list, expected_operation)
+                                    testing_list = []
+                                    expected_operation = ''
+                                    expect_expr_token = 0
+                                    expect_concat = 0
 
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -786,21 +837,21 @@ def syntax_tester(code_details):
     
     # check if function section is valid
     if func_delimiter_start == True:
-        errors.append("Line " + func_line_start + ": Invalid HOW IZ I syntax, valid IF U SAY SO keyword not found")
+        errors.append("Line " + str(func_line_start) + ": Invalid HOW IZ I syntax, valid IF U SAY SO keyword not found")
     
     # check if code block section is valid
     if code_delimiter_start == True:
-        errors.append("Line " + func_line_start + ": Invalid HAI syntax, valid KTHXBYE keyword not found")
+        errors.append("Line " + str(func_line_start) + ": Invalid HAI syntax, valid KTHXBYE keyword not found")
 
     # check if flow-control statement sections are valid
     if condt_delimiter_start == True:
-        errors.append("Line " + condt_line_start + ": Invalid O RLY? syntax, valid OIC keyword not found")
+        errors.append("Line " + str(condt_line_start) + ": Invalid O RLY? syntax, valid OIC keyword not found")
 
     # check if variable section is valid
     if varsec_delimiter_start == True and invalid_OBTW == 0:
-        errors.append("Line " + varsec_line_start + ": Invalid WAZZUP syntax, BUHBYE keyword not found")
+        errors.append("Line " + str(varsec_line_start) + ": Invalid WAZZUP syntax, BUHBYE keyword not found")
     elif varsec_delimiter_start == True and invalid_OBTW == 1:
-        errors.append("Line " + varsec_line_start + ": Invalid BUHBYE syntax for WAZZUP keyword")
+        errors.append("Line " + str(varsec_line_start) + ": Invalid BUHBYE syntax for WAZZUP keyword")
 
 
     # IMPORTANT: Here, we pass the values of the cleaned code block and if the code is valid
