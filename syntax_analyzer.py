@@ -637,6 +637,27 @@ def syntax_tester(code_details):
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
                     # FOUND YR
+                    if line[1][0] == 'FOUND YR' and line[1][1] == KEYWORD_FUNC:
+                        # missing values
+                        if len(line) <= 2:
+                            errors.append("Line " + line_no + ": Invalid FOUND YR call")
+                        # check values
+                        elif len(line) >= 3:
+                            # single expression
+                            if len(line) == 3:
+                                if line[2][1] not in [KEYWORD_ARITHMETIC, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_YARN, IDENTIFIER_VARS]:
+                                    errors.append("Line " + line_no + ": Invalid FOUND YR, missing expression")
+                            # expressions
+                            elif len(line) > 3:
+                                if line[2][1] not in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE]:
+                                    errors.append("Line " + line_no + ": Invalid FOUND YRA syntax, waiting for expression")
+                                else:
+                                    operation_perform = line[2][1]
+                                    check_syntax = line[2:]
+                                    valid_operation = expression_tester(line_no, check_syntax, operation_perform)
+                        # invalid
+                        else:
+                            errors.append("Line " + line_no + ": Invalid FOUND YR call")
 
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1007,29 +1028,10 @@ def syntax_tester(code_details):
 # testing 
 
 sample = """HAI
-OBTW
-HOW IZ I addNum YR x AN YR y
-    FOUND YR SUM OF x an y
-IF U SAY SO
 
-
-HOW IZ I printName YR person
-    VISIBLE "Hello, " + person
-    GTFO
-IF U SAY SO
-
-HOW IZ I printNum YR x
-    FOUND YR x
-IF U SAY SO
-TLDR
-OBTW
 IM IN YR asc UPPIN YR num2 WILE BOTH SAEM num2 AN SMALLR OF num2 AN num1
     VISIBLE num2
 IM OUTTA YR asc
-TLDR
-
-BTW I IZ printName YR name MKAY
-BTW I IZ printNum YR SUM OF x AN 2 MKAY
 
 KTHXBYE"""
 
