@@ -33,9 +33,6 @@ from keywords import LITERAL_YARN
 from keywords import LITERAL_NOOB
 
 
-# arrays for syntax tracking
-errors = []
-
 # function for checking code syntax of expressions (arithmetic/boolean operations)
 def expression_tester(line_no, line, operation_type):
 
@@ -263,6 +260,8 @@ def expression_tester(line_no, line, operation_type):
 # test if code syntax of lolcode is valid
 def syntax_tester(code_details):
 
+    # lsits for syntax tracking
+    errors = []
     lexeme_tokens = []
     lexeme_classifications = []
 
@@ -1077,13 +1076,13 @@ def syntax_tester(code_details):
         print(line)
     print("\n--- ")
 
-    if len(errors) > 0:
-        return [code_block, 0, lexeme_tokens, lexeme_classifications]
-    elif len(errors) == 0:
-        return [code_block, 1, lexeme_tokens, lexeme_classifications]
-    # error trap
-    else: return [code_block, 0, lexeme_tokens, lexeme_classifications]
+    valid_syntax = 0
 
+    if len(errors) == 0:
+        valid_syntax = 1
+
+    return [code_block, valid_syntax, lexeme_tokens, lexeme_classifications, errors]
+    
 
 # testing area ---------------------------------------------------------------------------------------------------------------------------------
 

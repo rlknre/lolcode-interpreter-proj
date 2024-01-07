@@ -299,13 +299,15 @@ def semantic_perform(code_details):
 
             # ----------------------------------------------------------------------------------------------------------------------------------------------
 
-    return [symbol_table_identifiers, symbol_table_values]
-
     # checker of symbol table
     print("\n--- \n\nSymbol Table: ")
     print("\nVariables: \n" + str(symbol_table_identifiers))
     print("\nValues: \n" + str(symbol_table_values))
     print("\nTypes: \n" + str(symbol_table_type))
+
+    return [symbol_table_identifiers, symbol_table_values]
+
+
 
 # testing area ---------------------------------------------------------------------------------------------------------------------------------
 

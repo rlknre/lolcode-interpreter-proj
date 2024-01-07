@@ -17,7 +17,7 @@
 # ----------------------------------------------------------------------------------------------------------------------------------------------
 
 # Import libraries for Tkinter user interface
-from tkinter import *
+import tkinter as tk
 from tkinter import ttk
 
 # Import the analyzers
@@ -25,22 +25,10 @@ from lexical_analyzer import lexical_tester
 from syntax_analyzer import syntax_tester
 from semantic_analyzer import semantic_perform
 
-# From the Syntax Analyzer, list of (possible) errors
-from syntax_analyzer import errors
-
 # From the Semantic Analyzer, lists for the symbol table and semantic errors
 from semantic_analyzer import semantic_errors
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------
-
-sample = """BTW start of the program
-HAI
-WAZZUP
-BTW variable dec
-I HAS A monde
-I HAS A num ITZ 17
-BUHBYE
-KTHXBYE"""
 
 def execute_lolcode(input_code, lexeme_table, symbols_table):
 
@@ -59,13 +47,14 @@ def execute_lolcode(input_code, lexeme_table, symbols_table):
         syntax_test = syntax_tester(lexical_test)
 
         # check if return value of syntax is correct
-        if len(syntax_test) != 4:
+        if len(syntax_test) != 5:
             print("\nInvalid\n")
 
         else:
             syntax_check = syntax_test[1]
             lexeme_tokens = syntax_test[2]
             lexeme_classifications = syntax_test[3]
+            syntax_errors = syntax_test[4]
 
             # refresh lexeme table
             selected_lexemes = lexeme_table.get_children()
@@ -99,18 +88,18 @@ def execute_lolcode(input_code, lexeme_table, symbols_table):
                 
             # syntax errors
             else:
-                if len(errors) > 0:
-                    for error in errors:
+                if len(syntax_errors) > 0:
+                    for error in syntax_errors:
                         print(error)
                     print("")
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------
 
 def retrieve_input():
-    input = workspace.get("1.0",END)
+    input = workspace.get("1.0", 'end')
     return input
 
-window = Tk()       # instantiates a new window
+window = tk.Tk()       # instantiates a new window
 
 # adjust the visuals here
 # window.geometry("1080x740")
@@ -122,22 +111,22 @@ window.title('LOLCODE INTERPRETER')
 
 # Workspace Area
 
-file_explorer = Label(window, text="None", width=50, bg="white")
+file_explorer = tk.Label(window, text="None", width=50, bg="white")
 file_explorer.grid(row=0, column=0, padx=8, pady=4)
 
-file_explorer_button = Button(window, text="Select File", bg="white", width=20)
+file_explorer_button = tk.Button(window, text="Select File", bg="white", width=20)
 file_explorer_button.grid(row=0, column=1, pady=4)
 
-workspace = Text(window, width=65, height=15)
+workspace = tk.Text(window, width=65, height=15)
 workspace.grid(row=1, column=0, columnspan=2, padx=8, pady=1)
 
 
 # Lexemes Area
 
-lexeme_header = Label(window, text="Lexemes", width=50, bg="#D3D3D3")
+lexeme_header = tk.Label(window, text="Lexemes", width=50, bg="#D3D3D3")
 lexeme_header.grid(row=0, column=2, padx=8, pady=4)
 
-lexeme_frame = Frame(window)
+lexeme_frame = tk.Frame(window)
 lexeme_frame.grid(row=1, column=2, padx=8, pady=4)
 
 lexeme_frame_table = ttk.Treeview(
@@ -147,8 +136,8 @@ lexeme_frame_table = ttk.Treeview(
     columns=["Lexeme", "Classification"]
 )
 lexeme_frame_table.grid(row=0, column=0)
-lexeme_frame_table.column("# 1", anchor=CENTER)
-lexeme_frame_table.column("# 2", anchor=CENTER)
+lexeme_frame_table.column("# 1", anchor="center")
+lexeme_frame_table.column("# 2", anchor="center")
 lexeme_frame_table.heading("# 1", text="Lexeme")
 lexeme_frame_table.heading("# 2", text="Classification")
 
@@ -159,15 +148,15 @@ lexeme_scrollbar = ttk.Scrollbar(
 )
 
 lexeme_frame_table.configure(yscroll=lexeme_scrollbar.set)
-lexeme_scrollbar.grid(row=0, column=2, rowspan=2, sticky=N+S+W)
+lexeme_scrollbar.grid(row=0, column=2, rowspan=2)
 
 
 # Symbols Area
 
-symbols_header = Label(window, text="Symbol Table", width=50, bg="#D3D3D3")
+symbols_header = tk.Label(window, text="Symbol Table", width=50, bg="#D3D3D3")
 symbols_header.grid(row=0, column=3, padx=8, pady=4)
 
-symbols_frame = Frame(window)
+symbols_frame = tk.Frame(window)
 symbols_frame.grid(row=1, column=3, padx=8, pady=4)
 
 symbols_frame_table = ttk.Treeview(
@@ -177,8 +166,8 @@ symbols_frame_table = ttk.Treeview(
     columns=["Identifier", "Value"]
 )
 symbols_frame_table.grid(row=0, column=0)
-symbols_frame_table.column("# 0", anchor=CENTER)
-symbols_frame_table.column("# 1", anchor=CENTER)
+symbols_frame_table.column("# 0", anchor="center")
+symbols_frame_table.column("# 1", anchor="center")
 symbols_frame_table.heading("# 1", text="Identifier")
 symbols_frame_table.heading("# 2", text="Value")
 
@@ -189,15 +178,15 @@ symbols_scrollbar = ttk.Scrollbar(
 )
 
 symbols_frame_table.configure(yscroll=symbols_scrollbar.set)
-symbols_scrollbar.grid(row=0, column=2, rowspan=2, sticky=N+S+W)
+symbols_scrollbar.grid(row=0, column=2, rowspan=2)
 
 
 # Execute Area
 
-buttom_frame = Frame(window)
+buttom_frame = tk.Frame(window)
 buttom_frame.grid(row=2, columnspan=6, padx=8, pady=4)
 
-execute_button = Button(
+execute_button = tk.Button(
     buttom_frame,
     text="EXECUTE", 
     width=198, 
@@ -209,7 +198,7 @@ execute_button = Button(
 
 # Console Area
 
-console_box = Text(window, width=175, height=20)
+console_box = tk.Text(window, width=175, height=20)
 console_box.configure(state="disabled")
 console_box.grid(row=3, column=0, columnspan=6, padx=8, pady=8)
 
