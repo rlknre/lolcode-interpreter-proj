@@ -4,6 +4,10 @@
 
 # https://www.youtube.com/watch?v=TuLxsvK4svQ
 # https://www.youtube.com/watch?v=reJ8kTqQsTY
+# https://stackoverflow.com/questions/29041593/tkinter-python-treeview-change-header
+# https://stackoverflow.com/questions/44659879/ttk-button-span-multiple-columns
+# https://www.geeksforgeeks.org/python-tkinter-label/
+# https://stackoverflow.com/questions/3842155/is-there-a-way-to-make-the-tkinter-text-widget-read-only
 # https://www.geeksforgeeks.org/how-to-set-a-tkinter-window-with-a-constant-size/
 # https://docs.python.org/3/library/tk.html
 # https://realpython.com/python-gui-tkinter/
@@ -13,6 +17,7 @@
 
 # Import libraries for Tkinter user interface
 from tkinter import *
+from tkinter import ttk
 
 # Import the analyzers
 from lexical_analyzer import lexical_tester
@@ -79,45 +84,98 @@ def execute_lolcode():
 window = Tk()       # instantiates a new window
 
 # adjust the visuals here
-window.geometry("1080x740")
+# window.geometry("1080x740")
 window.resizable(0, 0)
 
 window.config(background="#D3D3D3")
 window.title('LOLCODE INTERPRETER')
 
-# Top Frame
-topFrame = Frame(window, width=1080, height=355, bg="#77DD77")
-topFrame.grid(row=0)
 
-# Workspace
-spaceFrame = Frame(topFrame, width=500, height=340, bg="#77DD77")
-spaceFrame.grid(row=0, column=0)
+# Workspace Area
 
-# Token Table
-tokenFrame = Frame(topFrame, width=290, height=340, bg="#D5E3F0")
-tokenFrame.grid(row=0, column=1)
+file_explorer = Label(window, text="None", width=50, bg="white")
+file_explorer.grid(row=0, column=0, padx=8, pady=4)
 
-# Symbol Table
-symbolFrame = Frame(topFrame, width=290, height=340, bg="#3A3845")
-symbolFrame.grid(row=0, column=2)
+file_explorer_button = Button(window, text="Select File", bg="white", width=20)
+file_explorer_button.grid(row=0, column=1, pady=4)
 
-# Execute Button Frame
-buttomFrame = Frame(window, width=1080, height=50, bg="#D3D3D3")
-buttomFrame.grid(row=1)
+workspace = Text(window, width=65, height=15)
+workspace.grid(row=1, column=0, columnspan=2, padx=8, pady=1)
 
-execute_button = Button(
-    buttomFrame,
-    text='EXECUTE',
-    #command
-    font = ("Roboto", 10),
-    width=150,
-    bg="#D3D3D3"
+
+# Lexemes Area
+
+lexeme_header = Label(window, text="Lexemes", width=50, bg="#D3D3D3")
+lexeme_header.grid(row=0, column=2, padx=8, pady=4)
+
+lexeme_frame = Frame(window)
+lexeme_frame.grid(row=1, column=2, padx=8, pady=4)
+
+lexeme_frame_table = ttk.Treeview(
+    lexeme_frame,
+    height=11,
+    show="headings",
+    columns=["Lexeme", "Classification"]
 )
-execute_button.pack(pady=8.5)
+lexeme_frame_table.grid(row=0, column=0)
+lexeme_frame_table.column("#0", anchor=CENTER)
+lexeme_frame_table.column("#1", anchor=CENTER)
+lexeme_frame_table.heading("#1", text="Lexeme")
+lexeme_frame_table.heading("#2", text="Classification")
 
-# Terminal
-terminalFrame = Frame(window, width=1080, height=355, bg="#C3B1E1")
-terminalFrame.grid(row=2)
+lexeme_scrollbar = ttk.Scrollbar(
+    lexeme_frame,
+    orient="vertical",
+    command=lexeme_frame_table.yview
+)
+
+lexeme_frame_table.configure(yscroll=lexeme_scrollbar.set)
+lexeme_scrollbar.grid(row=0, column=2, sticky="e")
+
+
+# Symbols Area
+
+symbols_header = Label(window, text="Symbol Table", width=50, bg="#D3D3D3")
+symbols_header.grid(row=0, column=3, padx=8, pady=4)
+
+symbols_frame = Frame(window)
+symbols_frame.grid(row=1, column=3, padx=8, pady=4)
+
+symbols_frame_table = ttk.Treeview(
+    symbols_frame,
+    height=11,
+    show="headings",
+    columns=["Identifier", "Value"]
+)
+symbols_frame_table.grid(row=0, column=0)
+symbols_frame_table.column("#0", anchor=CENTER)
+symbols_frame_table.column("#1", anchor=CENTER)
+symbols_frame_table.heading("#1", text="Identifier")
+symbols_frame_table.heading("#2", text="Value")
+
+symbols_scrollbar = ttk.Scrollbar(
+    symbols_frame,
+    orient="vertical",
+    command=symbols_frame_table.yview
+)
+
+symbols_frame_table.configure(yscroll=symbols_scrollbar.set)
+symbols_scrollbar.grid(row=0, column=2, sticky="e")
+
+
+# Execute Area
+
+buttom_frame = Frame(window, background="black")
+buttom_frame.grid(row=2, columnspan=6, padx=8, pady=4)
+
+execute_button = Button(buttom_frame,text="Execute", width=198).grid()
+
+
+# Console Area
+
+console_box = Text(window, width=175, height=20)
+console_box.configure(state="disabled")
+console_box.grid(row=3, column=0, columnspan=6, padx=8, pady=8)
 
 
 window.mainloop()   # displays the window
