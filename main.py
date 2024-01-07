@@ -13,12 +13,15 @@
 # https://docs.python.org/3/library/tk.html
 # https://realpython.com/python-gui-tkinter/
 # https://stackoverflow.com/questions/68547433/window-is-not-showing-up-at-all-in-vscode-tkinter
+# https://www.geeksforgeeks.org/file-explorer-in-python-using-tkinter/
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------
 
 # Import libraries for Tkinter user interface
+# from tkinter import *
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk             # treeview
+from tkinter import filedialog      # file dialog
 
 # Import the analyzers
 from lexical_analyzer import lexical_tester
@@ -68,6 +71,7 @@ def execute_lolcode(input_code, lexeme_table, symbols_table):
             # no errors in code
             if syntax_check == 1:
                 code_block = syntax_test[0]
+                semantic_check = []
 
                 # run code here
                 print("")
@@ -95,8 +99,29 @@ def execute_lolcode(input_code, lexeme_table, symbols_table):
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------
 
-def retrieve_input():
-    input = workspace.get("1.0", 'end')
+# opens a dialog box to retreive a file
+def browse_files(file_explorer_label, workspace):
+
+    # opens dialog box
+    filename = filedialog.askopenfilename(
+        initialdir = "/",
+        title = "Select a File",
+        filetypes = ( ("LOL files", "*.lol*"), ("all files", "*.*") )
+    )
+    # make changes in the text editor
+    file_explorer_label.configure(text="File Opened: " + filename)  # change label header
+    workspace.delete("1.0", 'end')  # delete contents of workspace
+
+    # read the file and isnert contents to text editor
+    read_file = open(filename, "r")
+    file_text = read_file.read()
+    workspace.insert('end', file_text)
+    read_file.close()
+      
+
+# retrieves value in workspace area
+def retrieve_input(workspace):
+    input = workspace.get('1.0', 'end')
     return input
 
 window = tk.Tk()       # instantiates a new window
@@ -111,14 +136,22 @@ window.title('LOLCODE INTERPRETER')
 
 # Workspace Area
 
-file_explorer = tk.Label(window, text="None", width=50, bg="white")
-file_explorer.grid(row=0, column=0, padx=8, pady=4)
-
-file_explorer_button = tk.Button(window, text="Select File", bg="white", width=20)
+file_explorer_button = tk.Button(
+    window, 
+    text="Select File", 
+    bg="white", 
+    width=20,
+    command=lambda: {
+        browse_files(file_explorer, workspace_area)
+    }
+)
 file_explorer_button.grid(row=0, column=1, pady=4)
 
-workspace = tk.Text(window, width=65, height=15)
-workspace.grid(row=1, column=0, columnspan=2, padx=8, pady=1)
+workspace_area = tk.Text(window, width=65, height=15)
+workspace_area.grid(row=1, column=0, columnspan=2, padx=8, pady=1)
+
+file_explorer = tk.Label(window, text="None", width=50, bg="white")
+file_explorer.grid(row=0, column=0, padx=8, pady=4)
 
 
 # Lexemes Area
@@ -148,7 +181,7 @@ lexeme_scrollbar = ttk.Scrollbar(
 )
 
 lexeme_frame_table.configure(yscroll=lexeme_scrollbar.set)
-lexeme_scrollbar.grid(row=0, column=2, rowspan=2)
+lexeme_scrollbar.grid(row=0, column=2, rowspan=2, sticky="nsw")
 
 
 # Symbols Area
@@ -178,7 +211,7 @@ symbols_scrollbar = ttk.Scrollbar(
 )
 
 symbols_frame_table.configure(yscroll=symbols_scrollbar.set)
-symbols_scrollbar.grid(row=0, column=2, rowspan=2)
+symbols_scrollbar.grid(row=0, column=2, rowspan=2,sticky="nsw")
 
 
 # Execute Area
@@ -191,7 +224,7 @@ execute_button = tk.Button(
     text="EXECUTE", 
     width=198, 
     command=lambda: {
-        execute_lolcode(retrieve_input(), lexeme_frame_table, symbols_frame_table),
+        execute_lolcode(retrieve_input(workspace_area), lexeme_frame_table, symbols_frame_table),
     }
 ).grid()
 
