@@ -8,7 +8,6 @@ import re   # regex library
 # sub	    Replaces one or many matches with a string
 
 # arrays for lexeme tracking
-code_per_line = []
 token_list = []
 token_classification = []
 
@@ -697,6 +696,8 @@ KTHXBYE
 
 
 def lexical_tester(code):
+
+    code_per_line = []
 
     code = code.split("\n")
     code_line_num = 1

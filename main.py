@@ -25,14 +25,10 @@ from lexical_analyzer import lexical_tester
 from syntax_analyzer import syntax_tester
 from semantic_analyzer import semantic_perform
 
-# From the Syntax Analyzer, list of cleaned token list and (possible) errors
-from syntax_analyzer import lexeme_tokens
-from syntax_analyzer import lexeme_classifications
+# From the Syntax Analyzer, list of (possible) errors
 from syntax_analyzer import errors
 
 # From the Semantic Analyzer, lists for the symbol table and semantic errors
-from semantic_analyzer import symbol_table_identifiers
-from semantic_analyzer import symbol_table_values
 from semantic_analyzer import semantic_errors
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -43,38 +39,15 @@ WAZZUP
 BTW variable dec
 I HAS A monde
 I HAS A num ITZ 17
-I HAS A name ITZ "seventeen"
-I HAS A fnum ITZ 17.0
-I HAS A flag ITZ WIN
-        
-I HAS A sum ITZ SUM OF num AN 13
-I HAS A diff ITZ DIFF OF sum AN 17
-I HAS A prod ITZ PRODUKT OF 3 AN 4
-I HAS A quo ITZ QUOSHUNT OF 4 AN 5
 BUHBYE
-
-BTW print literals and variables
-VISIBLE "declarations"
-VISIBLE monde BTW should be NOOB
-VISIBLE num
-VISIBLE name
-VISIBLE fnum
-VISIBLE flag
-
-VISIBLE sum
-VISIBLE diff
-VISIBLE prod
-VISIBLE quo
-
-BTW print expressions
-VISIBLE SUM OF PRODUKT OF 3 AN 5 AN BIGGR OF DIFF OF 17 AN 2 AN 5
-VISIBLE BIGGR OF PRODUKT OF 11 AN 2 AN QUOSHUNT OF SUM OF 3 AN 5 AN 2
 KTHXBYE"""
 
-def execute_lolcode(lexeme_table, symbols_table):
+def execute_lolcode(input_code, lexeme_table, symbols_table):
+
     # check if lexical test found a lexeme
     found_lexeme = 0
-    lexical_test = lexical_tester(sample)
+    lexical_test = []
+    lexical_test = lexical_tester(input_code)
     for line in lexical_test:
         if len(line) > 1:
             found_lexeme = 1
@@ -82,43 +55,60 @@ def execute_lolcode(lexeme_table, symbols_table):
 
     if found_lexeme == 1:
 
-        if len(lexeme_tokens) == len(lexeme_classifications):
+        syntax_test = []
+        syntax_test = syntax_tester(lexical_test)
 
-            syntax_test = syntax_tester(lexical_test)
+        # check if return value of syntax is correct
+        if len(syntax_test) != 4:
+            print("\nInvalid\n")
 
-            # check if return value of syntax is correct
-            if len(syntax_test) != 2:
-                print("\nInvalid\n")
+        else:
+            syntax_check = syntax_test[1]
+            lexeme_tokens = syntax_test[2]
+            lexeme_classifications = syntax_test[3]
 
-            else:
-                syntax_check = syntax_test[1]
+            # refresh lexeme table
+            selected_lexemes = lexeme_table.get_children()
+            for lexeme in selected_lexemes:
+                lexeme_table.delete(lexeme)
 
-                # add values to lexeme table
-                for i in range(len(lexeme_tokens)):
-                    lexeme_table.insert('', 'end', values = (lexeme_tokens[i], lexeme_classifications[i]))
+            # add values to lexeme table
+            for i in range(len(lexeme_tokens)):
+                lexeme_table.insert('', 'end', values = (lexeme_tokens[i], lexeme_classifications[i]))
 
-                # no errors in code
-                if syntax_check == 1:
-                    code_block = syntax_test[0]
+            # no errors in code
+            if syntax_check == 1:
+                code_block = syntax_test[0]
 
-                    # run code here
-                    print("")
-                    semantic_perform(code_block)
-                    print("")
+                # run code here
+                print("")
+                semantic_check = semantic_perform(code_block)
+                print("")
 
-                    # add values to symbols table
-                    for i in range(len(symbol_table_identifiers)):
-                        symbols_table.insert('', 'end', values = (symbol_table_identifiers[i], symbol_table_values[i]))
+                symbol_table_identifiers = semantic_check[0]
+                symbol_table_values = semantic_check[1]
+
+                # refresh symbol table
+                selected_symbols = symbols_table.get_children()
+                for item in selected_symbols:
+                    symbols_table.delete(item)
+
+                # add values to symbols table
+                for i in range(len(symbol_table_identifiers)):
+                    symbols_table.insert('', 'end', values = (symbol_table_identifiers[i], symbol_table_values[i]))
                 
-                # syntax errors
-                else:
-                    if len(errors) > 0:
-                        for error in errors:
-                            print(error)
-                        print("")
-
+            # syntax errors
+            else:
+                if len(errors) > 0:
+                    for error in errors:
+                        print(error)
+                    print("")
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+def retrieve_input():
+    input = workspace.get("1.0",END)
+    return input
 
 window = Tk()       # instantiates a new window
 
@@ -157,10 +147,10 @@ lexeme_frame_table = ttk.Treeview(
     columns=["Lexeme", "Classification"]
 )
 lexeme_frame_table.grid(row=0, column=0)
-lexeme_frame_table.column("#1", anchor=CENTER)
-lexeme_frame_table.column("#2", anchor=CENTER)
-lexeme_frame_table.heading("#1", text="Lexeme")
-lexeme_frame_table.heading("#2", text="Classification")
+lexeme_frame_table.column("# 1", anchor=CENTER)
+lexeme_frame_table.column("# 2", anchor=CENTER)
+lexeme_frame_table.heading("# 1", text="Lexeme")
+lexeme_frame_table.heading("# 2", text="Classification")
 
 lexeme_scrollbar = ttk.Scrollbar(
     lexeme_frame,
@@ -187,10 +177,10 @@ symbols_frame_table = ttk.Treeview(
     columns=["Identifier", "Value"]
 )
 symbols_frame_table.grid(row=0, column=0)
-symbols_frame_table.column("#0", anchor=CENTER)
-symbols_frame_table.column("#1", anchor=CENTER)
-symbols_frame_table.heading("#1", text="Identifier")
-symbols_frame_table.heading("#2", text="Value")
+symbols_frame_table.column("# 0", anchor=CENTER)
+symbols_frame_table.column("# 1", anchor=CENTER)
+symbols_frame_table.heading("# 1", text="Identifier")
+symbols_frame_table.heading("# 2", text="Value")
 
 symbols_scrollbar = ttk.Scrollbar(
     symbols_frame,
@@ -211,7 +201,9 @@ execute_button = Button(
     buttom_frame,
     text="EXECUTE", 
     width=198, 
-    command=lambda: execute_lolcode(lexeme_frame_table, symbols_frame_table)
+    command=lambda: {
+        execute_lolcode(retrieve_input(), lexeme_frame_table, symbols_frame_table),
+    }
 ).grid()
 
 

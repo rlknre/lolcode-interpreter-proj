@@ -40,15 +40,6 @@ from lexical_analyzer import LITERAL_NOOB
 # errors
 semantic_errors = []
 
-# symbol table 
-symbol_table_identifiers = []
-symbol_table_values = []
-symbol_table_type = []
-
-symbol_table_identifiers.append('IT')
-symbol_table_values.append('')
-symbol_table_type.append(LITERAL_NOOB)
-
 # ----------------------------------------------------------------------------------------------------------------------------------------------
 
 def perform_arithmetic():
@@ -72,6 +63,15 @@ def perform_comparison():
 # perform the code if syntax is valid
 
 def semantic_perform(code_details):
+
+    # symbol table 
+    symbol_table_identifiers = []
+    symbol_table_values = []
+    symbol_table_type = []
+
+    symbol_table_identifiers.append('IT')
+    symbol_table_values.append('')
+    symbol_table_type.append(LITERAL_NOOB)
 
     code_block = code_details
 
@@ -299,6 +299,7 @@ def semantic_perform(code_details):
 
             # ----------------------------------------------------------------------------------------------------------------------------------------------
 
+    return [symbol_table_identifiers, symbol_table_values]
 
     # checker of symbol table
     print("\n--- \n\nSymbol Table: ")

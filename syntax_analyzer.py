@@ -3,10 +3,6 @@ import re
 # import lexical analyzer function
 from lexical_analyzer import lexical_tester
 
-# import retrieved tokens from lexical analyzer
-from lexical_analyzer import token_list
-from lexical_analyzer import token_classification
-
 # import sample code blocks
 from lexical_analyzer import sample1, sample2, sample3, sample4, sample5
 
@@ -39,8 +35,6 @@ from keywords import LITERAL_NOOB
 
 # arrays for syntax tracking
 errors = []
-lexeme_tokens = []
-lexeme_classifications = []
 
 # function for checking code syntax of expressions (arithmetic/boolean operations)
 def expression_tester(line_no, line, operation_type):
@@ -269,6 +263,9 @@ def expression_tester(line_no, line, operation_type):
 # test if code syntax of lolcode is valid
 def syntax_tester(code_details):
 
+    lexeme_tokens = []
+    lexeme_classifications = []
+
     # list of lists (each index with one line of code)
     code_block = code_details
 
@@ -400,7 +397,7 @@ def syntax_tester(code_details):
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
                     # only checks valid starting keywords before HAI
-                    if line[1][0] in token_list:
+                    if line[1][0] in lexeme_tokens:
 
                         if line[1][0] in ['HAI', 'KTHXBYE']:
 
@@ -1081,11 +1078,11 @@ def syntax_tester(code_details):
     print("\n--- ")
 
     if len(errors) > 0:
-        return [code_block, 0]
+        return [code_block, 0, lexeme_tokens, lexeme_classifications]
     elif len(errors) == 0:
-        return [code_block, 1]
+        return [code_block, 1, lexeme_tokens, lexeme_classifications]
     # error trap
-    else: return [code_block, 0]
+    else: return [code_block, 0, lexeme_tokens, lexeme_classifications]
 
 
 # testing area ---------------------------------------------------------------------------------------------------------------------------------
