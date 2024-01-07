@@ -39,6 +39,8 @@ from keywords import LITERAL_NOOB
 
 # arrays for syntax tracking
 errors = []
+lexeme_tokens = []
+lexeme_classifications = []
 
 # function for checking code syntax of expressions (arithmetic/boolean operations)
 def expression_tester(line_no, line, operation_type):
@@ -368,7 +370,16 @@ def syntax_tester(code_details):
         errors.append("Line " + searching_TLDR_from_line + ": Invalid multiline syntax, no TLDR for OBTW")
 
     else:
-        
+
+        # update lexeme tokens, classification after clearing the comments
+        for line in code_block:
+            # skips empty lines
+            if len(line) > 1:
+                for x in range(1, len(line)):
+                    lexeme_tokens.append(line[x][0])
+                    lexeme_classifications.append(line[x][1])
+        # end of loop for updating lexemes
+
     # IMPORTANT: We only check the syntax of the whole code if there are no errors
     # in the comments part. If ever there is an OBTW with a missing TLDR, it sees the code
     # block after the OBTW as a whole multiline comment, hence, no code syntax to check
