@@ -3,9 +3,6 @@ import re
 # import lexical analyzer function
 from lexical_analyzer import lexical_tester
 
-# import sample code blocks
-from lexical_analyzer import sample1, sample2, sample3, sample4, sample5
-
 # import keyword classifiers
 from keywords import DELIMITER_CODE, DELIMITER_STR, DELIMITER_VAR, DELIMITER_CONDT, DELIMITER_END
 from keywords import IDENTIFIER_VARS, IDENTIFIER_FUNC, IDENTIFIER_LOOP
@@ -41,10 +38,11 @@ def expression_tester(line_no, line, operation_type):
     operand = 0
     not_count = 0
     expecting_seperator = 0
+    errors = []
 
     if operation_type not in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE, KEYWORD_TYPECAST]:
         errors.append("Line " + line_no + ": Invalid operation type detected")
-        return 0
+        return [0, errors]
 
     if len(line) < 1:
         errors.append("Line " + line_no + ": Invalid operation syntax detected")
@@ -57,23 +55,23 @@ def expression_tester(line_no, line, operation_type):
 
             if len(line) < 2:
                  errors.append("Line " + line_no + ": Operation missing some values")
-                 return 0
+                 return [0, errors]
             
             else:
                 # Arithmetic checker of last value
                 if (operation_type == KEYWORD_ARITHMETIC) and line[-1][1] not in [IDENTIFIER_VARS, LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_TROOF, LITERAL_YARN]:
                     errors.append("Line " + line_no + ": Invalid operation, should end with operand")
-                    return 0
+                    return [0, errors]
                 
                 # Boolean checker (ALL OF and ANY OF)
                 elif (operation_type == KEYWORD_BOOLEAN) and (line[0][0] in ['ALL OF', 'ANY OF']) and (line[-1][0] != 'MKAY' and line[-1][1] != DELIMITER_END):
                     errors.append("Line " + line_no + ": Missing MKAY call for operation")
-                    return 0
+                    return [0, errors]
                 
                 # Boolean checker (not ALL OF or ANY OF)
                 elif (operation_type == KEYWORD_BOOLEAN) and (line[0][0] not in ['ALL OF', 'ANY OF']) and line[-1][1] not in [IDENTIFIER_VARS, LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_TROOF, LITERAL_YARN]:
                     errors.append("Line " + line_no + ": Invalid operation, should end with operand")
-                    return 0
+                    return [0, errors]
 
                 else:
 
@@ -90,7 +88,7 @@ def expression_tester(line_no, line, operation_type):
                         # nested ALL OF / ANY OF catcher
                         if line[x][0] == 'ALL OF' or line[x][0] == 'ANY OF':
                             errors.append("Line " + line_no + ": Nested ALL OF / ANY OF not allowed")
-                            return 0
+                            return [0, errors]
 
                         # expecting operation / operand
                         if expecting_seperator == 0:
@@ -111,7 +109,7 @@ def expression_tester(line_no, line, operation_type):
                             # invalid
                             else:
                                 errors.append("Line " + line_no + ": Invalid call, waiting for operation / value")
-                                return 0
+                                return [0, errors]
 
                         # expecting separator keyword
                         elif expecting_seperator == 1:
@@ -128,7 +126,7 @@ def expression_tester(line_no, line, operation_type):
                             else:
                                 if operand == 0:
                                     errors.append("Line " + line_no + ": Invalid operation, waiting for separator")
-                                    return 0
+                                    return [0, errors]
                         
                         # consider infinite arity for ALL OF and ANY OF
                         if line[0][0] in ['ALL OF', 'ANY OF']:
@@ -138,7 +136,7 @@ def expression_tester(line_no, line, operation_type):
                         if operand > operation:
                             if operand == operation + 3:
                                 errors.append("Line " + line_no + ": Invalid operation / operand placements")
-                                return 0
+                                return [0, errors]
                     
                     # for boolean operations
                     if operation_type == KEYWORD_BOOLEAN:
@@ -154,7 +152,7 @@ def expression_tester(line_no, line, operation_type):
                         return 1
                     else:
                         errors.append("Line " + line_no + ": Invalid operation syntax detected")
-                        return 0
+                        return [0, errors]
 
         # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -165,6 +163,7 @@ def expression_tester(line_no, line, operation_type):
             if len(line) == 4:
                 if line[0][0] not in ['DIFFRINT', 'BOTH SAEM'] and line[0][1] != KEYWORD_COMPARE:
                     errors.append("Line " + line_no + ": Invalid comparison syntax detected")
+                    return [0, errors]
                 else:
                     # check if valid seperator
                     if line[2][0] == 'AN' and line[2][1] == KEYWORD_SEPERATOR:
@@ -173,24 +172,30 @@ def expression_tester(line_no, line, operation_type):
                         if line[1][1] == IDENTIFIER_VARS:
                             if line[3][1] not in [IDENTIFIER_VARS, LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_TROOF, LITERAL_YARN]:
                                 errors.append("Line " + line_no + ": Waiting for comparison variable keyword")
+                                return [0, errors]
                         # NUMBR
                         if line[1][1] == LITERAL_NUMBR and line[3][1] != LITERAL_NUMBR:
                             errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+                            return [0, errors]
 
                         # NUMBAR
                         if line[1][1] == LITERAL_NUMBAR and line[3][1] != LITERAL_NUMBAR:
                             errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+                            return [0, errors]
 
                         # TROOF
                         if line[1][1] == LITERAL_TROOF and line[3][1] != LITERAL_TROOF:
                             errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+                            return [0, errors]
 
                         # YARN
                         if line[1][1] == LITERAL_YARN and line[3][1] != LITERAL_YARN:
                             errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+                            return [0, errors]
 
                     else:
                         errors.append("Line " + line_no + ": Waiting for separator keyword")
+                        return [0, errors]
 
             # Relational Operations
             elif len(line) == 7:
@@ -1082,7 +1087,7 @@ def syntax_tester(code_details):
         valid_syntax = 1
 
     return [code_block, valid_syntax, lexeme_tokens, lexeme_classifications, errors]
-    
+
 
 # testing area ---------------------------------------------------------------------------------------------------------------------------------
 

@@ -14,6 +14,7 @@
 # https://realpython.com/python-gui-tkinter/
 # https://stackoverflow.com/questions/68547433/window-is-not-showing-up-at-all-in-vscode-tkinter
 # https://www.geeksforgeeks.org/file-explorer-in-python-using-tkinter/
+# https://www.tutorialspoint.com/how-to-make-the-tkinter-text-widget-read-only
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -28,12 +29,9 @@ from lexical_analyzer import lexical_tester
 from syntax_analyzer import syntax_tester
 from semantic_analyzer import semantic_perform
 
-# From the Semantic Analyzer, lists for the symbol table and semantic errors
-from semantic_analyzer import semantic_errors
-
 # ----------------------------------------------------------------------------------------------------------------------------------------------
 
-def execute_lolcode(input_code, lexeme_table, symbols_table):
+def execute_lolcode(input_code, lexeme_table, symbols_table, terminal):
 
     # check if lexical test found a lexeme
     found_lexeme = 0
@@ -80,6 +78,7 @@ def execute_lolcode(input_code, lexeme_table, symbols_table):
 
                 symbol_table_identifiers = semantic_check[0]
                 symbol_table_values = semantic_check[1]
+                lines_to_print = semantic_check[2]
 
                 # refresh symbol table
                 selected_symbols = symbols_table.get_children()
@@ -89,7 +88,13 @@ def execute_lolcode(input_code, lexeme_table, symbols_table):
                 # add values to symbols table
                 for i in range(len(symbol_table_identifiers)):
                     symbols_table.insert('', 'end', values = (symbol_table_identifiers[i], symbol_table_values[i]))
-                
+
+                # refresh terminal
+                terminal.configure(state="normal")      # makes text area editable
+                terminal.delete("1.0", 'end')           # delete contents of terminal
+                terminal.insert('end', lines_to_print)
+                terminal.configure(state="disabled")    # disable editing again
+
             # syntax errors
             else:
                 if len(syntax_errors) > 0:
@@ -123,6 +128,7 @@ def browse_files(file_explorer_label, workspace):
 def retrieve_input(workspace):
     input = workspace.get('1.0', 'end')
     return input
+
 
 window = tk.Tk()       # instantiates a new window
 
@@ -224,16 +230,16 @@ execute_button = tk.Button(
     text="EXECUTE", 
     width=198, 
     command=lambda: {
-        execute_lolcode(retrieve_input(workspace_area), lexeme_frame_table, symbols_frame_table),
+        execute_lolcode(retrieve_input(workspace_area), lexeme_frame_table, symbols_frame_table, console_box),
     }
 ).grid()
 
 
 # Console Area
 
+# initially uneditable to avoid any changes
 console_box = tk.Text(window, width=175, height=20)
 console_box.configure(state="disabled")
 console_box.grid(row=3, column=0, columnspan=6, padx=8, pady=8)
-
 
 window.mainloop()   # displays the window

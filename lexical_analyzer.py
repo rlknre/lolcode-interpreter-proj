@@ -282,7 +282,7 @@ def detect_lexemes(line):
     
     # print function token
 
-    elif ((re.search("(^ )?VISIBLE(.)?", line)) != None):
+    elif ((re.search("(.)?VISIBLE(.)?", line)) != None):
         lexeme_tokens.append("VISIBLE")
         lexeme_classification.append(
             KEYWORD_PRINT
@@ -522,9 +522,9 @@ def detect_lexemes(line):
         token = numbr_literal
     
     # troof literal
-    elif (re.search("( WIN| FAIL)", line) != None):
+    elif (re.search("(WIN%|FAIL$)", line) != None):
 
-        troof_susbtring = re.search("( WIN| FAIL)", line)
+        troof_susbtring = re.search("(WIN$|FAIL$)", line)
         troof_literal = line[troof_susbtring.start():troof_susbtring.end()]
         troof_literal = troof_literal.replace(" ", "")
 
@@ -567,121 +567,6 @@ def detect_lexemes(line):
     return lexeme_information
 
 # end of func
-
-
-# checkers
-sample1 = """HAI
-    WAZZUP
-        BTW Declare Here
-        I HAS A var1 ITZ 12
-        I HAS A x ITZ 5
-        I HAS A y ITZ 10
-        I HAS A w ITZ 23
-        I HAS A z ITZ 120
-    BUHBYE
-
-    MAEK var1 A NUMBAR
-
-    SUM OF PRODUCKT OF PRODUCKT OF 3 AN 4 AN 2 AN 1
-
-    I HAS A temp ITZ 2
-    BTW prints 2 to 9 using TIL
-    IM IN YR print10 UPPIN YR temp TIL BOTH SAEM temp AN 10
-        VISIBLE temp
-    IM OUTTA YR print10
-
-    QUOSHUNT OF 5 AN "12"   BTW QUOSHUNT OF is division
-
-    BTW at this point, temp's value is 10, so we must reassign its initial value
-    temp R 2
-
-    BOTH SAEM x AN BIGGER OF x AN y
-    DIFFRINT z AN SMALLR OF z AN w
-    ALL OF NOT x AN BOTH OF y AN z AN EITHER OF x AN y MKAY
-
-    SMOOSH "Hello" AN "World"
-    
-    OBTW this
-         Way
-    TLDR
-
-    BTW prints 2 to 9 but using WILE
-    IM IN YR print10 UPPIN YR temp WILE DIFFRINT temp AN 10
-        VISIBLE temp
-    IM OUTTA YR print10
-KTHXBYE
-"""
-
-sample2 = """HAI
-    SUM OF PRODUCKT OF PRODUCKT OF 3 AN 4 AN 2 AN 1
-
-    DIFFRINT 10 AN SMALLR OF 5
-    O RLY?
-        YA RLY
-            VISIBLE "First number larger"
-        NO WAI
-            VISIBLE "Second number larger?"
-    OIC
-
-    BTW the previous one is an in-then statement
-
-KTHXBYE
-"""
-
-sample3 = """HAI
-
-    WTF?
-    OMG a
-        VISIBLE "It's a"    BTW ITS A
-    OMGWTF
-        VISIBLE "not a"     BTW NOT A
-    OIC
-
-    I HAS A temp ITZ 2
-    BTW prints 2 to 9 using TIL
-    IM IN YR print10 UPPIN YR temp TIL BOTH SAEM temp AN 10
-        VISIBLE temp
-    IM OUTTA YR print10
-
-    BTW at this point, temp's value is 10, so we must reassign
-    temp R 2
-
-    IM IN YR print10 UPPIN YR temp TIL WILE DIFFRINT temp AN 10
-        VISIBLE temp
-    IM OUTTA YR print10
-
-KTHXBYE
-"""
-
-sample4 = """HAI
-
-    BTW here are functions in lolcode
-    HOW IZ I no_parameters
-
-    BTW function with 2 arguments
-    HOW IZ I func_add YR x AN YR y
-        GTFO SUM OF x AN y
-    IF U SAY SO      
-    
-    I IZ func_add YR 22 AN YR -501.01 MKAY
-    I HAS A true ITZ WIN
-    
-    VISIBLE "Yarn here"
-    
-KTHXBYE
-"""
-
-sample5 = """
-HOW IZ I func_add YR x AN YR y
-    GTFO SUM OF x AN y
-IF U SAY SO      
-BTW VALID COMMENT
-HAI
-    VISIBLE "Yarn here"     BTW PRINT
-    I IZ func_add YR 22 AN YR -501.01 MKAY
-    I HAS A str_string ITZ "Yarn Here"
-KTHXBYE
-"""
 
 
 def lexical_tester(code):
@@ -859,11 +744,3 @@ def lexical_tester(code):
     # end of loop
 
     return code_per_line
-
-
-# uncomment one tester for testing
-# lexical_tester(sample1)
-# lexical_tester(sample2)
-# lexical_tester(sample3)
-# lexical_tester(sample4)
-# lexical_tester(sample5)
