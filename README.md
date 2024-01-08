@@ -3,8 +3,8 @@
 This project is in fulfillment of the requirements in CMSC 124: Design and Implementation of Programming Languages. UPLB.
 
 ### Requirements
-1. Ensure that the system has Python. You may check the Python site for installation guides. 
-2. After installing Python, open your terminal and type in the following to install the Tkinter library.
+1. Ensure that the system has Python. You may check the Python site for installation. 
+2. After installing, open your terminal and type in the following to install the Tkinter library.
     - pip install tk
 
 ### Running Project
@@ -25,7 +25,7 @@ This project is in fulfillment of the requirements in CMSC 124: Design and Imple
 ### Author
 - Ralph Kenneth Rea
 
-## Note
+### Note
 - For the project presentation, the interpreter isn't complete and is missing some of its semantic rules. Indentation may or may not work at times.
 - Note that there are still bugs in the other analyzer files.
 - This isn't the final version.
