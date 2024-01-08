@@ -175,23 +175,27 @@ def expression_tester(line_no, line, operation_type):
                                 return [0, errors]
                         # NUMBR
                         if line[1][1] == LITERAL_NUMBR and line[3][1] != LITERAL_NUMBR:
-                            errors.append("Line " + line_no + ": Compare NUMBR to same type only")
-                            return [0, errors]
+                            if line[3][1] != IDENTIFIER_VARS:
+                                errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+                                return [0, errors]
 
                         # NUMBAR
                         if line[1][1] == LITERAL_NUMBAR and line[3][1] != LITERAL_NUMBAR:
-                            errors.append("Line " + line_no + ": Compare NUMBR to same type only")
-                            return [0, errors]
+                            if line[3][1] != IDENTIFIER_VARS:
+                                errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+                                return [0, errors]
 
                         # TROOF
                         if line[1][1] == LITERAL_TROOF and line[3][1] != LITERAL_TROOF:
-                            errors.append("Line " + line_no + ": Compare NUMBR to same type only")
-                            return [0, errors]
+                            if line[3][1] != IDENTIFIER_VARS:
+                                errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+                                return [0, errors]
 
                         # YARN
                         if line[1][1] == LITERAL_YARN and line[3][1] != LITERAL_YARN:
-                            errors.append("Line " + line_no + ": Compare NUMBR to same type only")
-                            return [0, errors]
+                            if line[3][1] != IDENTIFIER_VARS:
+                                errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+                                return [0, errors]
 
                     else:
                         errors.append("Line " + line_no + ": Waiting for separator keyword")
@@ -201,16 +205,19 @@ def expression_tester(line_no, line, operation_type):
             elif len(line) == 7:
                 if line[0][0] not in ['DIFFRINT', 'BOTH SAEM'] and line[0][1] != KEYWORD_COMPARE:
                     errors.append("Line " + line_no + ": Invalid comparison syntax detected")
+                    return [0, errors]
                 else:
 
                     # check if valid relational operation
                     if line[3][0] not in ['BIGGR OF', 'SMALLR OF'] and line[3][1] != KEYWORD_ARITHMETIC:
                         errors.append("Line " + line_no + ": Waiting for comparison variable keyword")
+                        return [0, errors]
                     else:
 
                         # checker if valid call for first variable
                         if line[1][0] != line[4][0] or line[1][1] != line[4][1]:
                             errors.append("Line " + line_no + ": Check comparison variables for errors")
+                            return [0, errors]
                         else:
 
                             # check if valid seperator
@@ -220,28 +227,34 @@ def expression_tester(line_no, line, operation_type):
                                 if line[1][1] == IDENTIFIER_VARS:
                                     if line[6][1] not in [IDENTIFIER_VARS, LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_TROOF, LITERAL_YARN]:
                                         errors.append("Line " + line_no + ": Waiting for comparison variable keyword")
+                                        return [0, errors]
                                 # NUMBR
                                 if line[1][1] == LITERAL_NUMBR and line[6][1] != LITERAL_NUMBR:
                                     errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+                                    return [0, errors]
 
                                 # NUMBAR
                                 if line[1][1] == LITERAL_NUMBAR and line[6][1] != LITERAL_NUMBAR:
                                     errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+                                    return [0, errors]
 
                                 # TROOF
                                 if line[1][1] == LITERAL_TROOF and line[6][1] != LITERAL_TROOF:
                                     errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+                                    return [0, errors]
 
                                 # YARN
                                 if line[1][1] == LITERAL_YARN and line[6][1] != LITERAL_YARN:
                                     errors.append("Line " + line_no + ": Compare NUMBR to same type only")
+                                    return [0, errors]
 
                             else:
                                 errors.append("Line " + line_no + ": Waiting for separator keyword")
+                                return [0, errors]
 
             else:
                 errors.append("Line " + line_no + ": Invalid comparison syntax detected")
-                return 0               
+                return [0, errors]             
 
         # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -463,9 +476,10 @@ def syntax_tester(code_details):
                         check_syntax = line[1:]
                         valid_comparison = expression_tester(line_no, check_syntax, KEYWORD_COMPARE)
 
-                        if valid_comparison[0] == 0:
-                            for error in valid_comparison[1]:
-                                errors.append(error)
+                        if valid_comparison != None:
+                            if valid_comparison[0] == 0:
+                                for error in valid_comparison[1]:
+                                    errors.append(error)
                     
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1060,12 +1074,18 @@ def syntax_tester(code_details):
                                                         else:
                                                             errors.append("Line " + line_no + ": Invalid SMOOSH syntax, MKAY is ending value")
                                 
+                                # print IT
+                                elif line[2][0] == 'IT':
+                                    None
+
                                 # invalid value after VISIBLE
                                 else:
-                                    errors.append("Line " + line_no + ": Invalid value after VISIBLE")
+                                    if line[2][0] != 'IT':
+                                        errors.append("Line " + line_no + ": Invalid value after VISIBLE")
                             # invalid after VISIBLE
                             else:
-                                errors.append("Line " + line_no + ": Waiting for value to print")
+                                if line[2][0] != 'IT':
+                                    errors.append("Line " + line_no + ": Waiting for value to print")
 
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 

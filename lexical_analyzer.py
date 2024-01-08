@@ -118,7 +118,7 @@ def detect_lexemes(line):
         )
         token = "ITZ"
 
-    elif (re.search("(^ )?IT (.)?", line) != None):
+    elif (re.search("(^ )?IT$", line) != None):
         lexeme_tokens.append("IT")
         lexeme_classification.append(
             VAR_ASSIGN

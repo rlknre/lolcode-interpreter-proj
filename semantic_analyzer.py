@@ -652,9 +652,170 @@ def perform_boolean(symbol_names, symbol_vals, symbol_types, line, line_number):
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------
 
-def perform_comparison():
-    None
+# IMPORTANT: Does not perform nested comparisons
 
+def perform_comparison(symbol_names, symbol_vals, symbol_types, line, line_number):
+
+    result = 0
+
+    # check if there is a lost lexeme
+    for x in range(0, len(line)):
+        if line[x][1] != KEYWORD_COMPARE:
+            if line[x][1] not in [IDENTIFIER_VARS, LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_YARN]:
+                if line[x][0] not in ['AN', 'SMALLR OF', 'BIGGR OF']:
+                    error_message = ("Line " + str(line_number) + ": Invalid value found in comparison expression")
+                    return[0, error_message]
+
+    # check if symbols exist
+    for x in range(0, len(line)):
+        if line[x][1] == IDENTIFIER_VARS:
+            if line[x][0] not in symbol_names:
+                error_message = ("Line " + str(line_number) + ": Invalid variable name found in comparison expression")
+                return[0, error_message]
+    
+    # check each operand if they are valid (for yarns and vars)
+    for x in range(0, len(line)):
+        if line[x][1] in [IDENTIFIER_VARS, LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_YARN]:
+            
+            # check if variable is valid
+            if line[x][1] == IDENTIFIER_VARS:
+                # retrieve type of varident
+                var_index = symbol_names.index(line[x][0])
+                varident_type = symbol_types[var_index]
+
+                if varident_type not in [LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_YARN]:
+                    error_message = ("Line " + str(line_number) + ": Invalid variable type found in comparison expression")
+                    return[0, error_message]
+                else:
+                # check if YARN
+                    if varident_type not in [LITERAL_NUMBR, LITERAL_NUMBAR]:
+                        # NOOBs invalid
+                        if varident_type == LITERAL_NOOB:
+                            error_message = ("Line " + str(line_number) + ": NOOBs are invalid in arithmetic expressions")
+                            return[0, error_message]
+                        # YARN
+                        elif varident_type == LITERAL_YARN:
+                            # check if valid NUMBR / NUMBAR
+
+                            varident_details = detect_lexemes(symbol_vals[var_index])
+                            # returns [lexeme_token, lexeme_classification]
+                            varident_class = varident_details[1]
+
+                            if varident_class not in [LITERAL_NUMBR, LITERAL_NUMBAR]:
+                                error_message = ("Line " + str(line_number) + ": Invalid operand type found in expression")
+                                return[0, error_message]
+
+    # end of for loop for operand checker
+    # no typecasting, check first if same type, then perform the comparison
+
+    # comparison
+    if len(line) == 4:
+        value1_type = line[1][1]
+        value2_type = line[3][1]
+        
+        value1 = line[1][0]
+        value2 = line[3][0]
+
+        # retrieve value types of varidents
+        if value1_type == IDENTIFIER_VARS:
+            var_index = symbol_names.index(value1)
+            value1_type = symbol_types[var_index]
+            value1 = symbol_vals[var_index]
+        if value2_type == IDENTIFIER_VARS:
+            var_index = symbol_names.index(value2)
+            value2_type = symbol_types[var_index]
+            value2 = symbol_vals[var_index]
+
+        if value1_type != value2_type:
+            error_message = ("Line " + str(line_number) + ": Invalid operand type found in expression")
+            return[0, error_message]
+        else:
+
+            # typecast to perform comparison
+            if value1_type == LITERAL_NUMBR:
+                value1 = int(value1)
+                value2 = int(value2)
+            elif value1_type == LITERAL_NUMBAR:
+                value1 = float(value1)
+                value2 = float(value2)
+
+            # ==
+            if line[0][0] == 'BOTH SAEM':
+                if value1 == value2:
+                    return[1, 'WIN']
+                elif value1 != value2:
+                    return[1, 'FAIL']
+            # !=
+            elif line[0][0] == 'DIFFRINT':
+                if value1 != value2:
+                    return[1, 'WIN']
+                elif value1 == value2:
+                    return[1, 'FAIL'] 
+               
+    # relational
+    elif len(line) == 7:
+
+        value1_type = line[1][1]
+        value2_type = line[6][1]
+
+        value1 = line[1][0]
+        value2 = line[6][0]
+
+        # retrieve value types of varidents
+        if value1_type == IDENTIFIER_VARS:
+            var_index = symbol_names.index(value1)
+            value1_type = symbol_types[var_index]
+            value1 = symbol_vals[var_index]
+        if value2_type == IDENTIFIER_VARS:
+            var_index = symbol_names.index(value2)
+            value2_type = symbol_types[var_index]
+            value2 = symbol_vals[var_index]
+
+        if value1_type != value2_type:
+            error_message = ("Line " + str(line_number) + ": Invalid operand type found in expression")
+            return[0, error_message]
+        else:
+
+            # typecast to perform comparison
+            if value1_type == LITERAL_NUMBR:
+                value1 = int(value1)
+                value2 = int(value2)
+            elif value1_type == LITERAL_NUMBAR:
+                value1 = float(value1)
+                value2 = float(value2)                
+
+            # BOTH SAEM
+            if line[0][0] == 'BOTH SAEM':
+                # <=
+                if line[3][0] == 'SMALLR OF':
+                    if value1 <= value2:
+                        return[1, 'WIN']
+                    else:
+                        return[1, 'FAIL']
+                # >=
+                elif line[3][0] == 'BIGGR OF':
+                    if value1 >= value2:
+                        return[1, 'WIN']
+                    else:
+                        return[1, 'FAIL']
+            # DIFFRINT
+            elif line[0][0] == 'DIFFRINT':
+                # <
+                if line[3][0] == 'SMALLR OF':
+                    if value1 < value2:
+                        return[1, 'WIN']
+                    else:
+                        return[1, 'FAIL']
+                # >
+                elif line[3][0] == 'BIGGR OF':
+                    if value1 > value2:
+                        return[1, 'WIN']
+                    else:
+                        return[1, 'FAIL']
+    # error
+    else:
+        error_message = ("Line " + str(line_number) + ": Comparison should be of the same type")
+        return[0, error_message]
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -734,7 +895,17 @@ def semantic_perform(code_details):
             # ----------------------------------------------------------------------------------------------------------------------------------------------
 
             # Comparison Operation
+            if line[1][1] == KEYWORD_COMPARE:
+                c_expr = line[1:]
+                c_perform = perform_comparison(symbol_table_identifiers, symbol_table_values, symbol_table_type, c_expr, line_no)
 
+                if c_perform[0] == 0:
+                    errors.append(c_perform[1])
+                elif c_perform[0] == 1:
+                    # insert to IT variable
+                    symbol_table_values[0] = c_perform[1]
+                    symbol_table_type[0] = LITERAL_TROOF
+                    print(c_perform[1])
 
             # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -820,6 +991,10 @@ def semantic_perform(code_details):
                             symbol_table_type[0] = LITERAL_TROOF
                                         
             # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+            # VISIBLE IT
+            if line[1][0] == 'VISIBLE' and line[2][0] == 'IT':
+                lines_to_print += symbol_table_values[0] + '\n'
 
             # VISIBLE
             if line[1][0] == 'VISIBLE' and line[1][1] == KEYWORD_PRINT:
@@ -1523,6 +1698,7 @@ def semantic_perform(code_details):
                             symbol_table_values[0] = it_var
                             symbol_table_type[0] = LITERAL_YARN
                             # add to var
+                            var_index = symbol_table_identifiers.index(line[1][0])
                             symbol_table_values[var_index] = it_var
                             symbol_table_type[var_index] = LITERAL_YARN
                         else:
@@ -1534,8 +1710,6 @@ def semantic_perform(code_details):
                 else:
                     errors.append("Line " + str(line_no) + ": Variable does note exist")
 
-            # ----------------------------------------------------------------------------------------------------------------------------------------------
-            
 
             # ----------------------------------------------------------------------------------------------------------------------------------------------
 
