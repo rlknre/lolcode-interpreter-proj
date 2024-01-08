@@ -697,9 +697,8 @@ def semantic_perform(code_details):
                                 elif symbol_table_values[var_index] == 0:
                                     symbol_table_values[var_index] = 'FAIL'
                                     symbol_table_type[var_index] = LITERAL_TROOF
-                                # NOTE: Add else statement
-                            
-                            # NOTE: Add else statement
+                                else:
+                                    errors.append("Line " + str(line_no) + ": Invalid typecasting of NUMBR to TROOF")
 
                         # NUMBAR cases
                         elif symbol_table_type[var_index] == LITERAL_NUMBAR:
@@ -719,17 +718,106 @@ def semantic_perform(code_details):
                                 elif symbol_table_values[var_index] == 0:
                                     symbol_table_values[var_index] = 'FAIL'
                                     symbol_table_type[var_index] = LITERAL_TROOF
-                                # NOTE: Add else statement
-                            
-                            # NOTE: Add else statement
-
+                                errors.append("Line " + str(line_no) + ": Invalid typecasting of NUMBAR to TROOF")
 
                         # TROOF cases
-
+                        elif symbol_table_type[var_index] == LITERAL_TROOF:
+                            # proceed to conversion
+                            if line[3][0] == 'NUMBR':
+                                if symbol_table_values[var_index] == 'WIN':
+                                    to_numbar = 1
+                                    symbol_table_values[var_index] = to_numbar
+                                    symbol_table_type[var_index] = LITERAL_NUMBAR
+                                elif symbol_table_values[var_index] == 'FAIL':
+                                    to_numbar = 0
+                                    symbol_table_values[var_index] = to_numbar
+                                    symbol_table_type[var_index] = LITERAL_NUMBAR
+                            elif line[3][0] == 'NUMBAR':
+                                if symbol_table_values[var_index] == 'WIN':
+                                    to_numbar = 1.0
+                                    symbol_table_values[var_index] = to_numbar
+                                    symbol_table_type[var_index] = LITERAL_NUMBAR
+                                elif symbol_table_values[var_index] == 'FAIL':
+                                    to_numbar = 0.0
+                                    symbol_table_values[var_index] = to_numbar
+                                    symbol_table_type[var_index] = LITERAL_NUMBAR
+                            elif line[3][0] == 'YARN':
+                                to_str = str(symbol_table_values[var_index])
+                                symbol_table_values[var_index] = to_str
+                                symbol_table_type[var_index] = LITERAL_YARN
 
                         # YARN case
+                        elif symbol_table_type[var_index] == LITERAL_YARN:
+                            varident_details = detect_lexemes(symbol_table_values[var_index])
+                            # returns [lexeme_token, lexeme_classification]
+                            varident_value = varident_details[0]
+                            varident_class = varident_details[1]
 
-                # NOTE: Add error message for nonexisting varidents
+                            if line[3][0] == 'NUMBR':
+                                if varident_class != LITERAL_NUMBR:
+                                    errors.append("Line " + str(line_no) + ": Invalid typecasting found")
+                                else:
+                                    symbol_table_values[var_index] = int(varident_value)
+                                    symbol_table_type[var_index] = LITERAL_NUMBR
+                            elif line[3][0] == 'NUMBAR':
+                                if varident_class != LITERAL_NUMBR:
+                                    errors.append("Line " + str(line_no) + ": Invalid typecasting found")
+                                else:
+                                    symbol_table_values[var_index] = float(varident_value)
+                                    symbol_table_type[var_index] = LITERAL_NUMBAR
+                            elif line[3][0] == 'TROOF':
+                                # NUMBR / NUBAR - TROOF
+                                if varident_class == LITERAL_NUMBR:
+                                    if varident_value == 1:
+                                        symbol_table_values[var_index] = 'WIN'
+                                        symbol_table_type[var_index] = LITERAL_TROOF
+                                    elif varident_value == 0:
+                                        symbol_table_values[var_index] = 'FAIL'
+                                        symbol_table_type[var_index] = LITERAL_TROOF
+                                    else:
+                                        errors.append("Line " + str(line_no) + ": Invalid typecasting found")
+                                elif varident_class == LITERAL_NUMBAR:
+                                    if varident_class == LITERAL_NUMBAR:
+                                        if varident_value == 1.0:
+                                            symbol_table_values[var_index] = 'WIN'
+                                            symbol_table_type[var_index] = LITERAL_TROOF
+                                        elif varident_value == 0.0:
+                                            symbol_table_values[var_index] = 'FAIL'
+                                            symbol_table_type[var_index] = LITERAL_TROOF
+                                        else:
+                                            errors.append("Line " + str(line_no) + ": Invalid typecasting found")
+                                # YARN - TROOF
+                                elif varident_class == LITERAL_TROOF:
+                                    symbol_table_values[var_index] = varident_value
+                                    symbol_table_type[var_index] = LITERAL_TROOF
+                                else:
+                                    errors.append("Line " + str(line_no) + ": Invalid typecasting found")
+
+                            # YARN to TROOF to NUMBR / NUMBAR
+                            elif varident_class == LITERAL_TROOF:
+                                if varident_value == 'WIN':
+                                    if new_class == LITERAL_NUMBR:
+                                        symbol_table_values[var_index] = 1
+                                        symbol_table_type[var_index] = LITERAL_NUMBR
+                                    else:
+                                        symbol_table_values[var_index] = 1.0
+                                        symbol_table_type[var_index] = LITERAL_NUMBAR
+                                elif varident_value == 'FAIL':
+                                    if new_class == LITERAL_NUMBR:
+                                        symbol_table_values[var_index] = 0
+                                        symbol_table_type[var_index] = LITERAL_NUMBR
+                                    else:
+                                        symbol_table_values[var_index] = 0.0
+                                        symbol_table_type[var_index] = LITERAL_NUMBAR
+
+                        # NOOB case
+                        else:
+                            errors.append("Line " + str(line_no) + ": NOOB can only be implicitly casted to TROOF")
+
+                    # end of IS NOW A clause
+
+                else:
+                    errors.append("Line " + str(line_no) + ": Variable does note exist")
 
             # ----------------------------------------------------------------------------------------------------------------------------------------------
             
@@ -795,6 +883,7 @@ def semantic_perform(code_details):
 
             # ----------------------------------------------------------------------------------------------------------------------------------------------
 
+            # Explicit Typecasting
 
             # ----------------------------------------------------------------------------------------------------------------------------------------------
 
