@@ -906,7 +906,7 @@ def syntax_tester(code_details):
                                 if line[3][1] != VAR_ASSIGN:
                                     errors.append("Line " + line_no + ": Invalid I HAS A syntax, should have ITZ to initialize")
                                 # also checks expression instance
-                                if line[4][1] not in [KEYWORD_ARITHMETIC, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_YARN, IDENTIFIER_VARS]:
+                                if line[4][1] not in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_YARN, IDENTIFIER_VARS]:
                                     errors.append("Line " + line_no + ": Invalid I HAS A syntax, should have valid variable")
                         # expressions
                         if len(line) >= 6:
