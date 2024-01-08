@@ -33,95 +33,138 @@ from semantic_analyzer import semantic_perform
 
 def execute_lolcode(input_code, lexeme_table, symbols_table, terminal):
 
+    # refresh terminal
+    terminal.configure(state="normal")      # makes text area editable
+    terminal.delete("1.0", 'end')           # delete contents of terminal
+    terminal.configure(state="disabled")    # disable editing again
+
+    # refresh lexeme table
+    selected_lexemes = lexeme_table.get_children()
+    for lexeme in selected_lexemes:
+        lexeme_table.delete(lexeme)
+    
+    # refresh symbol table
+    selected_symbols = symbols_table.get_children()
+    for item in selected_symbols:
+        symbols_table.delete(item)
+
     # check if lexical test found a lexeme
     found_lexeme = 0
     lexical_test = []
     lexical_test = lexical_tester(input_code)
+
     for line in lexical_test:
         if len(line) > 1:
             found_lexeme = 1
             break
 
     if found_lexeme == 1:
+        # check if return value of syntax is correct
 
         syntax_test = []
         syntax_test = syntax_tester(lexical_test)
+        # returns [code_block, valid_syntax, lexeme_tokens, lexeme_classifications, errors]
 
-        # check if return value of syntax is correct
         if len(syntax_test) != 5:
             print("\nInvalid\n")
-
         else:
+            # do a syntax check
             syntax_check = syntax_test[1]
             lexeme_tokens = syntax_test[2]
             lexeme_classifications = syntax_test[3]
             syntax_errors = syntax_test[4]
-
-            # refresh lexeme table
-            selected_lexemes = lexeme_table.get_children()
-            for lexeme in selected_lexemes:
-                lexeme_table.delete(lexeme)
-
+                    
             # add values to lexeme table
             for i in range(len(lexeme_tokens)):
                 lexeme_table.insert('', 'end', values = (lexeme_tokens[i], lexeme_classifications[i]))
+            
+            if len(syntax_errors) >= 1:
 
-            # no errors in code
-            if syntax_check == 1:
-                code_block = syntax_test[0]
-                semantic_check = []
-
-                # run code here
+                # print syntax errors
+                print_errors_to_terminal = ''
+                for error in syntax_errors:
+                    print_errors_to_terminal = print_errors_to_terminal + str(error) + '\n'
+                    print(error)
                 print("")
-                semantic_check = semantic_perform(code_block)
-                print("")
 
-                symbol_table_identifiers = semantic_check[0]
-                symbol_table_values = semantic_check[1]
-                lines_to_print = semantic_check[2]
-
-                # refresh symbol table
-                selected_symbols = symbols_table.get_children()
-                for item in selected_symbols:
-                    symbols_table.delete(item)
-
-                # add values to symbols table
-                for i in range(len(symbol_table_identifiers)):
-                    symbols_table.insert('', 'end', values = (symbol_table_identifiers[i], symbol_table_values[i]))
-
-                # refresh terminal
                 terminal.configure(state="normal")      # makes text area editable
                 terminal.delete("1.0", 'end')           # delete contents of terminal
-                terminal.insert('end', lines_to_print)
+                terminal.insert('end', print_errors_to_terminal)
                 terminal.configure(state="disabled")    # disable editing again
 
-            # syntax errors
+            # no errors
             else:
-                if len(syntax_errors) > 0:
-                    for error in syntax_errors:
-                        print(error)
+                if syntax_check == 1:
+                    code_block = syntax_test[0]
+                    semantic_check = []
+
+                    # run code here
                     print("")
+                    semantic_check = semantic_perform(code_block)
+                    print("")
+
+                    # returns [symbol_table_identifiers, symbol_table_values, lines_to_print, errors]
+                    
+                    if len(semantic_check) == 4:
+
+                        # do a semantic check
+                        symbol_table_identifiers = semantic_check[0]
+                        symbol_table_values = semantic_check[1]
+                        lines_to_print = semantic_check[2]
+                        semantic_errors = semantic_check[3]
+
+                        if len(semantic_errors) >= 1:
+
+                            # print syntax errors
+                            print_errors_to_terminal = ''
+                            for error in semantic_errors:
+                                print_errors_to_terminal = print_errors_to_terminal + str(error) + '\n'
+                                print(error)
+                            print("")
+
+                            terminal.configure(state="normal")      # makes text area editable
+                            terminal.delete("1.0", 'end')           # delete contents of terminal
+                            terminal.insert('end', print_errors_to_terminal)
+                            terminal.configure(state="disabled")    # disable editing again
+                        
+                        # run code if semantic is valid
+                        else:
+
+                            # add values to symbols table
+                            for i in range(len(symbol_table_identifiers)):
+                                symbols_table.insert('', 'end', values = (symbol_table_identifiers[i], symbol_table_values[i]))
+
+                            terminal.configure(state="normal")      # makes text area editable
+                            terminal.delete("1.0", 'end')           # delete contents of terminal
+                            terminal.insert('end', lines_to_print)
+                            terminal.configure(state="disabled")    # disable editing again
+                    
+                    # mistake in semantic analyzer catcher
+                    else:
+                        print("Invalid semantic check")
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------
 
 # opens a dialog box to retreive a file
 def browse_files(file_explorer_label, workspace):
 
+    filename = ''
     # opens dialog box
     filename = filedialog.askopenfilename(
         initialdir = "/",
         title = "Select a File",
         filetypes = ( ("LOL files", "*.lol*"), ("all files", "*.*") )
     )
-    # make changes in the text editor
-    file_explorer_label.configure(text="File Opened: " + filename)  # change label header
-    workspace.delete("1.0", 'end')  # delete contents of workspace
+    if filename != '':
+        # make changes in the text editor
+        file_explorer_label.configure(text="File Opened: " + filename)  # change label header
+        workspace.delete("1.0", 'end')  # delete contents of workspace
 
-    # read the file and isnert contents to text editor
-    read_file = open(filename, "r")
-    file_text = read_file.read()
-    workspace.insert('end', file_text)
-    read_file.close()
+        # read the file and isnert contents to text editor
+        read_file = open(filename, "r")
+        file_text = read_file.read()
+        workspace.insert('end', file_text)
+        read_file.close()
       
 
 # retrieves value in workspace area

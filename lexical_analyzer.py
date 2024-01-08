@@ -522,9 +522,9 @@ def detect_lexemes(line):
         token = numbr_literal
     
     # troof literal
-    elif (re.search("(WIN$|FAIL$)", line) != None):
+    elif (re.search("(WIN|FAIL)", line) != None):
 
-        troof_susbtring = re.search("(WIN$|FAIL$)", line)
+        troof_susbtring = re.search("(WIN|FAIL)", line)
         troof_literal = line[troof_susbtring.start():troof_susbtring.end()]
         troof_literal = troof_literal.replace(" ", "")
 

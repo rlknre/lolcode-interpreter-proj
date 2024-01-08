@@ -130,7 +130,7 @@ def expression_tester(line_no, line, operation_type):
                         
                         # consider infinite arity for ALL OF and ANY OF
                         if line[0][0] in ['ALL OF', 'ANY OF']:
-                            return 1
+                            return [1, []]
                         
                         # check if operation / operand count is still valid
                         if operand > operation:
@@ -149,7 +149,7 @@ def expression_tester(line_no, line, operation_type):
                     # end of for loop
                     # check if number of operands and operations is valid
                     if (operation+1) == operand:
-                        return 1
+                        return [1, []]
                     else:
                         errors.append("Line " + line_no + ": Invalid operation syntax detected")
                         return [0, errors]
@@ -454,10 +454,18 @@ def syntax_tester(code_details):
                         check_syntax = line[1:]
                         valid_boolean = expression_tester(line_no, check_syntax, KEYWORD_BOOLEAN)
 
+                        if valid_boolean[0] == 0:
+                            for error in valid_boolean[1]:
+                                errors.append(error)
+
                     # Comparison / Relational Operations
                     if line[1][1] == KEYWORD_COMPARE:
                         check_syntax = line[1:]
                         valid_comparison = expression_tester(line_no, check_syntax, KEYWORD_COMPARE)
+
+                        if valid_comparison[0] == 0:
+                            for error in valid_comparison[1]:
+                                errors.append(error)
                     
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -798,6 +806,11 @@ def syntax_tester(code_details):
                                         operation_perform = line[3][1]
                                         testing_list = line[3:]
                                         valid_operation = expression_tester(line_no, testing_list, operation_perform)
+
+                                        if valid_operation[0] == 0:
+                                            for error in valid_operation[1]:
+                                                errors.append(error)
+
                                     else:
                                         if line[3][0] != 'SMOOSH':
                                             errors.append("Line " + line_no + ": Waiting for an operation expression")
@@ -917,6 +930,10 @@ def syntax_tester(code_details):
                                 check_syntax = line[4:]
                                 valid_operation = expression_tester(line_no, check_syntax, operation_perform)
 
+                                if valid_operation[0] == 0:
+                                    for error in valid_operation[1]:
+                                        errors.append(error)
+
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 
                     # VISIBLE
@@ -924,123 +941,131 @@ def syntax_tester(code_details):
                         if len(line) <= 2:
                             errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting for values to print")
                         if len(line) >= 3:
-                            if line[2][1] not in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN, KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE]:
-                                if line[2][0] != 'SMOOSH':
-                                    errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting for values to print")
-                                else:
-                                    # expressions
-                                    if line[2][1] in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE]:
-                                        testing_list = []           # for expressions
-                                        expected_operation = ''     # for operation type
-                                        expect_expr_token = 0       # check for expression tokens
-                                        expect_concat = 0           # check for concat keyword
+                            if line[2][1] in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN, KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE, KEYWORD_CONCAT]:
+                                # expressions
+                                if line[2][1] in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_YARN, KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE]:
+                                    testing_list = []           # for expressions
+                                    expected_operation = ''     # for operation type
+                                    expect_expr_token = 0       # check for expression tokens
+                                    expect_concat = 0           # check for concat keyword
 
-                                        # for multiple values of printing
-                                        for x in range(2, len(line)):
+                                    # for multiple values of printing
+                                    for x in range(2, len(line)):
 
-                                            # Operations
-                                            if line[x][1] in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE]:
-                                                # start of testing list
-                                                if expect_expr_token == 0:
-                                                    expected_operation = line[x][1]
-                                                    expect_expr_token = 1
-                                                    expect_concat = 1
+                                        # Operations
+                                        if line[x][1] in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE]:
+                                            # start of testing list
+                                            if expect_expr_token == 0:
+                                                expected_operation = line[x][1]
+                                                expect_expr_token = 1
+                                                expect_concat = 1
+                                            testing_list.append(line[x])
+                                            
+                                        # AN
+                                        if line[x][0] == 'AN' and line[x][1] == KEYWORD_SEPERATOR:
+                                            if expect_expr_token == 1:
                                                 testing_list.append(line[x])
+                                            else:
+                                                errors.append("Line " + line_no + ": Invalid VISIBLE, waiting for operation token")
                                             
-                                            # AN
-                                            if line[x][0] == 'AN' and line[x][1] == KEYWORD_SEPERATOR:
-                                                if expect_expr_token == 1:
-                                                    testing_list.append(line[x])
+                                        # Operands
+                                        if line[x][1] in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
+                                            if expect_expr_token == 1:
+                                                testing_list.append(line[x])
+                                            # not checking for expressions
+                                            else:
+                                                if expect_concat == 1:
+                                                    errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting concat token")
                                                 else:
-                                                    errors.append("Line " + line_no + ": Invalid VISIBLE, waiting for operation token")
-                                            
-                                            # Operands
-                                            if line[x][1] in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
-                                                if expect_expr_token == 1:
-                                                    testing_list.append(line[x])
-                                                # not checking for expressions
-                                                else:
-                                                    if expect_concat == 1:
-                                                        errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting concat token")
-                                                    else:
-                                                        expect_concat = 1
+                                                    expect_concat = 1
 
-                                            # MKAY
-                                            if line[x][0] == 'MKAY' and line[x][1] == DELIMITER_END:
+                                        # MKAY
+                                        if line[x][0] == 'MKAY' and line[x][1] == DELIMITER_END:
+                                            if expect_expr_token == 1:
+                                                testing_list.append(line[x])
+                                            # not checking for expressions
+                                            else:
+                                                if expect_concat == 1:
+                                                    errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting concat token")
+                                                else:
+                                                    expect_concat = 1
+
+                                        # Concat
+                                        if line[x][1] == KEYWORD_CONCAT:
+                                            if expect_concat == 0:
+                                                errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting for values to print")
+                                            else:
+                                                # expressions
                                                 if expect_expr_token == 1:
-                                                    testing_list.append(line[x])
-                                                # not checking for expressions
-                                                else:
-                                                    if expect_concat == 1:
-                                                        errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting concat token")
-                                                    else:
-                                                        expect_concat = 1
+                                                    valid_operation = expression_tester(line_no, testing_list, expected_operation)
+                                                    testing_list = []
+                                                    expected_operation = ''
+                                                    expect_expr_token = 0
+                                                    expect_concat = 0
 
-                                            # Concat
-                                            if line[x][1] == KEYWORD_CONCAT:
-                                                if expect_concat == 0:
-                                                    errors.append("Line " + line_no + ": Invalid VISIBLE syntax, waiting for values to print")
+                                                    if valid_operation[0] == 0:
+                                                        for error in valid_operation[1]:
+                                                            errors.append(error)
+                                                # non expressions
                                                 else:
-                                                    # expressions
-                                                    if expect_expr_token == 1:
-                                                        valid_operation = expression_tester(line_no, testing_list, expected_operation)
-                                                        testing_list = []
-                                                        expected_operation = ''
-                                                        expect_expr_token = 0
-                                                        expect_concat = 0
-                                                    # non expressions
-                                                    else:
-                                                        expect_concat = 0
+                                                    expect_concat = 0
 
-                                        # for single values to print
-                                        if expect_expr_token == 1:
-                                            valid_operation = expression_tester(line_no, testing_list, expected_operation)
-                                            testing_list = []
-                                            expected_operation = ''
-                                            expect_expr_token = 0
-                                            expect_concat = 0
+                                    # for single values to print
+                                    if expect_expr_token == 1:
+                                        valid_operation = expression_tester(line_no, testing_list, expected_operation)
+                                        testing_list = []
+                                        expected_operation = ''
+                                        expect_expr_token = 0
+                                        expect_concat = 0
                                     
-                                    # SMOOSH (without expressions)
-                                    elif line[2][0] == 'SMOOSH' and line[2][1] == KEYWORD_CONCAT:
-                                        # check if nested
-                                        if line.count(['SMOOSH', KEYWORD_CONCAT]) > 1:
-                                            errors.append("Line " + line_no + ": Invalid SMOOSH syntax, no nesting for this operation")
-                                        else:
-                                            # retrieve smoosh expression for checking
-                                            testing_smosh = line[2:]
+                                # SMOOSH (without expressions)
+                                elif line[2][0] == 'SMOOSH' and line[2][1] == KEYWORD_CONCAT:
+                                    # check if nested
+                                    if line.count(['SMOOSH', KEYWORD_CONCAT]) > 1:
+                                        errors.append("Line " + line_no + ": Invalid SMOOSH syntax, no nesting for this operation")
+                                    else:
+                                        # retrieve smoosh expression for checking
+                                        testing_smosh = line[2:]
 
-                                            if len(testing_smosh) >= 5:
-                                                if testing_smosh[1][1] not in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
-                                                    errors.append("Line " + line_no + ": Invalid SMOOSH syntax, waiting for values to concatenate")
-                                                else:
-                                                    # check for concatenation, also retrieves MKAY keyword
-                                                    expecting_concat = 0
-                                                    expecting_var = 1
+                                        if len(testing_smosh) >= 5:
+                                            if testing_smosh[1][1] not in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
+                                                errors.append("Line " + line_no + ": Invalid SMOOSH syntax, waiting for values to concatenate")
+                                            else:
+                                                # check for concatenation, also retrieves MKAY keyword
+                                                expecting_concat = 0
+                                                expecting_var = 1
                                                     
-                                                    for x in range(1, len(testing_smosh)):
-                                                        # operand
-                                                        if testing_smosh[x][1] in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
-                                                            if expecting_var == 1:
-                                                                expecting_var = 0
-                                                                expecting_concat = 1
-                                                            else:
-                                                                errors.append("Line " + line_no + ": Invalid SMOOSH syntax, waiting for seperator")
-                                                                break
-                                                        # AN
-                                                        elif testing_smosh[x][0] == 'AN':
-                                                            if expecting_concat == 1:
-                                                                expecting_concat = 0
-                                                                expecting_var = 1
-                                                            else:
-                                                                errors.append("Line " + line_no + ": Invalid SMOOSH syntax, waiting for value")
-                                                                break                                                                
+                                                for x in range(1, len(testing_smosh)):
+                                                    # operand
+                                                    if testing_smosh[x][1] in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
+                                                        if expecting_var == 1:
+                                                            expecting_var = 0
+                                                            expecting_concat = 1
+                                                        else:
+                                                            errors.append("Line " + line_no + ": Invalid SMOOSH syntax, waiting for seperator")
+                                                            break
+                                                    # AN
+                                                    elif testing_smosh[x][0] == 'AN':
+                                                        if expecting_concat == 1:
+                                                            expecting_concat = 0
+                                                            expecting_var = 1
+                                                        else:
+                                                            errors.append("Line " + line_no + ": Invalid SMOOSH syntax, waiting for value")
+                                                            break                                                                
                                                         
-                                                        # MKAY
-                                                        elif testing_smosh[x][0] == 'MKAY':
-                                                            if (x+1) == len(testing_smosh):
-                                                                break
-                                                            else:
-                                                                errors.append("Line " + line_no + ": Invalid SMOOSH syntax, MKAY is ending value")
+                                                    # MKAY
+                                                    elif testing_smosh[x][0] == 'MKAY':
+                                                        if (x+1) == len(testing_smosh):
+                                                            break
+                                                        else:
+                                                            errors.append("Line " + line_no + ": Invalid SMOOSH syntax, MKAY is ending value")
+                                
+                                # invalid value after VISIBLE
+                                else:
+                                    errors.append("Line " + line_no + ": Invalid value after VISIBLE")
+                            # invalid after VISIBLE
+                            else:
+                                errors.append("Line " + line_no + ": Waiting for value to print")
 
                     # ----------------------------------------------------------------------------------------------------------------------------------------------
 

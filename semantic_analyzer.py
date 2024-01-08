@@ -833,6 +833,14 @@ def semantic_perform(code_details):
 
                         lines_to_print += symbol_table_values[0] + '\n'
 
+                    elif line[2][1] in [LITERAL_NOOB, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF]:
+                        # use the IT variable 
+                        symbol_table_values[0] = ''
+                        symbol_table_values[0] = str(line[2][0])
+                        symbol_table_type[0] = LITERAL_YARN
+
+                        lines_to_print += symbol_table_values[0] + '\n'
+
                     else:
                         if line[2][0] in symbol_table_identifiers:
                             var_index = symbol_table_identifiers.index(line[2][0])
@@ -843,6 +851,8 @@ def semantic_perform(code_details):
                             symbol_table_type[0] = LITERAL_YARN
 
                             lines_to_print += symbol_table_values[0] + '\n'
+                        else:
+                            errors.append("Line " + str(line_no) + ": Variable does not exist")
                         
                 # multiple values
                 else:
@@ -1324,10 +1334,10 @@ def semantic_perform(code_details):
                                         symbol_table_values[var_index] = to_str
                                         symbol_table_type[var_index] = LITERAL_YARN
                                     elif line[5][0] == 'TROOF':
-                                        if symbol_table_values[var_index] == 1:
+                                        if int(symbol_table_values[var_index]) == 1:
                                             symbol_table_values[var_index] = 'WIN'
                                             symbol_table_type[var_index] = LITERAL_TROOF
-                                        elif symbol_table_values[var_index] == 0:
+                                        elif int(symbol_table_values[var_index]) == 0:
                                             symbol_table_values[var_index] = 'FAIL'
                                             symbol_table_type[var_index] = LITERAL_TROOF
                                         else:
@@ -1346,10 +1356,10 @@ def semantic_perform(code_details):
                                         symbol_table_values[var_index] = to_str
                                         symbol_table_type[var_index] = LITERAL_YARN
                                     elif line[5][0] == 'TROOF':
-                                        if symbol_table_values[var_index] == 1.0:
+                                        if float(symbol_table_values[var_index]) == 1.0:
                                             symbol_table_values[var_index] = 'WIN'
                                             symbol_table_type[var_index] = LITERAL_TROOF
-                                        elif symbol_table_values[var_index] == 0:
+                                        elif float(symbol_table_values[var_index]) == 0:
                                             symbol_table_values[var_index] = 'FAIL'
                                             symbol_table_type[var_index] = LITERAL_TROOF
                                         errors.append("Line " + str(line_no) + ": Invalid typecasting of NUMBAR to TROOF")
