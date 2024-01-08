@@ -363,8 +363,9 @@ def syntax_tester(code_details):
 
     # for checking
     # print("")
-    # for line in code_block:
-    #     print(line)
+    print("Checking from lexical: ")
+    for line in code_block:
+        print(line)
     #     print(str(len(line)) + "\n")
 
     if searching_TLDR == 1 or invalid_TLDR == 1:

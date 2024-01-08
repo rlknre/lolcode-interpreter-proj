@@ -342,7 +342,7 @@ def semantic_perform(code_details):
     lines_to_print = ''
 
     symbol_table_identifiers.append('IT')
-    symbol_table_values.append('')
+    symbol_table_values.append('NOOB')
     symbol_table_type.append(LITERAL_NOOB)
 
     code_block = code_details
@@ -380,7 +380,6 @@ def semantic_perform(code_details):
                         # NUMBR
                         elif answer_type == LITERAL_NUMBR:
                             answer_result = int(a_perform[1])
-                            print(answer_result)
                             symbol_table_values[0] = answer_result
                             symbol_table_type[0] = LITERAL_NUMBR
 
@@ -392,7 +391,7 @@ def semantic_perform(code_details):
                 # uninitialized variable
                 if len(line) == 3:
                     symbol_table_identifiers.append(line[2][0])
-                    symbol_table_values.append('')
+                    symbol_table_values.append('NOOB')
                     symbol_table_type.append(LITERAL_NOOB)
 
                 # initialized variable
@@ -418,10 +417,43 @@ def semantic_perform(code_details):
                     elif line[4][1] == LITERAL_NUMBAR:
                         symbol_table_values.append(float(line[4][0]))
                         symbol_table_type.append(LITERAL_NUMBAR)
+                
+                # expressions
+                elif len(line) > 5:
+
+                    # arithmetic
+                    if line[4][1] == KEYWORD_ARITHMETIC:
+                        testing_list = line[4:]
+                        a_perform = perform_arithmetic(symbol_table_identifiers, symbol_table_values, symbol_table_type, testing_list, line_no)
+
+                        # if invalid, returns [0, error message]
+                        # if valid, returns [1, result, type of result]
+                        if len(a_perform) == 2:
+                            # error
+                            if a_perform[0] == 0:
+                                errors.append(a_perform[1])
+                        elif len(a_perform) == 3:
+                                # valid
+                            if a_perform[0] == 1:
+                                answer_type = a_perform[2]
+                                # NUMBAR
+                                if answer_type == LITERAL_NUMBAR:
+                                    answer_result = float(a_perform[1])
+                                    # add to symbols table
+                                    symbol_table_identifiers.append(line[2][0])
+                                    symbol_table_values.append(answer_result)
+                                    symbol_table_type.append(LITERAL_NUMBAR)
+                                # NUMBR
+                                elif answer_type == LITERAL_NUMBR:
+                                    answer_result = int(a_perform[1])
+                                    # add to symbols table
+                                    symbol_table_identifiers.append(line[2][0])
+                                    symbol_table_values.append(answer_result)
+                                    symbol_table_type.append(LITERAL_NUMBR)
 
             # ----------------------------------------------------------------------------------------------------------------------------------------------
 
-            # VSIBLIE
+            # VISIBLE
             if line[1][0] == 'VISIBLE' and line[1][1] == KEYWORD_PRINT:
                 # only one to print
                 if len(line) <= 3:
@@ -446,31 +478,123 @@ def semantic_perform(code_details):
                         
                 # multiple values
                 else:
-                    # use the IT variable
-                    symbol_table_values[0] = ''
-                    it_var = ''
-                    valid_visible = 1
-                    for x in range(1, len(line)):
-                        if (x % 2) == 0:
-                            if line[x][1] == LITERAL_YARN:
+                    for_printing = ''
+                    testing_list = []           # for expressions
+                    expected_operation = ''     # for operation type
+                    expect_expr_token = 0       # check for expression tokens
+                    expect_concat = 0           # check for concat keyword
 
-                                it_var = ''.join([it_var, (line[x][0])])
+                    # expressions
+                    for x in range(2, len(line)):
 
-                            else:
-                                if line[x][0] in symbol_table_identifiers:
-                                    var_index = symbol_table_identifiers.index(line[x][0])
-                                    to_yarn = str(symbol_table_values[var_index])
-                                    it_var = ''.join([it_var, to_yarn])
+                        # Operations
+                        if line[x][1] in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE]:
+                            # start of testing list, update checkers
+                            if expect_expr_token == 0:
+                                expected_operation = line[x][1]
+                                expect_expr_token = 1
+                                expect_concat = 1
+                            # always append value
+                            testing_list.append(line[x])
+                                    
+                        # AN
+                        if line[x][0] == 'AN':
+                            if expect_expr_token == 1:
+                                testing_list.append(line[x])
+                                    
+                        # Operands
+                        if line[x][1] in [IDENTIFIER_VARS, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_TROOF, LITERAL_TROOF, LITERAL_YARN]:
+                            # expressions
+                            if expect_expr_token == 1:
+                                testing_list.append(line[x])
+                            # non expressions
+                            elif expect_expr_token == 0:
+                                if line[x][1] == IDENTIFIER_VARS:
+                                    if line[x][0] in symbol_table_identifiers:
+                                        var_index = symbol_table_identifiers.index(line[x][0])
+                                        val_varid = str(symbol_table_values[var_index])
+                                        for_printing = ''.join([for_printing, val_varid])
+                                    else:
+                                        errors.append("Line " + line_no + ": Invalid variable call, does not exist")
                                 else:
-                                    valid_visible = 0
+                                    for_printing = ''.join([for_printing, str(line[x][0])])
 
-                    # does not print if a variable not found 
-                    if valid_visible == 1:
-                        symbol_table_values[0] = it_var
+                        # MKAY
+                        if line[x][0] == 'MKAY' and line[x][1] == DELIMITER_END:
+                            if expect_expr_token == 1:
+                                testing_list.append(line[x])
+
+                        # Concat
+                        if line[x][1] == KEYWORD_CONCAT:
+                            # expressions
+                            if expect_expr_token == 1:
+                                a_perform = perform_arithmetic(symbol_table_identifiers, symbol_table_values, symbol_table_type, testing_list, line_no)
+                                testing_list = []
+
+                                # if invalid, returns [0, error message]
+                                # if valid, returns [1, result, type of result]
+                                if len(a_perform) == 2:
+                                    # error
+                                    if a_perform[0] == 0:
+                                        errors.append(a_perform[1])
+                                elif len(a_perform) == 3:
+                                    # valid
+                                    if a_perform[0] == 1:
+                                        answer_type = a_perform[2]
+                                        # NUMBAR
+                                        if answer_type == LITERAL_NUMBAR:
+                                            answer_result = float(a_perform[1])
+                                            symbol_table_values[0] = answer_result
+                                            symbol_table_type[0] = LITERAL_NUMBAR
+                                            for_printing = ''.join([for_printing, str(answer_result)])
+                                        # NUMBR
+                                        elif answer_type == LITERAL_NUMBR:
+                                            answer_result = int(a_perform[1])
+                                            symbol_table_values[0] = answer_result
+                                            symbol_table_type[0] = LITERAL_NUMBR
+                                            for_printing = ''.join([for_printing, str(answer_result)])
+                                    
+                                expected_operation = ''
+                                expect_expr_token = 0
+                                expect_concat = 0
+                            # non expressions
+                            else:
+                                expect_concat = 0
+
+                    # for single expressions
+                    if expect_expr_token == 1:
+                        a_perform = perform_arithmetic(symbol_table_identifiers, symbol_table_values, symbol_table_type, testing_list, line_no)
+                        testing_list = []
+                        
+                        # if invalid, returns [0, error message]
+                        # if valid, returns [1, result, type of result]
+                        if len(a_perform) == 2:
+                            # error
+                            if a_perform[0] == 0:
+                                errors.append(a_perform[1])
+                        elif len(a_perform) == 3:
+                            # valid
+                            if a_perform[0] == 1:
+                                answer_type = a_perform[2]
+                                # NUMBAR
+                                if answer_type == LITERAL_NUMBAR:
+                                    answer_result = float(a_perform[1])
+                                    symbol_table_values[0] = answer_result
+                                    symbol_table_type[0] = LITERAL_NUMBAR
+                                    for_printing = ''.join([for_printing, str(answer_result)])
+                                # NUMBR
+                                elif answer_type == LITERAL_NUMBR:
+                                    answer_result = int(a_perform[1])
+                                    symbol_table_values[0] = answer_result
+                                    symbol_table_type[0] = LITERAL_NUMBR
+                                    for_printing = ''.join([for_printing, str(answer_result)])
+
+                    # append to list for printing values
+                    if for_printing != '':
+                        lines_to_print += (for_printing) + '\n'
+                        # also update IT variable
+                        symbol_table_values[0] = for_printing
                         symbol_table_type[0] = LITERAL_YARN
-                        lines_to_print += symbol_table_values[0] + '\n'
-
-                    # NOTE: add error condition
                     
             # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -550,8 +674,8 @@ def semantic_perform(code_details):
                     
                     symbol_table_values[var_index] = val_input
                     symbol_table_type[var_index] = LITERAL_YARN
-
-                # NOTE: add error condition
+                else:
+                    errors.append("Line " + str(line_no) + ": Variable does not exist")
 
             # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -602,6 +726,12 @@ def semantic_perform(code_details):
 
 
             # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+    # end of for loop for semantic checker
+
+    if len(errors) > 0 :
+        for error in errors:
+            print(error)
 
     # checker of symbol table
     print("\n--- \n\nSymbol Table: ")

@@ -111,7 +111,7 @@ def detect_lexemes(line):
         )
         token = "I HAS A"
 
-    elif (re.search(" ITZ([a-zA-Z0-9\.]+)?", line) != None):
+    elif (re.search(" ITZ (.)?", line) != None):
         lexeme_tokens.append("ITZ")
         lexeme_classification.append(
             VAR_ASSIGN
@@ -250,7 +250,7 @@ def detect_lexemes(line):
         )
         token = "SMOOSH"
     
-    elif ((re.search(r'[^("\')] \+ [^("\')]', line)) != None):
+    elif ((re.search(r'(.)?\+(.)?', line)) != None):
         lexeme_tokens.append("+")
         lexeme_classification.append(
             KEYWORD_CONCAT
@@ -478,12 +478,12 @@ def detect_lexemes(line):
         token = yarn_literal
     
     # variable identifier
-    elif (re.search("(^ )?[a-z]+([a-zA-Z\_\d])*", line) != None):
+    elif (re.search("(^ )?[a-z]+([a-zA-Z\_\d])*(.)?", line) != None):
 
         # https://note.nkmk.me/en/python-re-match-object-span-group/
         # use start() and end() func to pinpoint location of literal in string line
 
-        var_substring = re.search("(^ )?[a-z]+([a-zA-Z\_\d])*", line)
+        var_substring = re.search("(^ )?[a-z]+([a-zA-Z\_\d])*(.)?", line)
 
         variable_name = line[var_substring.start():var_substring.end()]
         if " " in variable_name:
@@ -522,7 +522,7 @@ def detect_lexemes(line):
         token = numbr_literal
     
     # troof literal
-    elif (re.search("(WIN%|FAIL$)", line) != None):
+    elif (re.search("(WIN$|FAIL$)", line) != None):
 
         troof_susbtring = re.search("(WIN$|FAIL$)", line)
         troof_literal = line[troof_susbtring.start():troof_susbtring.end()]
