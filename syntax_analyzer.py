@@ -792,14 +792,21 @@ def syntax_tester(code_details):
                             
                             # R expression
                             else:
-                                if line[2][0] == 'R' and line[2][1] == VAR_ASSIGN:
+                                if line[2][0] == 'R' and (line[2][1] == VAR_ASSIGN):
                                     # check for operations
                                     if line[3][1] in [KEYWORD_ARITHMETIC, KEYWORD_BOOLEAN, KEYWORD_COMPARE, KEYWORD_TYPECAST]:
                                         operation_perform = line[3][1]
                                         testing_list = line[3:]
                                         valid_operation = expression_tester(line_no, testing_list, operation_perform)
                                     else:
-                                        errors.append("Line " + line_no + ": Waiting for an operation expression")
+                                        if line[3][0] != 'SMOOSH':
+                                            errors.append("Line " + line_no + ": Waiting for an operation expression")
+                                else:
+                                    if len(line) > 4:
+                                        if line[3][0] != 'SMOOSH':
+                                            errors.append("Line " + line_no + ": Waiting for an operation expression")
+                                    else:
+                                        errors.append("Line " + line_no + ": Waiting for operation expression")
                         # invalid
                         else:
                             errors.append("Line " + line_no + ": Waiting for an operation for the variable")

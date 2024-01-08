@@ -316,8 +316,279 @@ def perform_arithmetic(symbol_names, symbol_vals, symbol_types, line, line_numbe
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------
 
-def perform_boolean():
-    None
+def perform_boolean(symbol_names, symbol_vals, symbol_types, line, line_number):
+        
+    result = 0
+
+    # check if there is a lost lexeme
+    for x in range(0, len(line)):
+        if line[x][1] != KEYWORD_BOOLEAN:
+            if line[x][1] not in [IDENTIFIER_VARS, LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_TROOF, LITERAL_YARN, LITERAL_NOOB]:
+                if line[x][0] != 'AN':
+                    error_message = ("Line " + str(line_number) + ": Invalid value found in boolean expression")
+                    return[0, error_message]
+
+    # check if symbols exist
+    for x in range(0, len(line)):
+        if line[x][1] == IDENTIFIER_VARS:
+            if line[x][0] not in symbol_names:
+                error_message = ("Line " + str(line_number) + ": Invalid variable name found in boolean expression")
+                return[0, error_message]
+    
+    # check each operand if they are valid (for yarns and vars)
+    for x in range(0, len(line)):
+        if line[x][1] in [IDENTIFIER_VARS, LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_TROOF, LITERAL_YARN, LITERAL_NOOB]:
+            
+            # check if variable is valid
+            if line[x][1] == IDENTIFIER_VARS:
+                # retrieve type of varident
+                var_index = symbol_names.index(line[x][0])
+                varident_type = symbol_types[var_index]
+
+                # check if YARN is valid
+                if varident_type not in [LITERAL_TROOF, LITERAL_NOOB]:
+                    # YARN
+                    if varident_type == LITERAL_YARN:
+                        # check if valid NUMBR / NUMBAR / TROOF
+
+                        varident_details = detect_lexemes(symbol_vals[var_index])
+                        # returns [lexeme_token, lexeme_classification]
+                        varident_value = varident_details[0]
+                        varident_class = varident_details[1]
+
+                        if varident_class != LITERAL_TROOF:
+                            if varident_class != LITERAL_YARN:
+                                # check if valid NUMBAR / NUMBR to TROOF
+                                if varident_class == LITERAL_NUMBAR or varident_class == LITERAL_NUMBR:
+                                    varident_value = int(varident_value)
+                                    if varident_value != 1:
+                                        if varident_value != 0:
+                                            if varident_value != 1.0:
+                                                if varident_value != 0.0:
+                                                    print(varident_value)
+                                                    error_message = ("Line " + str(line_number) + ": Invalid operand type found in expression (1) ")
+                                                    return[0, error_message]
+                    # NUMBR / NUMBAR
+                    elif varident_type == LITERAL_NUMBR or varident_type == LITERAL_NUMBAR:
+                        varident_val = symbol_vals[var_index]
+                        if varident_val != 1:
+                            if varident_val != 1.0:
+                                if varident_val != 0:
+                                    if varident_val != 0.0:
+                                        error_message = ("Line " + str(line_number) + ": Invalid operand type found in expression (2) ")
+                                        return[0, error_message]
+                    else:
+                        error_message = ("Line " + str(line_number) + ": Invalid operand type found in expression (3)")
+                        return[0, error_message]
+
+    # # Implicit Typecasting
+    # for x in range(0, len(line)):
+
+    #     # Varidents
+    #     if line[x][1] == IDENTIFIER_VARS:
+    #         # retrieves index of varident as well in symbols table
+    #         var_index = symbol_names.index(line[x][0])
+    #         varident_value = symbol_vals[var_index]
+    #         varident_type = symbol_types[var_index]
+
+    #         # YARN to -
+    #         if varident_type == LITERAL_YARN:
+    #             varident_details = detect_lexemes(symbol_vals[var_index])
+    #             # returns [lexeme_token, lexeme_classification]
+    #             varident_value = varident_details[0]
+    #             varident_class = varident_details[1]
+
+    #             # YARN to NUMBR
+    #             if varident_class == LITERAL_NUMBR:
+    #                 if new_class == LITERAL_NUMBAR:
+    #                     symbol_vals[var_index] = float(varident_value)
+    #                 else:
+    #                     symbol_vals[var_index] = varident_value
+    #                 symbol_types[var_index] = new_class
+    #             # YARN TO NUMBAR
+    #             elif varident_class == LITERAL_NUMBAR:
+    #                 symbol_vals[var_index] = varident_value
+    #                 symbol_types[var_index] = new_class
+    #             # YARN to TROOF to NUMBR / NUMBAR
+    #             elif varident_class == LITERAL_TROOF:
+    #                 if varident_value == 'WIN':
+    #                     if new_class == LITERAL_NUMBR:
+    #                         symbol_vals[var_index] = 1
+    #                         symbol_types[var_index] = LITERAL_NUMBR
+    #                     else:
+    #                         symbol_vals[var_index] = 1.0
+    #                         symbol_types[var_index] = LITERAL_NUMBAR
+    #                 elif varident_value == 'FAIL':
+    #                     if new_class == LITERAL_NUMBR:
+    #                         symbol_vals[var_index] = 0
+    #                         symbol_types[var_index] = LITERAL_NUMBR
+    #                     else:
+    #                         symbol_vals[var_index] = 0.0
+    #                         symbol_types[var_index] = LITERAL_NUMBAR
+
+    #         # TROOF to -
+    #         elif varident_type == LITERAL_TROOF:
+    #             if varident_value == 'WIN':
+    #                 if new_class == LITERAL_NUMBR:
+    #                     symbol_vals[var_index] = 1
+    #                     symbol_types[var_index] = LITERAL_NUMBR
+    #                 else:
+    #                     symbol_vals[var_index] = 1.0
+    #                     symbol_types[var_index] = LITERAL_NUMBAR
+    #             elif varident_value == 'FAIL':
+    #                 if new_class == LITERAL_NUMBR:
+    #                     symbol_vals[var_index] = 0
+    #                     symbol_types[var_index] = LITERAL_NUMBR
+    #                 else:
+    #                     symbol_vals[var_index] = 0.0
+    #                     symbol_types[var_index] = LITERAL_NUMBAR                
+
+    #         # NUMBR to -
+    #         elif varident_type == LITERAL_NUMBR:
+    #             if to_numbar == 1:
+    #                 symbol_vals[var_index] = float(symbol_vals[var_index])
+    #                 symbol_types[var_index] = LITERAL_NUMBAR
+
+    #     # end of loop for varident typecasting
+
+    #     # NUMBRs
+    #     elif line[x][1] == LITERAL_NUMBR:
+    #         if to_numbar == 1:
+    #             line[x][0] = float(line[x][0])
+    #             line[x][1] = LITERAL_NUMBAR
+
+    #     # TROOFs
+    #     elif line[x][1] == LITERAL_TROOF:
+    #         if to_numbar == 1:
+    #             if line[x][0] == 'WIN':
+    #                 line[x][0] = 1.0
+    #             elif line[x][0] == 'FAIL':
+    #                 line[x][0] = 0.0
+    #             line[x][1] = LITERAL_NUMBAR
+    #         else:
+    #             if line[x][0] == 'WIN':
+    #                 line[x][0] = 1
+    #             elif line[x][0] == 'FAIL':
+    #                 line[x][0] = 0
+    #             line[x][1] = LITERAL_NUMBR
+
+    # # end of Implicit Typecasting loop
+
+    # # initialize the computing list with the code line
+    # compute_list = line
+
+    # # perform arithmetic operation
+    # counter = len(compute_list)
+    # while counter != 1:
+
+    #     # computing values
+    #     testing_list = []
+    #     expecting_seperator = 0
+    #     expecting_operand = 0
+
+    #     # for clearing
+    #     index_of_operation = 0
+
+    #     # loop through line and find one operation to perform
+    #     for x in range(0, len(compute_list)):
+
+    #         # Operation
+    #         if compute_list[x][1] == KEYWORD_ARITHMETIC:
+    #             if expecting_operand == 1:
+    #                 expecting_operand = 0
+    #                 index_of_operation = 0
+    #                 testing_list.clear()
+    #             elif expecting_seperator == 1:
+    #                 expecting_seperator = 0
+    #                 index_of_operation = 0
+    #                 testing_list.clear()
+    #             # update values
+    #             testing_list.append(compute_list[x])
+    #             expecting_operand = 1
+    #             index_of_operation = x
+            
+    #         # AN
+    #         elif compute_list[x][0] == 'AN':
+    #             if expecting_seperator == 1:
+    #                 expecting_operand = 1
+    #                 expecting_seperator = 0
+    #             else:
+    #                 expecting_operand = 0
+    #                 expecting_seperator = 0
+    #                 testing_list.clear()
+            
+    #         # Operand
+    #         elif compute_list[x][1] in [IDENTIFIER_VARS, LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_TROOF, LITERAL_YARN]:
+    #             if expecting_operand == 1:
+    #                 expecting_operand = 0
+    #                 expecting_seperator = 1
+
+    #                 if compute_list[x][1] == IDENTIFIER_VARS:
+    #                     # retrieve value of varident
+    #                     var_index = symbol_names.index(compute_list[x][0])
+    #                     testing_list.append([symbol_vals[var_index], symbol_types[var_index]])
+    #                 else:
+    #                     testing_list.append(compute_list[x])
+
+    #                 if len(testing_list) == 3:
+    #                     break
+    #             else:
+    #                 expecting_operand = 0
+    #                 expecting_seperator = 0
+    #                 testing_list.clear()
+        
+    #     # perform operation
+    #     answer = 0
+    #     if len(testing_list) == 3:
+
+    #         # print(compute_list)
+
+    #         # values from testing list
+    #         perform_operation = testing_list[0][0]
+    #         if to_numbar == 1:
+    #             value1 = float(testing_list[1][0])
+    #             value2 = float(testing_list[2][0])
+    #         else:
+    #             value1 = int(testing_list[1][0])
+    #             value2 = int(testing_list[2][0])                
+            
+    #         # perform operation here
+    #         if perform_operation == 'SUM OF':
+    #             answer = value1 + value2
+    #         elif perform_operation == 'DIFF OF':
+    #             answer = value1 - value2
+    #         elif perform_operation == 'PRODUKT OF':
+    #             answer = value1 * value2
+    #         elif perform_operation == 'QUOSHUNT OF':
+    #             if to_numbar == 1:
+    #                 answer = value1 / value2    # float division
+    #             else:
+    #                 answer = value1 // value2   # int division
+    #         elif perform_operation == 'MOD OF':
+    #             answer = value1 % value2
+    #         elif perform_operation == 'BIGGR OF':
+    #             answer = max(value1, value2)
+    #         elif perform_operation == 'SMALLR OF':
+    #             answer = min(value1, value2)
+            
+    #         # insert answer to computing list and update values
+    #         if to_numbar == 1: 
+    #             compute_list[index_of_operation] = [answer, LITERAL_NUMBR]
+    #         else: 
+    #             compute_list[index_of_operation] = [answer, LITERAL_NUMBAR]
+    #         # remove used values
+    #         first_half = compute_list[:index_of_operation+1]
+    #         second_half = compute_list[index_of_operation+4 :]
+    #         compute_list = first_half + second_half
+
+    #     counter = len(compute_list)
+    #     if counter == 1:
+    #         print(str(compute_list[0][0]))
+    #         # break
+    #         return[1, compute_list[0][0], new_class]
+        # print(compute_list)
+
+        # end of for loop for retrieving testing list
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -382,6 +653,15 @@ def semantic_perform(code_details):
                             answer_result = int(a_perform[1])
                             symbol_table_values[0] = answer_result
                             symbol_table_type[0] = LITERAL_NUMBR
+
+            # ----------------------------------------------------------------------------------------------------------------------------------------------
+
+            # Boolean Operation
+            if line[1][1] == KEYWORD_BOOLEAN:
+                b_expr = line[1:]
+                b_perform = perform_boolean(symbol_table_identifiers, symbol_table_values, symbol_table_type, b_expr, line_no)
+
+                print(b_perform)
 
             # ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -478,8 +758,8 @@ def semantic_perform(code_details):
                         
                 # multiple values
                 else:
-                    # VISIBLE Arithmetic 
-                    if line[2][1] == KEYWORD_ARITHMETIC:
+                    # VISIBLE (not SMOOSH) 
+                    if line[2][1] != 'SMOOSH':
                         for_printing = ''
                         testing_list = []           # for expressions
                         expected_operation = ''     # for operation type
@@ -598,7 +878,7 @@ def semantic_perform(code_details):
                             symbol_table_values[0] = for_printing
                             symbol_table_type[0] = LITERAL_YARN
 
-                    # end of VISIBLE arithmetic
+                    # end of VISIBLE (non SMOOSH)
 
                     # VISIBLE SMOOSH (expressions not counted)
                     elif line[2][0] == 'SMOOSH':
@@ -816,6 +1096,284 @@ def semantic_perform(code_details):
 
                     # end of IS NOW A clause
 
+                    # R
+                    elif line[2][0] == 'R' and line[2][1] == VAR_ASSIGN and line[3][1] in [LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_YARN, LITERAL_TROOF]:
+
+                        # literal
+                        if line[3][1] in [LITERAL_NUMBR, LITERAL_NUMBAR, LITERAL_YARN, LITERAL_TROOF]:
+                            # retrieve new value
+                            symbol_table_values[var_index] = line[3][0]
+                            # NUMBR
+                            if line[3][1] == LITERAL_NUMBR:
+                                symbol_table_type[var_index] = LITERAL_NUMBR   
+                            # NUMBAR
+                            elif line[3][1] == LITERAL_NUMBAR:
+                                symbol_table_type[var_index] = LITERAL_NUMBAR   
+                            # YARN
+                            elif line[3][1] == LITERAL_YARN:
+                                symbol_table_type[var_index] = LITERAL_YARN   
+                            # TROOF
+                            elif line[3][1] == LITERAL_TROOF:
+                                symbol_table_type[var_index] = LITERAL_TROOF
+
+                        # variable
+                        elif line[3][1] == IDENTIFIER_VARS:
+                            # check first if second variable exists
+                            if line[3][0] in symbol_table_identifiers:
+                                # reassign value of 1st var with value of 2nd var
+                                retrieve_var_index = symbol_table_identifiers.index(line[1][0])
+                                symbol_table_values[var_index] = retrieve_var_index
+                                symbol_table_type[var_index] = symbol_table_type[retrieve_var_index]                               
+                            else:
+                                errors.append("Line " + str(line_no) + ": Variable does not exist")
+                        
+                        # arithmetic expression
+                        elif line[3][1] == KEYWORD_ARITHMETIC:
+
+                            perform_mathe = line[3:]                            
+                            a_perform = perform_arithmetic(symbol_table_identifiers, symbol_table_values, symbol_table_type, perform_mathe, line_no)
+                            
+                            # if invalid, returns [0, error message]
+                            # if valid, returns [1, result, type of result]
+                            if len(a_perform) == 2:
+                                # error
+                                if a_perform[0] == 0:
+                                    errors.append(a_perform[1])
+                            elif len(a_perform) == 3:
+                                # valid
+                                if a_perform[0] == 1:
+                                    answer_type = a_perform[2]
+                                    # to IT
+                                    symbol_table_values[0] = a_perform[1]
+                                    symbol_table_type[0] = a_perform[2]
+                                    # from IT to 1st var value
+                                    symbol_table_values[var_index] = a_perform[1]
+                                    symbol_table_type[var_index] = a_perform[2]
+
+                        # boolean expression
+
+                        # compare expression    
+
+                        else:
+                            errors.append("Line " + str(line_no) + ": Invalid R assignment call")
+
+                    # end of R clause
+
+                    # R MAEK
+                    elif line[2][0] == 'R' and line[3][0] == 'MAEK':
+                        if len(line) >= 6:
+                            # check if correct call of variable name:
+                            if line[1][0] == line[4][0] and line[5][1] == LITERAL:
+
+                                # NUBR cases
+                                if symbol_table_type[var_index] == LITERAL_NUMBR:
+                                    # proceed to conversion
+                                    if line[5][0] == 'NUMBAR':
+                                        to_numbar = float(symbol_table_values[var_index])
+                                        symbol_table_values[var_index] = to_numbar
+                                        symbol_table_type[var_index] = LITERAL_NUMBAR
+                                    elif line[5][0] == 'YARN':
+                                        to_str = str(symbol_table_values[var_index])
+                                        symbol_table_values[var_index] = to_str
+                                        symbol_table_type[var_index] = LITERAL_YARN
+                                    elif line[5][0] == 'TROOF':
+                                        if symbol_table_values[var_index] == 1:
+                                            symbol_table_values[var_index] = 'WIN'
+                                            symbol_table_type[var_index] = LITERAL_TROOF
+                                        elif symbol_table_values[var_index] == 0:
+                                            symbol_table_values[var_index] = 'FAIL'
+                                            symbol_table_type[var_index] = LITERAL_TROOF
+                                        else:
+                                            print(str(symbol_table_values[var_index]))
+                                            errors.append("Line " + str(line_no) + ": Invalid typecasting of NUMBR to TROOF")
+
+                                # NUMBAR cases
+                                elif symbol_table_type[var_index] == LITERAL_NUMBAR:
+                                    # proceed to conversion
+                                    if line[5][0] == 'NUMBR':
+                                        to_numbr = int(symbol_table_values[var_index])
+                                        symbol_table_values[var_index] = to_numbr
+                                        symbol_table_type[var_index] = LITERAL_NUMBR
+                                    elif line[5][0] == 'YARN':
+                                        to_str = str(symbol_table_values[var_index])
+                                        symbol_table_values[var_index] = to_str
+                                        symbol_table_type[var_index] = LITERAL_YARN
+                                    elif line[5][0] == 'TROOF':
+                                        if symbol_table_values[var_index] == 1.0:
+                                            symbol_table_values[var_index] = 'WIN'
+                                            symbol_table_type[var_index] = LITERAL_TROOF
+                                        elif symbol_table_values[var_index] == 0:
+                                            symbol_table_values[var_index] = 'FAIL'
+                                            symbol_table_type[var_index] = LITERAL_TROOF
+                                        errors.append("Line " + str(line_no) + ": Invalid typecasting of NUMBAR to TROOF")
+
+                                # TROOF cases
+                                elif symbol_table_type[var_index] == LITERAL_TROOF:
+                                    # proceed to conversion
+                                    if line[5][0] == 'NUMBR':
+                                        if symbol_table_values[var_index] == 'WIN':
+                                            to_numbar = 1
+                                            symbol_table_values[var_index] = to_numbar
+                                            symbol_table_type[var_index] = LITERAL_NUMBAR
+                                        elif symbol_table_values[var_index] == 'FAIL':
+                                            to_numbar = 0
+                                            symbol_table_values[var_index] = to_numbar
+                                            symbol_table_type[var_index] = LITERAL_NUMBAR
+                                    elif line[5][0] == 'NUMBAR':
+                                        if symbol_table_values[var_index] == 'WIN':
+                                            to_numbar = 1.0
+                                            symbol_table_values[var_index] = to_numbar
+                                            symbol_table_type[var_index] = LITERAL_NUMBAR
+                                        elif symbol_table_values[var_index] == 'FAIL':
+                                            to_numbar = 0.0
+                                            symbol_table_values[var_index] = to_numbar
+                                            symbol_table_type[var_index] = LITERAL_NUMBAR
+                                    elif line[5][0] == 'YARN':
+                                        to_str = str(symbol_table_values[var_index])
+                                        symbol_table_values[var_index] = to_str
+                                        symbol_table_type[var_index] = LITERAL_YARN
+
+                                # YARN case
+                                elif symbol_table_type[var_index] == LITERAL_YARN:
+                                    varident_details = detect_lexemes(symbol_table_values[var_index])
+                                    # returns [lexeme_token, lexeme_classification]
+                                    varident_value = varident_details[0]
+                                    varident_class = varident_details[1]
+
+                                    if line[5][0] == 'NUMBR':
+                                        if varident_class != LITERAL_NUMBR:
+                                            errors.append("Line " + str(line_no) + ": Invalid typecasting found")
+                                        else:
+                                            symbol_table_values[var_index] = int(varident_value)
+                                            symbol_table_type[var_index] = LITERAL_NUMBR
+                                    elif line[5][0] == 'NUMBAR':
+                                        if varident_class != LITERAL_NUMBR:
+                                            errors.append("Line " + str(line_no) + ": Invalid typecasting found")
+                                        else:
+                                            symbol_table_values[var_index] = float(varident_value)
+                                            symbol_table_type[var_index] = LITERAL_NUMBAR
+                                    elif line[5][0] == 'TROOF':
+                                        # NUMBR / NUBAR - TROOF
+                                        if varident_class == LITERAL_NUMBR:
+                                            if varident_value == 1:
+                                                symbol_table_values[var_index] = 'WIN'
+                                                symbol_table_type[var_index] = LITERAL_TROOF
+                                            elif varident_value == 0:
+                                                symbol_table_values[var_index] = 'FAIL'
+                                                symbol_table_type[var_index] = LITERAL_TROOF
+                                            else:
+                                                errors.append("Line " + str(line_no) + ": Invalid typecasting found")
+                                        elif varident_class == LITERAL_NUMBAR:
+                                            if varident_class == LITERAL_NUMBAR:
+                                                if varident_value == 1.0:
+                                                    symbol_table_values[var_index] = 'WIN'
+                                                    symbol_table_type[var_index] = LITERAL_TROOF
+                                                elif varident_value == 0.0:
+                                                    symbol_table_values[var_index] = 'FAIL'
+                                                    symbol_table_type[var_index] = LITERAL_TROOF
+                                                else:
+                                                    errors.append("Line " + str(line_no) + ": Invalid typecasting found")
+                                        # YARN - TROOF
+                                        elif varident_class == LITERAL_TROOF:
+                                            symbol_table_values[var_index] = varident_value
+                                            symbol_table_type[var_index] = LITERAL_TROOF
+                                        else:
+                                            errors.append("Line " + str(line_no) + ": Invalid typecasting found")
+
+                                    # YARN to TROOF to NUMBR / NUMBAR
+                                    elif varident_class == LITERAL_TROOF:
+                                        if varident_value == 'WIN':
+                                            if new_class == LITERAL_NUMBR:
+                                                symbol_table_values[var_index] = 1
+                                                symbol_table_type[var_index] = LITERAL_NUMBR
+                                            else:
+                                                symbol_table_values[var_index] = 1.0
+                                                symbol_table_type[var_index] = LITERAL_NUMBAR
+                                        elif varident_value == 'FAIL':
+                                            if new_class == LITERAL_NUMBR:
+                                                symbol_table_values[var_index] = 0
+                                                symbol_table_type[var_index] = LITERAL_NUMBR
+                                            else:
+                                                symbol_table_values[var_index] = 0.0
+                                                symbol_table_type[var_index] = LITERAL_NUMBAR
+
+                                # NOOB case
+                                else:
+                                    errors.append("Line " + str(line_no) + ": NOOB can only be implicitly casted to TROOF")
+
+                    # end of R MAEK clause
+
+                    # R SMOOSH
+                    elif line[2][0] == 'R' and line[3][0] == 'SMOOSH':
+                        # should place concatenated string to IT variable
+                        it_var = ''
+                        valid_concat = 1
+                        expecting_seperator = 0
+
+                        # retrieve smoosh expression for printing
+                        smoosh_print = line[3:]
+
+                        for x in range(1, len(smoosh_print)):
+                            # YARN
+                            if smoosh_print[x][1] == LITERAL_YARN:
+                                if expecting_seperator == 0:
+                                    expecting_seperator = 1
+                                    it_var = ''.join([it_var, (smoosh_print[x][0])])
+                                else:
+                                    valid_concat = 0
+                                    break
+                            else:
+                                # Varident
+                                if smoosh_print[x][1] == IDENTIFIER_VARS:
+                                    if smoosh_print[x][0] in symbol_table_identifiers:
+                                        expecting_seperator = 1
+                                        var_index = symbol_table_identifiers.index(smoosh_print[x][0])
+                                        to_yarn = symbol_table_values[var_index]
+
+                                        # typecast
+                                        if symbol_table_type[var_index] != LITERAL_YARN:
+                                            to_yarn = str(symbol_table_values[var_index])
+
+                                            # implicit recast of variables
+                                            symbol_table_values[var_index] = to_yarn
+                                            symbol_table_type[var_index] = LITERAL_YARN
+                                        it_var = ''.join([it_var, to_yarn])                                            
+                                    else:
+                                        valid_concat = 0
+                                        break
+                                # Other values
+                                elif smoosh_print[x][1] in [LITERAL_NOOB, LITERAL_NUMBAR, LITERAL_NUMBR, LITERAL_NUMBAR]:
+                                    if expecting_seperator == 0:
+                                        expecting_seperator = 1
+                                        # implicit typecast
+                                        smoosh_print[x][0] = str(smoosh_print[x][0])
+                                        smoosh_print[x][1] = LITERAL_YARN
+                                        it_var = ''.join([it_var, (smoosh_print[x][0])])
+                                    else:
+                                        valid_concat = 0
+                                        break
+                                # AN
+                                else: 
+                                    if smoosh_print[x][0] == 'AN':
+                                        if expecting_seperator == 0:
+                                            valid_concat = 0
+                                            break
+                                        else:
+                                            expecting_seperator = 0
+                        # initialze CONCAT values to IT variable if valid
+                        if valid_concat == 1:
+                            # add to IT
+                            symbol_table_values[0] = it_var
+                            symbol_table_type[0] = LITERAL_YARN
+                            # add to var
+                            symbol_table_values[var_index] = it_var
+                            symbol_table_type[var_index] = LITERAL_YARN
+                        else:
+                            errors.append("Line " + str(line_no) + ": Invalid SMOOSH detected")
+
+                    # end of R MAEK SMOOSH clause
+
+                # end of Varident first line clause
                 else:
                     errors.append("Line " + str(line_no) + ": Variable does note exist")
 
@@ -883,7 +1441,6 @@ def semantic_perform(code_details):
 
             # ----------------------------------------------------------------------------------------------------------------------------------------------
 
-            # Explicit Typecasting
 
             # ----------------------------------------------------------------------------------------------------------------------------------------------
 
