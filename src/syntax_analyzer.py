@@ -1,33 +1,34 @@
 import re
 
 # import lexical analyzer function
-from lexical_analyzer import lexical_tester
+from .lexical_analyzer import lexical_tester
 
 # import keyword classifiers
-from keywords import DELIMITER_CODE, DELIMITER_STR, DELIMITER_VAR, DELIMITER_CONDT, DELIMITER_END
-from keywords import IDENTIFIER_VARS, IDENTIFIER_FUNC, IDENTIFIER_LOOP
-from keywords import VAR_DECLARE, VAR_ASSIGN
+from .keywords import DELIMITER_CODE, DELIMITER_STR, DELIMITER_VAR, DELIMITER_CONDT, DELIMITER_END
+from .keywords import IDENTIFIER_VARS, IDENTIFIER_FUNC, IDENTIFIER_LOOP
+from .keywords import VAR_DECLARE, VAR_ASSIGN
 
-from keywords import KEYWORD_COMMENT
-from keywords import KEYWORD_COMPARE
-from keywords import KEYWORD_ARITHMETIC 
-from keywords import KEYWORD_SEPERATOR 
-from keywords import KEYWORD_SEPERATOR 
-from keywords import KEYWORD_BOOLEAN 
-from keywords import KEYWORD_CONCAT 
-from keywords import KEYWORD_TYPECAST 
-from keywords import KEYWORD_PRINT 
-from keywords import KEYWORD_INPUT 
-from keywords import KEYWROD_CONDT 
-from keywords import KEYWORD_LOOP 
-from keywords import KEYWORD_FUNC 
+from .keywords import KEYWORD_COMMENT
+from .keywords import KEYWORD_COMPARE
+from .keywords import KEYWORD_ARITHMETIC 
+from .keywords import KEYWORD_SEPERATOR 
+from .keywords import KEYWORD_SEPERATOR 
+from .keywords import KEYWORD_BOOLEAN 
+from .keywords import KEYWORD_CONCAT 
+from .keywords import KEYWORD_TYPECAST 
+from .keywords import KEYWORD_PRINT 
+from .keywords import KEYWORD_INPUT 
+from .keywords import KEYWROD_CONDT 
+from .keywords import KEYWORD_LOOP 
+from .keywords import KEYWORD_FUNC 
 
-from keywords import LITERAL
-from keywords import LITERAL_NUMBAR
-from keywords import LITERAL_NUMBR
-from keywords import LITERAL_TROOF
-from keywords import LITERAL_YARN
-from keywords import LITERAL_NOOB
+from .keywords import LITERAL
+from .keywords import LITERAL_NUMBAR
+from .keywords import LITERAL_NUMBR
+from .keywords import LITERAL_TROOF
+from .keywords import LITERAL_YARN
+from .keywords import LITERAL_NOOB
+
 
 
 # function for checking code syntax of expressions (arithmetic/boolean operations)

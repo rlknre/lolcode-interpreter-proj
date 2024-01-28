@@ -25,9 +25,9 @@ from tkinter import ttk             # treeview
 from tkinter import filedialog      # file dialog
 
 # Import the analyzers
-from lexical_analyzer import lexical_tester
-from syntax_analyzer import syntax_tester
-from semantic_analyzer import semantic_perform
+from src.lexical_analyzer import lexical_tester
+from src.syntax_analyzer import syntax_tester
+from src.semantic_analyzer import semantic_perform
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------
 
