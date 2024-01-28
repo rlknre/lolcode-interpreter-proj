@@ -3,8 +3,11 @@
 
 ![Python][py-md-badge]
 
-A **_LOLCODE interpreter_** application written in Python. Note that this project only interprets some functionalities of the LOLCODE programming language and does not fully run all of its available syntax. Use _spaces_ for indentation instead of tab. 
-
+A **_LOLCODE interpreter_** application written in Python. Note that this project only interprets some functionalities of the LOLCODE programming language and does not fully run all of its available syntax. For indentation, use _spaces_ instead of tab, you may not include indents as well. For an overview, here is a breakdown of the improtant files:
+- ``Lexical Analyzer`` uses RegEx to obtain lexeme tokens, breaks the code into lines for reading.
+- ``Syntax Analyzer`` catches errors regarding syntax per line.
+- ``Semantic Analyzer`` performs the LOLCODE.
+- ``main.py`` initializes the user interface.
 <br />
 
 ## Requirements
@@ -40,12 +43,14 @@ A **_LOLCODE interpreter_** application written in Python. Note that this projec
         - You may select a LOL file by clicking the *Select File* button
         - The contents of the file will reflect on the workspace 
     - _Workspace Area_
-        - This is where the LoLcode is displayed.
+        - This is where the LOLCODE is displayed.
         - Contents in this area is editable.
 
-4. Once you are satisfied with the LoLcode in your workspace, click the **execute** button in the middle.
+4. Once you are satisfied with the code in your workspace, click the **execute** button in the middle.
     - The bottom portion is the terminal, input/output/errors will be displayed here.
     - For user input, a dialog box will appear in your screen.
+
+5. The top-righmost section is your data area. Lexeme information and variable values are displayed here upon execution of LOLCODE.
 <br />
 
 ##
@@ -55,8 +60,8 @@ A **_LOLCODE interpreter_** application written in Python. Note that this projec
 ##
 ### Other Notes
 - This project is in fulfillment of the requirements in CMSC 124: Design and Implementation of Programming Languages. UPLB.
-- The interpreter is incomplete and is missing some of its semantic rules. Indentation may or may not work at times.
-- Note that there are still bugs in the other analyzer files.
+- The interpreter is incomplete, missing some semantic rules. Indentation may or may not work at times.
+- Note that there are still bugs in the analyzer files.
 - The analyzers are not modularized enough.
 
 [py-md-badge]: https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54
