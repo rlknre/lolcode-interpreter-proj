@@ -3,14 +3,20 @@
 
 ![Python][py-md-badge]
 
-A **_LOLCODE interpreter_** application written in Python. Note that this project only interprets some functionalities of the LOLCODE programming language and does not fully run all of its available syntax. For indentation, use _spaces_ instead of tab, you may not include indents as well. For an overview, here is a breakdown of the improtant files:
-- ``Lexical Analyzer`` uses RegEx to obtain lexeme tokens, breaks the code into lines for reading.
+A **_LOLCODE interpreter_** application written in Python. Note that this project does not fully interprets all of LOLCODE programming language functionalities. For indentation, use _spaces_ instead of tab, you may not include indents as well.
+- ``Lexical Analyzer`` uses RegEx to obtain lexeme tokens.
 - ``Syntax Analyzer`` catches errors regarding syntax per line.
 - ``Semantic Analyzer`` performs the LOLCODE.
 - ``main.py`` initializes the user interface.
 <br />
 
-## Requirements
+## Table of Contents
+1. [Requirements](#requirements)
+2. [How to Run](#instructions)
+3. [Other Notes](#note)
+<br />
+
+## Requirements <a name="requirements"></a>
 1. Ensure that the system has Python. You may check the Python site for installation. 
 
 2. After installing, open your terminal and type in the following to install the **Tkinter library**.
@@ -32,7 +38,7 @@ A **_LOLCODE interpreter_** application written in Python. Note that this projec
    ```
 <br />
 
-## Running Project
+## Running Project <a name="instructions"></a>
 1. To run the program, proceed to the directory of the files with ``main.py`` and run the project using the command:
     - ``python3 main.py``
 
@@ -58,7 +64,7 @@ A **_LOLCODE interpreter_** application written in Python. Note that this projec
 - Ralph Kenneth Rea
 
 ##
-### Other Notes
+### Other Notes <a name="note"></a>
 - This project is in fulfillment of the requirements in CMSC 124: Design and Implementation of Programming Languages. UPLB.
 - The interpreter is incomplete, missing some semantic rules. Indentation may or may not work at times.
 - Note that there are still bugs in the analyzer files.
