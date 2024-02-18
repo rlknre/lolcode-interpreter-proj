@@ -65,7 +65,7 @@ A **_LOLCODE interpreter_** application written in Python. Note that this projec
 
 ##
 ### Other Notes <a name="note"></a>
-- This project is in fulfillment of the requirements in CMSC 124: Design and Implementation of Programming Languages. UPLB.
+- This project is in fulfillment of the requirements in UPLB.
 - The interpreter is incomplete, missing some semantic rules. Indentation may or may not work at times.
 - Note that there are still bugs in the analyzer files.
 - The analyzers are not modularized enough.
